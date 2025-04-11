@@ -1,0 +1,69 @@
+version: '3.8' # Specify docker-compose version
+
+services:
+  # Backend Service (NestJS)
+  backend:
+    build:
+      context: ./backend # Path to backend Dockerfile directory
+      dockerfile: Dockerfile # Specify the Dockerfile name
+      target: development # Specify the stage to build (if using multi-stage)
+    container_name: events_backend_dev
+    ports:
+      - "3000:3000" # Map host port 3000 to container port 3000
+    volumes:
+      - ./backend:/usr/src/app # Mount backend source code for hot-reloading
+      - /usr/src/app/node_modules # Use node_modules from image, don't overwrite with host
+    env_file:
+      - ./backend/.env # Load environment variables from .env file in backend folder
+    environment:
+      # Ensure DB host points to the db service name
+      DATABASE_HOST: db
+    depends_on:
+      - db # Wait for the db service to be ready (basic check)
+    restart: unless-stopped
+    command: npm run start:dev # Ensure dev command is used
+
+  # Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./frontend # Path to frontend Dockerfile directory
+      dockerfile: Dockerfile # Specify the Dockerfile name
+    container_name: events_frontend_dev
+    ports:
+      - "3001:3000" # Map host port 3001 to container port 3000 (Next.js default)
+    volumes:
+      - ./frontend:/usr/src/app # Mount frontend source code for hot-reloading
+      - /usr/src/app/node_modules # Use node_modules from image
+      - /usr/src/app/.next # Persist .next folder if needed, or let it rebuild
+    env_file:
+      - ./frontend/.env # Load environment variables from .env file in frontend folder
+    environment:
+      # API URL accessed by the browser needs to point to the mapped backend port on the host
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    restart: unless-stopped
+    command: npm run dev # Ensure dev command is used
+
+  # Database Service (MySQL)
+  db:
+    image: mysql:8.0 # Use official MySQL image (specify version)
+    container_name: events_mysql_db
+    ports:
+      # Map host port 3307 to container port 3306 if you need direct access from host
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Read from .env file in root
+      MYSQL_DATABASE: ${MYSQL_DATABASE} # Read from .env file in root
+      MYSQL_USER: ${MYSQL_USER} # Read from .env file in root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD} # Read from .env file in root
+    volumes:
+      - mysql-data:/var/lib/mysql # Persist database data using a named volume
+    restart: always
+    healthcheck: # Optional: More robust check for DB readiness
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+volumes:
+  mysql-data: # Define the named volume for MySQL data persistence
+
