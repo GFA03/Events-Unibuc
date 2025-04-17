@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config'; // Import ConfigMo
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { AppService } from './app.service';
         username: configService.get<string>('DATABASE_USER'), // Read user from env
         password: configService.get<string>('DATABASE_PASSWORD'), // Read password from env
         database: configService.get<string>('DATABASE_NAME'), // Read database name from env
-        entities: [],
+        entities: [User],
         // synchronize: true, // Keep for dev, disable for prod (use migrations)
         // Recommended for dev inside Docker:
         synchronize: configService.get<string>('NODE_ENV') === 'development',
@@ -30,6 +32,7 @@ import { AppService } from './app.service';
       }),
     }),
     // Import other modules
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
