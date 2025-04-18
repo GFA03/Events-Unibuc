@@ -1,10 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { hashPassword } from '../utils/helpers';
+import { LoginUserDto } from './dto/login-user.dto';
+import { comparePassword, hashPassword } from '../utils/helpers';
 
 @Injectable()
 export class UsersService {
@@ -14,11 +20,19 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const hashedPassword = await hashPassword(createUserDto.password);
-    const newUser = this.userRepository.create({
+    const { email } = createUserDto;
+
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (user) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+    }
+
+    const newUser = {
       ...createUserDto,
-      password: hashedPassword,
-    });
+      password: await hashPassword(createUserDto.password),
+    };
+
     // Save the user in the database
     return this.userRepository.save(newUser);
   }
@@ -33,6 +47,34 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     return user;
+  }
+
+  async findOneByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
+  }
+
+  async findByLogin({ email, password }: LoginUserDto): Promise<User | null> {
+    const user = await this.userRepository.findOneBy({ email });
+
+    if (!user) {
+      return null;
+    }
+
+    const areEqual = await comparePassword(password, user.password);
+
+    if (!areEqual) {
+      return null;
+    }
+
+    return user;
+  }
+
+  async findByPayload({ email }: any): Promise<User> {
+    return this.findOneByEmail(email);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {

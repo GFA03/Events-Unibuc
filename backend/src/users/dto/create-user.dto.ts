@@ -8,8 +8,8 @@ export class CreateUserDto {
     type: String,
     example: '<EMAIL>',
   })
-  @IsEmail()
   @IsNotEmpty()
+  @IsEmail()
   readonly email: string;
 
   @ApiProperty({
@@ -18,8 +18,8 @@ export class CreateUserDto {
     type: String,
     example: '<PASSWORD>',
   })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   readonly password: string;
 
   @ApiProperty({
@@ -28,8 +28,8 @@ export class CreateUserDto {
     type: String,
     example: 'John',
   })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   readonly firstName: string;
 
   @ApiProperty({
@@ -38,8 +38,8 @@ export class CreateUserDto {
     type: String,
     example: 'Doe',
   })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   readonly lastName: string;
 
   // TODO: regula pt numar de telefon -> sa aiba 10 cifre, sa inceapa cu 07;
@@ -49,7 +49,7 @@ export class CreateUserDto {
     type: String,
     example: '0712345678',
   })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   readonly phoneNumber: string;
 }
