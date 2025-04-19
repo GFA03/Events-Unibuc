@@ -1,12 +1,11 @@
 import {
-  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { hashPassword } from '../../utils/helpers';
+import { Role } from './role.enum';
 
 @Entity('users')
 export class User {
@@ -27,6 +26,13 @@ export class User {
 
   @Column({ length: 100 })
   phoneNumber: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
+  role: Role;
 
   @CreateDateColumn() // Automatically set to the date/time when the record is created
   createdAt: Date;

@@ -5,7 +5,9 @@ import {
   Body,
   Patch,
   Param,
-  Delete, ParseUUIDPipe,
+  Delete,
+  ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,9 +21,14 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { Roles } from 'src/auth/roles.decorator';
+import { Role } from './entities/role.enum';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
 
 @ApiTags('users')
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -62,6 +69,7 @@ export class UsersController {
   }
 
   @Delete(':uuid')
+  @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Successfully deleted' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not found' })

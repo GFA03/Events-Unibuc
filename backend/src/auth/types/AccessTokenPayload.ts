@@ -1,3 +1,7 @@
+import { Role } from '../../users/entities/role.enum';
+
 export interface AccessTokenPayload {
-  userId: string;
+  email: string;
+  sub: string; // user id
+  role: Role;
 }
