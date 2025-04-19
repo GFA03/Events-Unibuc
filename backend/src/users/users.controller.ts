@@ -28,7 +28,6 @@ import { RolesGuard } from '../auth/roles.guard';
 
 @ApiTags('users')
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -69,6 +68,7 @@ export class UsersController {
   }
 
   @Delete(':uuid')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Successfully deleted' })
   @ApiForbiddenResponse({ description: 'Forbidden' })

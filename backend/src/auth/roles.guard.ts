@@ -2,6 +2,14 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator'; // Import the decorator key
 import { Role } from 'src/users/entities/role.enum';
+import { AccessUser } from './types/AccessUser';
+import { Request } from 'express';
+
+declare module 'express' {
+  interface Request {
+    user?: AccessUser; // Use optional property in case the guard runs before auth
+  }
+}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -21,7 +29,9 @@ export class RolesGuard implements CanActivate {
 
     // Get the user from the request (populated by JwtStrategy)
     // Assuming req.user has a 'role' property
-    const { user } = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
+
+    const user = request.user;
 
     console.log(user);
 
