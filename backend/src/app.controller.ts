@@ -19,6 +19,12 @@ export class AppController {
   }
 
   @UseGuards(LocalAuthGuard)
+  @Post('auth/signup')
+  signUp(@Request() req) {
+    return this.authService.register(req.user);
+  }
+
+  @UseGuards(LocalAuthGuard)
   @Post('auth/logout')
   logout(@Request() req) {
     return req.logout();

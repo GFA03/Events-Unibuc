@@ -33,8 +33,6 @@ export class RolesGuard implements CanActivate {
 
     const user = request.user;
 
-    console.log(user);
-
     if (!user) {
       return false;
     }
