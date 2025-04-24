@@ -25,6 +25,7 @@ import { AccessToken } from './types/AccessToken';
 import { User } from '../users/entities/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AccessUser } from './types/AccessUser';
+import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -73,8 +74,11 @@ export class AuthController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server Error.',
   })
-  signUp(@Body() createUserDto: CreateUserDto) {
-    return this.authService.signup(createUserDto);
+  async signUp(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<UserResponseDto | null> {
+    const newUser = await this.authService.signup(createUserDto);
+    return UserResponseDto.fromEntity(newUser);
   }
 
   @Get('me')
@@ -84,7 +88,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User profile data.',
-    type: User,
+    type: UserResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

@@ -25,6 +25,7 @@ import { Roles } from '../auth/roles.decorator';
 import { Role } from './entities/role.enum';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -51,11 +52,12 @@ export class UsersController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiUnprocessableEntityResponse({ description: 'Invalid data' })
-  update(
+  async update(
     @Param('uuid', ParseUUIDPipe) uuid: string,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
-    return this.usersService.update(uuid, updateUserDto);
+  ): Promise<null | UserResponseDto> {
+    const updatedUser = await this.usersService.update(uuid, updateUserDto);
+    return UserResponseDto.fromEntity(updatedUser);
   }
 
   @Delete(':uuid')
