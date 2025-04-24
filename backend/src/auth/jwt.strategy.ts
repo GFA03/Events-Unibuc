@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AccessTokenPayload } from './types/AccessTokenPayload';
 import { UsersService } from '../users/users.service';
+import { AccessUser } from './types/AccessUser';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -18,11 +19,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: AccessTokenPayload) {
+  /**
+   * Called automatically by Passport after verifying the JWT signature and expiration.
+   * @param payload The decoded and verified JWT payload.
+   * @returns The object to be attached to the Express Request as `req.user`.
+   * @throws UnauthorizedException if payload is invalid or further checks fail.
+   */
+  async validate(payload: AccessTokenPayload): Promise<AccessUser> {
     const user = await this.usersService.findByPayload(payload);
 
     if (!user) {
-      return null; // Jwt library expects a null return value if the token is invalid
+      throw new UnauthorizedException('Invalid token payload');
     }
 
     return { userId: user.id, email: user.email, role: user.role };

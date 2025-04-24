@@ -31,15 +31,6 @@ import { RolesGuard } from '../auth/roles.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  @ApiCreatedResponse({ description: 'Created successfully' })
-  @ApiUnprocessableEntityResponse({ description: 'Invalid data' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
-  @ApiBadRequestResponse({ description: 'Bad request' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
   @ApiOkResponse({ description: 'Successfully retrieved' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
