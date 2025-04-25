@@ -1,7 +1,5 @@
 import {
   ConflictException,
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,10 +8,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { LoginUserDto } from './dto/login-user.dto';
-import { comparePassword, hashPassword } from '../utils/helpers';
+import { hashPassword } from '../utils/helpers';
 import { UserResponseDto } from './dto/user-response.dto';
-import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 
 @Injectable()
 export class UsersService {
@@ -72,9 +68,11 @@ export class UsersService {
    */
   async findOneByEmail(email: string): Promise<UserResponseDto | null> {
     const user = await this.userRepository.findOneBy({ email });
+
     if (!user) {
       return null;
     }
+
     return UserResponseDto.fromEntity(user);
   }
 

@@ -26,6 +26,7 @@ import { User } from '../users/entities/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { AuthorizedUser } from './types/AuthorizedUser';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { RequestWithUser } from './types/RequestWithUser';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -47,9 +48,10 @@ export class AuthController {
     description: 'Invalid credentials',
   })
   login(
-    @Request() req, // req.user is set by the LocalAuthGuard
+    @Request() req, // req.user is set by the LocalStrategy
     @Body() loginUserDto: LoginUserDto, // DTO is used to validate the request body and Swagger definition
   ): Promise<AccessToken> {
+    console.log(req.user);
     return this.authService.login(req.user);
   }
 
@@ -94,10 +96,10 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized (Token missing, invalid, or expired).',
   })
-  async getProfile(@Request() req): Promise<AuthorizedUser> {
+  async getProfile(@Request() req: RequestWithUser): Promise<AuthorizedUser> {
     // req.user is populated by JwtAuthGuard -> JwtStrategy.validate
     // It contains the payload defined in JwtStrategy (userId, email, role)
-    const userPayload = req.user as AuthorizedUser;
+    const userPayload = req.user;
 
     // Return the payload directly as it contains the necessary info
     // If more data is needed, fetch from UsersService using userPayload.userId

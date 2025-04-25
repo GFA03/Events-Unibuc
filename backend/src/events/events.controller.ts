@@ -25,13 +25,7 @@ import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { Role } from '../users/entities/role.enum';
 import { Event } from './entities/event.entity';
-
-import { Request as ExpressRequest } from 'express';
-import { AuthorizedUser } from '../auth/types/AuthorizedUser';
-
-interface RequestWithUser extends ExpressRequest {
-  user: AuthorizedUser;
-}
+import { RequestWithUser } from '../auth/types/RequestWithUser';
 
 @ApiTags('Events')
 @ApiBearerAuth()

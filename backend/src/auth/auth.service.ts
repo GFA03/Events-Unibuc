@@ -8,6 +8,7 @@ import { User } from '../users/entities/user.entity';
 import { AccessToken } from './types/AccessToken';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { comparePassword } from '../utils/helpers';
+import { AuthorizedUser } from './types/AuthorizedUser';
 
 @Injectable()
 export class AuthService {
