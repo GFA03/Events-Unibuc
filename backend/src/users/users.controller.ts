@@ -17,10 +17,10 @@ import {
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
-import { Roles } from '../auth/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from './entities/role.enum';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { UserResponseDto } from './dto/user-response.dto';
 
 @ApiTags('users')

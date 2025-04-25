@@ -5,8 +5,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.enum';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // Mock guards
-import { RolesGuard } from '../auth/roles.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'; // Mock guards
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { UserResponseDto } from './dto/user-response.dto';
 
 // Mock UsersService methods

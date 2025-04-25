@@ -17,13 +17,13 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { LocalAuthGuard } from './local-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
 import { AccessToken } from './types/AccessToken';
 import { User } from '../users/entities/user.entity';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthorizedUser } from './types/AuthorizedUser';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { RequestWithUser } from './types/RequestWithUser';
