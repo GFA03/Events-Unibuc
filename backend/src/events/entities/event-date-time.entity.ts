@@ -3,9 +3,11 @@ import {
   Entity,
   Index,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Event } from './event.entity';
+import { Registration } from '../../registrations/entities/registration.entity';
 
 @Entity('event_date_times')
 export class EventDateTime {
@@ -24,4 +26,7 @@ export class EventDateTime {
 
   @Column('datetime')
   endDateTime: Date;
+
+  // @OneToMany(() => Registration, (registration) => registration.eventDateTime)
+  // registrations: Registration[];
 }

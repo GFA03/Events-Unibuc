@@ -14,17 +14,6 @@ import { Type } from 'class-transformer';
 
 export class CreateEventDto {
   @ApiProperty({
-    name: 'type',
-    description: 'The event type',
-    type: String,
-    example: 'EVENT',
-    enum: EventType,
-  })
-  @IsNotEmpty()
-  @IsString()
-  type: EventType;
-
-  @ApiProperty({
     name: 'name',
     description: 'The event name',
     type: String,
@@ -35,6 +24,17 @@ export class CreateEventDto {
   @MinLength(3, { message: 'Name must be at least 3 characters' })
   @MaxLength(255, { message: 'Name must be at most 255 characters' })
   name: string;
+
+  @ApiProperty({
+    name: 'type',
+    description: 'The event type',
+    type: String,
+    example: 'EVENT',
+    enum: EventType,
+  })
+  @IsNotEmpty()
+  @IsString()
+  type: EventType;
 
   @ApiProperty({
     name: 'description',

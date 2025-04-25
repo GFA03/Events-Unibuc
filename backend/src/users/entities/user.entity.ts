@@ -3,11 +3,13 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.enum';
 import { Event } from '../../events/entities/event.entity';
+import { Registration } from '../../registrations/entities/registration.entity';
 
 @Entity('users')
 export class User {
@@ -36,12 +38,15 @@ export class User {
   })
   role: Role;
 
+  @OneToMany(() => Event, (event) => event.organizer)
+  organizedEvents: Event[];
+
+  // @OneToMany(() => Registration, (registration) => registration.user)
+  // registrations: Registration[];
+
   @CreateDateColumn() // Automatically set to the date/time when the record is created
   createdAt: Date;
 
   @UpdateDateColumn() // Automatically set to the date/time when the record is updated
   updatedAt: Date;
-
-  @ManyToOne(() => Event, (event) => event.organizer)
-  organizedEvents: Event[];
 }
