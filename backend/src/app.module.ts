@@ -6,6 +6,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './events/events.module';
+import { Event } from './events/entities/event.entity';
+import { EventDateTime } from './events/entities/event-date-time.entity';
 
 @Module({
   imports: [
@@ -25,7 +28,7 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get<string>('DATABASE_USER'), // Read user from env
         password: configService.get<string>('DATABASE_PASSWORD'), // Read password from env
         database: configService.get<string>('DATABASE_NAME'), // Read database name from env
-        entities: [User],
+        entities: [User, Event, EventDateTime],
         // synchronize: true, // Keep for dev, disable for prod (use migrations)
         // Recommended for dev inside Docker:
         synchronize: configService.get<string>('NODE_ENV') === 'development',
@@ -35,6 +38,7 @@ import { AuthModule } from './auth/auth.module';
     // Import other modules
     UsersModule,
     AuthModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

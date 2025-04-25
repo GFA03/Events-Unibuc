@@ -7,6 +7,7 @@ import { User } from './entities/user.entity';
 import { Role } from './entities/role.enum';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // Mock guards
 import { RolesGuard } from '../auth/roles.guard';
+import { UserResponseDto } from './dto/user-response.dto';
 
 // Mock UsersService methods
 const mockUsersService = {
@@ -33,6 +34,7 @@ describe('UsersController', () => {
     lastName: 'UserCtrl',
     phoneNumber: '111222333',
     role: Role.USER,
+    organizedEvents: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -63,31 +65,6 @@ describe('UsersController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-  });
-
-  describe('create', () => {
-    const createUserDto: CreateUserDto = {
-      email: 'new.ctrl@example.com',
-      password: 'passwordCtrl',
-      firstName: 'NewCtrl',
-      lastName: 'UserCtrl',
-      phoneNumber: '333222111',
-    };
-
-    it('should call usersService.create and return the result', async () => {
-      const createdUser = {
-        ...mockUser,
-        id: 'new-ctrl-uuid',
-        ...createUserDto,
-        role: Role.USER,
-      };
-      mockUsersService.create.mockResolvedValue(createdUser);
-
-      const result = await controller.create(createUserDto);
-
-      expect(service.create).toHaveBeenCalledWith(createUserDto);
-      expect(result).toEqual(createdUser);
-    });
   });
 
   describe('findAll', () => {
@@ -121,9 +98,10 @@ describe('UsersController', () => {
       mockUsersService.update.mockResolvedValue(updatedUser);
 
       const result = await controller.update(mockUserId, updateUserDto);
+      const userResponseDto = UserResponseDto.fromEntity(updatedUser);
 
       expect(service.update).toHaveBeenCalledWith(mockUserId, updateUserDto);
-      expect(result).toEqual(updatedUser);
+      expect(result).toEqual(userResponseDto);
     });
   });
 

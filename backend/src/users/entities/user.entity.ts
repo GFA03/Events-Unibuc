@@ -2,10 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Role } from './role.enum';
+import { Event } from '../../events/entities/event.entity';
 
 @Entity('users')
 export class User {
@@ -39,4 +41,7 @@ export class User {
 
   @UpdateDateColumn() // Automatically set to the date/time when the record is updated
   updatedAt: Date;
+
+  @ManyToOne(() => Event, (event) => event.organizer)
+  organizedEvents: Event[];
 }

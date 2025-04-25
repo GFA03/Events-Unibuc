@@ -44,6 +44,8 @@ export class UsersController {
   }
 
   @Patch(':uuid')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Successfully updated' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not found' })

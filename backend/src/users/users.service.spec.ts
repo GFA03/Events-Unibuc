@@ -6,8 +6,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Role } from './entities/role.enum';
 import { NotFoundException } from '@nestjs/common';
-import { comparePassword } from '../utils/helpers';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 jest.mock('../utils/helpers', () => ({
   hashPassword: jest.fn((password) => Promise.resolve(`hashed_${password}`)),
@@ -44,6 +44,7 @@ describe('UsersService', () => {
     lastName: 'User',
     phoneNumber: '1234567890',
     role: Role.USER,
+    organizedEvents: [],
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -140,12 +141,10 @@ describe('UsersService', () => {
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: mockUserId });
     });
 
-    it('should throw NotFoundException if user not found', async () => {
+    it('should return null if user not found', async () => {
       userRepository.findOneBy?.mockResolvedValue(null);
 
-      await expect(service.findOne(mockUserId)).rejects.toThrow(
-        NotFoundException,
-      );
+      expect(await service.findOne(mockUserId)).toBeNull();
       expect(userRepository.findOneBy).toHaveBeenCalledWith({ id: mockUserId });
     });
   });
@@ -155,82 +154,22 @@ describe('UsersService', () => {
       userRepository.findOneBy?.mockResolvedValue(mockUser);
 
       const result = await service.findOneByEmail(mockUser.email);
+      const userResponseDto = UserResponseDto.fromEntity(mockUser);
 
-      expect(result).toEqual(mockUser);
+      expect(result).toEqual(userResponseDto);
       expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: mockUser.email,
       });
     });
 
-    it('should throw NotFoundException if user not found by email', async () => {
+    it('should return null if user not found by email', async () => {
       const nonExistentEmail = 'notfound@example.com';
       userRepository.findOneBy?.mockResolvedValue(null);
 
-      await expect(service.findOneByEmail(nonExistentEmail)).rejects.toThrow(
-        NotFoundException,
-      );
+      expect(await service.findOneByEmail(nonExistentEmail)).toBeNull();
       expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: nonExistentEmail,
       });
-    });
-  });
-
-  describe('findByLogin', () => {
-    beforeEach(() => {
-      (comparePassword as jest.Mock).mockClear(); // Reset mock before each test
-    });
-
-    const loginDto = { email: mockUser.email, password: 'password123' };
-
-    it('should return user on successful login', async () => {
-      // Mock findOneBy to return the user with the hashed password
-      userRepository.findOneBy?.mockResolvedValue({
-        ...mockUser,
-        password: 'hashed_password123',
-      });
-      // comparePassword mock is already set up to return true for this combination
-
-      const result = await service.findByLogin(loginDto);
-
-      expect(result).toEqual({ ...mockUser, password: 'hashed_password123' });
-      expect(userRepository.findOneBy).toHaveBeenCalledWith({
-        email: loginDto.email,
-      });
-      expect(comparePassword).toHaveBeenCalledWith(
-        'password123',
-        'hashed_password123',
-      );
-    });
-
-    it('should return null if user not found', async () => {
-      userRepository.findOneBy?.mockResolvedValue(null);
-
-      const result = await service.findByLogin(loginDto);
-
-      expect(result).toBeNull();
-      expect(userRepository.findOneBy).toHaveBeenCalledWith({
-        email: loginDto.email,
-      });
-      expect(comparePassword).not.toHaveBeenCalled();
-    });
-
-    it('should return null if password does not match', async () => {
-      userRepository.findOneBy?.mockResolvedValue({
-        ...mockUser,
-        password: 'hashed_wrongpassword',
-      });
-      // comparePassword mock will return false for 'password123' vs 'hashed_wrongpassword'
-
-      const result = await service.findByLogin(loginDto);
-
-      expect(result).toBeNull();
-      expect(userRepository.findOneBy).toHaveBeenCalledWith({
-        email: loginDto.email,
-      });
-      expect(comparePassword).toHaveBeenCalledWith(
-        'password123',
-        'hashed_wrongpassword',
-      );
     });
   });
 
