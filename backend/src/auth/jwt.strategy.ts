@@ -4,7 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AccessTokenPayload } from './types/AccessTokenPayload';
 import { UsersService } from '../users/users.service';
-import { AccessUser } from './types/AccessUser';
+import { AuthorizedUser } from './types/AuthorizedUser';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -25,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * @returns The object to be attached to the Express Request as `req.user`.
    * @throws UnauthorizedException if payload is invalid or further checks fail.
    */
-  async validate(payload: AccessTokenPayload): Promise<AccessUser> {
+  async validate(payload: AccessTokenPayload): Promise<AuthorizedUser> {
     const user = await this.usersService.findByPayload(payload);
 
     if (!user) {

@@ -1,9 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/entities/user.entity';
 import { AccessToken } from './types/AccessToken';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { comparePassword } from '../utils/helpers';
 
 @Injectable()
 export class AuthService {
@@ -20,8 +24,14 @@ export class AuthService {
     email: string,
     pass: string,
   ): Promise<Omit<User, 'password'> | null> {
-    const user = await this.usersService.findByLogin({ email, password: pass });
+    const user = await this.usersService.findByLogin(email);
     if (!user) {
+      return null;
+    }
+
+    const areEqual = await comparePassword(pass, user.password);
+
+    if (!areEqual) {
       return null;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,9 +47,11 @@ export class AuthService {
     const existingUser = await this.usersService.findOneByEmail(
       createUserDto.email,
     );
+
     if (existingUser) {
       throw new BadRequestException('User already exists');
     }
+
     return await this.usersService.create(createUserDto);
   }
 

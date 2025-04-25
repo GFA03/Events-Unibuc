@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -11,6 +12,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 import { comparePassword, hashPassword } from '../utils/helpers';
+import { UserResponseDto } from './dto/user-response.dto';
+import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 
 @Injectable()
 export class UsersService {
@@ -19,13 +22,18 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  /**
+   * Creates and returns the new user
+   * Throws ConflictException if email already exists
+   * @param createUserDto
+   */
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email } = createUserDto;
 
     const user = await this.userRepository.findOneBy({ email });
 
     if (user) {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new ConflictException('User already exists');
     }
 
     const newUser = {
@@ -37,46 +45,71 @@ export class UsersService {
     return this.userRepository.save(newUser);
   }
 
+  /**
+   * Returns list of all Users
+   */
   findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
 
-  async findOne(id: string): Promise<User> {
+  /**
+   * Find user by UUID
+   * Returns found user or null in case user not found
+   * @param id
+   */
+  async findOne(id: string): Promise<User | null> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
-      throw new NotFoundException('User not found');
+      return null;
     }
     return user;
   }
 
-  async findOneByEmail(email: string): Promise<User> {
+  /**
+   * Find user by EMAIL
+   * Returns UserResponseDto or null in case user not found
+   * @param email
+   */
+  async findOneByEmail(email: string): Promise<UserResponseDto | null> {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) {
-      throw new NotFoundException('User not found');
+      return null;
     }
-    return user;
+    return UserResponseDto.fromEntity(user);
   }
 
-  async findByLogin({ email, password }: LoginUserDto): Promise<User | null> {
+  /**
+   * Find user by EMAIL
+   * Return User or null
+   * @param email
+   * @param password
+   */
+  async findByLogin(email: string): Promise<User | null> {
     const user = await this.userRepository.findOneBy({ email });
 
     if (!user) {
       return null;
     }
 
-    const areEqual = await comparePassword(password, user.password);
-
-    if (!areEqual) {
-      return null;
-    }
-
     return user;
   }
 
-  async findByPayload({ email }: any): Promise<User> {
+  /**
+   * Find user by payload (after email)
+   * Return UserResponseDto or null if not found
+   * @param email
+   */
+  async findByPayload({ email }: any): Promise<UserResponseDto | null> {
     return this.findOneByEmail(email);
   }
 
+  /**
+   * Update user with updateUserDto by searching after id
+   * Returns User with updated data
+   * Throws NotFoundException if user not found
+   * @param id
+   * @param updateUserDto
+   */
   async update(id: string, updateUserDto: UpdateUserDto) {
     const updateData = { ...updateUserDto };
     const user = await this.userRepository.preload({
@@ -91,6 +124,11 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
+  /**
+   * Remove user after id
+   * Throws NotFoundException if user not found
+   * @param id
+   */
   async remove(id: string): Promise<void> {
     const user = await this.findOne(id);
     if (!user) {

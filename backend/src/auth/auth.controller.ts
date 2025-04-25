@@ -24,7 +24,7 @@ import { LoginUserDto } from '../users/dto/login-user.dto';
 import { AccessToken } from './types/AccessToken';
 import { User } from '../users/entities/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { AccessUser } from './types/AccessUser';
+import { AuthorizedUser } from './types/AuthorizedUser';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @ApiTags('Authentication')
@@ -94,10 +94,10 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized (Token missing, invalid, or expired).',
   })
-  async getProfile(@Request() req): Promise<AccessUser> {
+  async getProfile(@Request() req): Promise<AuthorizedUser> {
     // req.user is populated by JwtAuthGuard -> JwtStrategy.validate
     // It contains the payload defined in JwtStrategy (userId, email, role)
-    const userPayload = req.user as AccessUser;
+    const userPayload = req.user as AuthorizedUser;
 
     // Return the payload directly as it contains the necessary info
     // If more data is needed, fetch from UsersService using userPayload.userId

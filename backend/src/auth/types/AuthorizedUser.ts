@@ -1,6 +1,6 @@
 import { Role } from '../../users/entities/role.enum';
 
-export type AccessUser = {
+export type AuthorizedUser = {
   userId: string;
   email: string;
   role: Role;
