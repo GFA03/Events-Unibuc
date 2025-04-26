@@ -35,15 +35,15 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get(':uuid')
+  @Get(':id')
   @ApiOkResponse({ description: 'Successfully retrieved' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  findOne(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.usersService.findOne(uuid);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.findOne(id);
   }
 
-  @Patch(':uuid')
+  @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Successfully updated' })
@@ -51,20 +51,20 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiUnprocessableEntityResponse({ description: 'Invalid data' })
   async update(
-    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<null | UserResponseDto> {
-    const updatedUser = await this.usersService.update(uuid, updateUserDto);
+    const updatedUser = await this.usersService.update(id, updateUserDto);
     return UserResponseDto.fromEntity(updatedUser);
   }
 
-  @Delete(':uuid')
+  @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @ApiOkResponse({ description: 'Successfully deleted' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  remove(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.usersService.remove(uuid);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.remove(id);
   }
 }

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Req,
@@ -69,15 +70,15 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
-  @Get(':uuid')
+  @Get(':id')
   @ApiOperation({ summary: 'Get a specific event by ID' })
   @ApiResponse({ status: 200, description: 'The event details.', type: Event })
   @ApiResponse({ status: 404, description: 'Event not found.' })
-  findOne(@Param('uuid') uuid: string) {
-    return this.eventsService.findOne(uuid);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.eventsService.findOne(id);
   }
 
-  @Patch(':uuid')
+  @Patch(':id')
   @Roles(Role.ADMIN, Role.ORGANIZER) // Add role protection if needed
   @ApiOperation({ summary: 'Update an event (Admin/Organizer only)' })
   @ApiResponse({
@@ -87,17 +88,20 @@ export class EventsController {
   })
   @ApiResponse({ status: 404, description: 'Event not found.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  update(@Param('uuid') uuid: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(uuid, updateEventDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateEventDto: UpdateEventDto,
+  ) {
+    return this.eventsService.update(id, updateEventDto);
   }
 
-  @Delete(':uuid')
+  @Delete(':id')
   @Roles(Role.ADMIN, Role.ORGANIZER) // Add role protection if needed
   @ApiOperation({ summary: 'Delete an event (Admin/Organizer only)' })
   @ApiResponse({ status: 200, description: 'Event deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Event not found.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  remove(@Param('uuid') uuid: string) {
-    return this.eventsService.remove(uuid);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.eventsService.remove(id);
   }
 }
