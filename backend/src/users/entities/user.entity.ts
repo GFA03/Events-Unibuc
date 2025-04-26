@@ -41,8 +41,8 @@ export class User {
   @OneToMany(() => Event, (event) => event.organizer)
   organizedEvents: Event[];
 
-  // @OneToMany(() => Registration, (registration) => registration.user)
-  // registrations: Registration[];
+  @OneToMany(() => Registration, (registration) => registration.user)
+  registrations: Registration[];
 
   @CreateDateColumn() // Automatically set to the date/time when the record is created
   createdAt: Date;

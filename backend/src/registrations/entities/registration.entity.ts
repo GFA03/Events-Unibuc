@@ -1,4 +1,12 @@
-import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index, JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import { EventDateTime } from '../../events/entities/event-date-time.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -9,18 +17,20 @@ export class Registration {
   id: string;
 
   @Index()
-  @Column()
+  @Column('uuid')
   userId: string;
 
   @Index()
-  @Column()
+  @Column('uuid')
   eventDateTimeId: string;
 
-  // @ManyToOne(() => User, user => user.registrations, { onDelete: 'CASCADE' })
-  // user: User;
-  //
-  // @ManyToOne(() => EventDateTime, dt => dt.registrations, { onDelete: 'CASCADE' })
-  // eventDateTime: EventDateTime;
+  @ManyToOne(() => User, (user) => user.registrations, { onDelete: 'CASCADE' })
+  user: User;
+
+  @ManyToOne(() => EventDateTime, (dt) => dt.registrations, {
+    onDelete: 'CASCADE',
+  })
+  eventDateTime: EventDateTime;
 
   @CreateDateColumn()
   registrationDate: Date;

@@ -27,6 +27,6 @@ export class EventDateTime {
   @Column('datetime')
   endDateTime: Date;
 
-  // @OneToMany(() => Registration, (registration) => registration.eventDateTime)
-  // registrations: Registration[];
+  @OneToMany(() => Registration, (registration) => registration.eventDateTime)
+  registrations: Registration[];
 }
