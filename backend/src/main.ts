@@ -6,6 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
   // Catch all exceptions
   app.useGlobalPipes(new ValidationPipe());
 
@@ -13,13 +14,13 @@ async function bootstrap() {
     .setTitle('Evenimente Unibuc')
     .setDescription('Site pentru evenimentele facultatii')
     .setVersion('1.0')
-    .addServer('http://localhost:3000/', 'Local environment')
+    .addServer('http://localhost:3001/', 'Local environment')
     .addTag('EventsUnibuc')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();

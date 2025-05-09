@@ -43,6 +43,7 @@ export class CreateUserDto {
   readonly lastName: string;
 
   // TODO: regula pt numar de telefon -> sa aiba 10 cifre, sa inceapa cu 07;
+  // TODO: pentru studenti internationali, accepta prefix +40, ...
   @ApiProperty({
     name: 'phoneNumber',
     description: 'The user phone number',
