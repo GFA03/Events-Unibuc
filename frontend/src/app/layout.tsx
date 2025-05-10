@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
+import { config, library } from '@fortawesome/fontawesome-svg-core';
+import {fas} from "@fortawesome/free-solid-svg-icons";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+config.autoAddCss = false;
+
+library.add(fas)
+
 import { AppProviders } from "@/providers/AppProviders";
 import {Header} from "@/components/layout/Header";
 

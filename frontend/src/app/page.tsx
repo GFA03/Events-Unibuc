@@ -2,16 +2,23 @@ import { Event } from '@/types/event';
 import Image from 'next/image';
 import Link from "next/link";
 import EventCard from '@/components/events/EventCard';
+import {EventDateTime} from "@/types/eventDateTime";
 
 export default function Home() {
-  const ev:Event = {
+    const dateTime: EventDateTime = {
+        startDateTime: new Date("2025-05-20T00:00:00Z"),
+        endDateTime: new Date("2025-05-21T00:00:00Z"),
+        eventId: "aaa",
+    }
+
+    const ev:Event = {
     id: "aaa",
     name: "blabla",
-    type: "EVENT",
+    type: "WORKSHOP",
     image: "aa",
     description: "lalala",
     location: "aaa",
-    dateTimes: [],
+    dateTimes: [dateTime],
     organizer: "aa",
     createdAt: Date(),
     updatedAt: Date(),
