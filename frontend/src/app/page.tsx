@@ -2,6 +2,7 @@ import { Event } from '@/types/event';
 import Image from 'next/image';
 import Link from "next/link";
 import EventCard from '@/components/events/EventCard';
+import FeatureHighlight from "@/components/FeatureHighlight";
 import {EventDateTime} from "@/types/eventDateTime";
 
 export default function Home() {
@@ -67,8 +68,38 @@ export default function Home() {
                   </div>
                 </div>
             </section>
-            <section className="min-h-screen w-full">
-                Prezentare evenimente
+            <section className="min-h-screen w-full flex flex-col justify-between gap-8 sm:gap-16 md:gap-32 bg-white py-16">
+                <FeatureHighlight
+                    title="Find people with the same values"
+                    imageSrc="/hero-bg.jpg"
+                    alt="Find people"
+                    items={[
+                        'Joining an event has never been easier',
+                        'Filter by interests, date, and location',
+                        'Build lasting connections',
+                    ]}
+                />
+                <FeatureHighlight
+                    title="Plan your own events effortlessly"
+                    imageSrc="/hero-bg.jpg"
+                    alt="Easy planning"
+                    items={[
+                        'Create event pages in minutes',
+                        'Invite friends with a click',
+                        'Manage RSVPs seamlessly',
+                    ]}
+                    reverse
+                />
+                <FeatureHighlight
+                    title="Stay updated on campus life"
+                    imageSrc="/hero-bg.jpg"
+                    alt="Stay updated"
+                    items={[
+                        'Real-time notifications',
+                        'Subscribe to categories you love',
+                        'Never miss an opportunity',
+                    ]}
+                />
             </section>
         </main>
     );
