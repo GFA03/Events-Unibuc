@@ -30,12 +30,12 @@ import { RequestWithUser } from '../auth/types/RequestWithUser';
 
 @ApiTags('Events')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard) // Apply auth checks globally for this controller
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.ORGANIZER)
   @UsePipes(
     new ValidationPipe({
@@ -79,6 +79,7 @@ export class EventsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.ORGANIZER) // Add role protection if needed
   @ApiOperation({ summary: 'Update an event (Admin/Organizer only)' })
   @ApiResponse({
@@ -96,6 +97,7 @@ export class EventsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.ORGANIZER) // Add role protection if needed
   @ApiOperation({ summary: 'Delete an event (Admin/Organizer only)' })
   @ApiResponse({ status: 200, description: 'Event deleted successfully.' })
