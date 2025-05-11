@@ -1,8 +1,8 @@
 import apiClient from '@/lib/api';
-import { Event } from '@/types/event';
-import { EventDto } from '@/types/eventDto';
+import { Event } from '@/models/event/Event';
+import { EventDto } from '@/types/event/eventDto';
 
 export async function getEvents(): Promise<Event[]> {
   const response = await apiClient.get<EventDto[]>('/events');
-  return response.data.map((event: EventDto) => new Event(event));
+  return response.data.map(Event.fromDto);
 }

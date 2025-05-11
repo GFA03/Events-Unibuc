@@ -1,4 +1,4 @@
-import {Event} from "@/types/event";
+import {Event} from "@/models/event/Event";
 import Image from 'next/image';
 import Link from "next/link";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

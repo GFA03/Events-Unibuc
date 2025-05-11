@@ -1,4 +1,4 @@
-import { EventDateTimeDto } from '@/types/eventDateTimeDto';
+import { EventDateTimeDto } from '@/types/event/eventDateTimeDto';
 
 export interface EventDto {
   id: string;
