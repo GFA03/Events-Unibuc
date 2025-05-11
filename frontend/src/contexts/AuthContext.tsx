@@ -3,7 +3,7 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
-import { CreateUserDto } from "@/types/createUserDto";
+import { CreateUserDto } from "@/types/user/createUserDto";
 import { LoginDto } from '@/types/loginDto';
 import { User } from '@/types/user';
 
