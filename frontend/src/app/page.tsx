@@ -1,18 +1,15 @@
-import { Event } from '@/models/event/Event';
+'use client';
+
 import Image from 'next/image';
 import Link from "next/link";
 import EventCard from '@/components/events/EventCard';
 import FeatureHighlight from "@/components/FeatureHighlight";
-import { getEvents } from '@/services/events';
+import {useEvents} from "@/contexts/EventsContext";
 
-export default async function Home() {
-  let events: Event[] = [];
+export default function Home() {
+  const { events, loading } = useEvents();
 
-  try {
-    events = await getEvents();
-  } catch (error) {
-    console.error('Failed to fetch events:', error);
-  }
+  if (loading) return <p> Loading... </p>;
 
   return (
     <main className="w-full">

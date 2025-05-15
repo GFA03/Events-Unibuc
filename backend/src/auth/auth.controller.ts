@@ -96,13 +96,11 @@ export class AuthController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Unauthorized (Token missing, invalid, or expired).',
   })
-  async getProfile(@Request() req: RequestWithUser): Promise<AuthorizedUser> {
+  getProfile(@Request() req: RequestWithUser): AuthorizedUser {
     // req.user is populated by JwtAuthGuard -> JwtStrategy.validate
     // It contains the payload defined in JwtStrategy (userId, email, role)
-    const userPayload = req.user;
-
     // Return the payload directly as it contains the necessary info
     // If more data is needed, fetch from UsersService using userPayload.userId
-    return userPayload;
+    return req.user;
   }
 }
