@@ -3,8 +3,8 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
-import { CreateUserDto } from "@/types/user/createUserDto";
-import { LoginDto } from '@/types/loginDto';
+import { SignUpDto } from "@/types/user/signUpDto";
+import { LoginDto } from '@/types/user/loginDto';
 import { User } from '@/types/user';
 
 // Define a type for the context value
@@ -13,7 +13,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (credentials: LoginDto) => Promise<void>;
-    signup: (data: CreateUserDto) => Promise<void>;
+    signup: (data: SignUpDto) => Promise<void>;
     logout: () => void;
     checkAuthStatus: () => Promise<void>; // Function to verify token on load
 }
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const signup = async (data: CreateUserDto) => {
+    const signup = async (data: SignUpDto) => {
         setIsLoading(true);
         try {
             // Adjust according to whether signup automatically logs in
