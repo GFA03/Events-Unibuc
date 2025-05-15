@@ -4,12 +4,13 @@ import Image from 'next/image';
 import Link from "next/link";
 import EventCard from '@/components/events/EventCard';
 import FeatureHighlight from "@/components/FeatureHighlight";
-import {useEvents} from "@/contexts/EventsContext";
+import {useEvents} from "@/hooks/useEvents";
 
 export default function Home() {
-  const { events, loading } = useEvents();
+  const { data: events = [], isLoading, isError } = useEvents()
 
-  if (loading) return <p> Loading... </p>;
+  if (isLoading) return <p> Loading... </p>;
+  if (isError) return <p>Failed to load events</p>;
 
   return (
     <main className="w-full">

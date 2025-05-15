@@ -11,7 +11,7 @@ type EventProps = {
 export default function EventCard({event}: EventProps) {
     const {id, name, type, dateTimes, organizerId, location} = event;
     return (
-        <Link href={`/event/${id}`}>
+        <Link href={`/events/${id}`}>
             <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full pb-4 overflow-clip">
                 <Image src="/hero-bg.jpg" alt={name} width={300} height={200} className="object-cover w-full h-48"/>
                 <div className="ml-4 mt-2">

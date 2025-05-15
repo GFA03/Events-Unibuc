@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-        <body className={`${inter.className} bg-gray-600 text-gray-900`}>
+        <body className={`${inter.className} bg-white text-gray-900`}>
         <AppProviders>
             <Header />
             <main className="min-h-screen">
