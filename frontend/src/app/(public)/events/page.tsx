@@ -2,11 +2,16 @@
 
 import EventCard from '@/components/events/EventCard';
 import {useEvents} from "@/hooks/useEvents";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 export default function EventsPage() {
     const { data: events = [], isLoading, isError } = useEvents();
 
-    if (isLoading) return <p>Loading events...</p>;
+    if (isLoading) return (
+        <div className="flex justify-center items-center min-h-screen">
+            <LoadingSpinner />
+        </div>
+    );
     if (isError) return <p>Failed to load events...</p>;
 
     return (
