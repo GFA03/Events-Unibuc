@@ -28,7 +28,7 @@ export function Header({isBackgroundTransparent}: HeaderProps = {isBackgroundTra
                         <span className="text-sm text-gray-500">Loading...</span>
                     ) : isAuthenticated ? (
                         <>
-                            <Link href="/my-registrations" className="text-gray-600 hover:text-indigo-600">
+                            <Link href="/registrations" className="text-gray-600 hover:text-indigo-600">
                                 My Registrations
                             </Link>
                             {/* Conditionally show Admin links */}
