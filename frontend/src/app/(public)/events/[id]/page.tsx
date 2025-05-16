@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import {useParams, useRouter} from 'next/navigation';
 import { useEvent } from '@/hooks/useEvent';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -14,12 +14,34 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/common/Button';
 import { format } from 'date-fns';
+import {useAuth} from "@/contexts/AuthContext";
+import apiClient from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function EventDetailsPage() {
+    const router = useRouter();
     const params = useParams();
     const id = typeof params?.id === 'string' ? params.id : '';
 
     const { data: event, isLoading, error } = useEvent(id);
+    const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+
+    const handleJoin = async ()=> {
+        if (!isAuthenticated) {
+            router.push('/login');
+            return;
+        }
+
+        try {
+            const response = await apiClient.post('registrations', {
+               eventDateTimeId: event?.dateTimes[0].id
+            });
+            toast.success('Registration successful');
+        } catch (error) {
+            console.error('Registration failed!', error);
+            toast.error("Registration failed!");
+        }
+    };
 
     if (isLoading) return <p>Loading event...</p>;
     if (error) return <p>Error loading event: {(error as Error).message}</p>;
@@ -68,11 +90,11 @@ export default function EventDetailsPage() {
                             <div className="absolute left-0 top-6 z-10 hidden group-hover:block bg-white border border-gray-300 rounded-md shadow-lg p-3 text-sm w-60">
                                 <p className="font-semibold mb-2 text-center text-gray-800">Upcoming Dates</p>
                                 <ul className="list-disc ml-4 space-y-1 text-gray-700">
-                                    {dateTimes.map((dt) => (
-                                        {...dt != dateTimes[0] ? <li key={dt.id}>
-                                                {format(dt.startDateTime, 'PPpp')}
-                                            </li> : <></>}
-                                    ))}
+                                    {dateTimes.map((dt) =>
+                                        dt.id !== dateTimes[0].id ? (
+                                                <li key={dt.id}>{format(dt.startDateTime, 'PPpp')}</li>
+                                            ) : null
+                                    )}
                                 </ul>
                             </div>
                         </div>
@@ -81,7 +103,7 @@ export default function EventDetailsPage() {
                     {/* Buttons */}
                     <div className="flex justify-between items-center mt-4">
                         <div className="flex items-center gap-4">
-                            <Button>Join</Button>
+                            <Button onClick={handleJoin}>Join</Button>
                             <FontAwesomeIcon icon={faHeart} className="text-red-500 cursor-pointer" />
                         </div>
                         <FontAwesomeIcon icon={faShare} className="cursor-pointer" />
