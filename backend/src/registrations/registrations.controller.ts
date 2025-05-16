@@ -24,6 +24,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Registration } from './entities/registration.entity';
+import { RegistrationResponseDto } from './dto/registration-response.dto';
 
 @ApiTags('Registrations')
 @ApiBearerAuth()
@@ -103,8 +104,11 @@ export class RegistrationsController {
       whitelist: true,
     }),
   )
-  async findMyRegistrations(@Req() req) {
-    return this.registrationsService.findMyRegistrations(req.user.userId);
+  async findMyRegistrations(
+    @Req() req,
+  ): Promise<(null | RegistrationResponseDto)[]> {
+    const registrations = await this.registrationsService.findMyRegistrations(req.user.userId);
+    return registrations.map(RegistrationResponseDto.fromEntity);
   }
 
   @Get(':id')
