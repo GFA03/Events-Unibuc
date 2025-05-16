@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { Header } from '@/components/layout/Header';
 import LoadingSpinner from '@/components/common/LoadingSpinner'; // Create a spinner component
 
 export default function AuthenticatedLayout({
@@ -31,12 +30,11 @@ export default function AuthenticatedLayout({
     }
 
     // Render children only if authenticated (or still loading)
-    return isAuthenticated ? (
+    return (
         <div>
-            <Header />
             <div className="container mx-auto px-4 py-8">
                 {children}
             </div>
         </div>
-    ) : null; // Or return loading/redirect state
+    );
 }
