@@ -1,6 +1,6 @@
 import {EventDateTime} from "@/models/event/EventDateTime";
 import {EventDto} from '@/types/event/eventDto';
-import {User} from '@/types/user';
+import {User} from '@/models/user/User';
 
 export class Event {
     public readonly id: string;
@@ -47,7 +47,7 @@ export class Event {
             dto.description,
             dto.location,
             dto.organizerId,
-            dto.organizer,
+            User.fromDto(dto.organizer),
             dto.dateTimes.map(EventDateTime.fromDto),
             new Date(dto.createdAt),
             new Date(dto.updatedAt)

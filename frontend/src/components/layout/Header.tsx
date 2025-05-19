@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {useAuth} from '@/contexts/AuthContext';
 import {Button} from '@/components/common/Button';
 import Image from "next/image";
+import {Role} from "@/types/user/roles";
 
 interface HeaderProps {
     isBackgroundTransparent?: boolean;
@@ -11,6 +12,8 @@ interface HeaderProps {
 
 export function Header({isBackgroundTransparent}: HeaderProps = {isBackgroundTransparent: false}) {
     const {isAuthenticated, user, logout, isLoading} = useAuth();
+
+    console.log(user, isLoading, isAuthenticated);
 
     return (
         <header
@@ -32,12 +35,12 @@ export function Header({isBackgroundTransparent}: HeaderProps = {isBackgroundTra
                                 My Registrations
                             </Link>
                             {/* Conditionally show Admin links */}
-                            {user?.role === 'Admin' && (
+                            {user?.role === Role.ADMIN && (
                                 <Link href="/manage-events" className="text-gray-600 hover:text-indigo-600 font-medium">
                                     Manage Events
                                 </Link>
                             )}
-                            {user?.role === 'Organizer' && (
+                            {user?.role === Role.ORGANIZER && (
                                 <Link href="/manage-events" className="text-gray-600 hover:text-indigo-600 font-medium">
                                     Manage My Events
                                 </Link>

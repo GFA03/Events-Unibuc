@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import apiClient from '@/lib/api';
 import { SignUpDto } from "@/types/user/signUpDto";
 import { LoginDto } from '@/types/user/loginDto';
-import { User } from '@/types/user';
+import { UserDto } from '@/models/user/userDto';
+import { User } from '@/models/user/User';
 
 // Define a type for the context value
 interface AuthContextType {
@@ -43,8 +44,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchUserProfile = useCallback(async () => {
         try {
             const response = await apiClient.get('/auth/me');
-            setUser(response.data);
-            return response.data;
+            const userDto: UserDto = response.data;
+            setUser(User.fromDto(userDto));
+            return userDto;
         } catch (error: any) {
             // If /auth/me fails (e.g., token expired), log out
             console.error('Failed to fetch user profile:', error.response?.data || error.message);
