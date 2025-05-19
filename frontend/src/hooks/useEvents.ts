@@ -5,6 +5,7 @@ import apiClient from '@/lib/api';
 
 async function fetchEvents(): Promise<Event[]> {
     const response = await apiClient.get<EventDto[]>('/events');
+    console.log(response.data);
     return response.data.map(Event.fromDto);
 }
 

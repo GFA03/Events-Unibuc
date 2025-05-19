@@ -52,7 +52,9 @@ export class EventsService {
   }
 
   findAll(): Promise<Event[]> {
-    return this.eventRepository.find();
+    return this.eventRepository.find({
+      relations: ['organizer'],
+    });
   }
 
   async findOne(id: string): Promise<Event> {

@@ -9,7 +9,7 @@ type EventProps = {
 }
 
 export default function EventCard({event}: EventProps) {
-    const {id, name, type, dateTimes, organizerId, location} = event;
+    const {id, name, type, dateTimes, organizer, location} = event;
     return (
         <Link href={`/events/${id}`}>
             <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full pb-4 overflow-clip">
@@ -24,7 +24,7 @@ export default function EventCard({event}: EventProps) {
                     </h3>
                     <div className="mt-2 flex flex-wrap flex-row items-center">
                         <FontAwesomeIcon icon={faUser} className="fa-fw text-black" />
-                        <p className="self-center text-sm text-gray-900 truncate">{organizerId}</p>
+                        <p className="self-center text-sm text-gray-900 truncate">{`${organizer.firstName} ${organizer.lastName}`}</p>
                     </div>
                     <div className="mt-2 flex flex-wrap flex-row items-center">
                         <FontAwesomeIcon icon={faCalendar} className="fa-fw text-black" />
