@@ -70,6 +70,18 @@ export class EventsController {
     return this.eventsService.findAll();
   }
 
+  @Get('my-events')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN, Role.ORGANIZER)
+  @ApiOperation({ summary: 'Get events created by the current user' })
+  @ApiResponse({ status: 200, description: 'List of events created by the user.', type: [Event] })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  findMyEvents(@Req() req: RequestWithUser): Promise<Event[]> {
+    console.log(req.user);
+    return this.eventsService.findMyEvents(req.user.userId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a specific event by ID' })
   @ApiResponse({ status: 200, description: 'The event details.', type: Event })
@@ -80,7 +92,7 @@ export class EventsController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.ORGANIZER) // Add role protection if needed
+  @Roles(Role.ADMIN, Role.ORGANIZER)
   @ApiOperation({ summary: 'Update an event (Admin/Organizer only)' })
   @ApiResponse({
     status: 200,

@@ -60,7 +60,7 @@ export class EventsService {
   async findOne(id: string): Promise<Event> {
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['organizer', 'dateTimes'], // Eager load necessary relations
+      relations: ['organizer'], // Eager load necessary relations
     });
     if (!event) {
       throw new NotFoundException('Event not found');
@@ -68,8 +68,16 @@ export class EventsService {
     return event;
   }
 
+  findMyEvents(userId: string): Promise<Event[]> {
+    return this.eventRepository.find({
+      where: { organizerId: userId },
+      relations: ['organizer'],
+    });
+  }
+
   async update(id: string, updateEventDto: UpdateEventDto) {
-    const event = await this.findOne(id);
+    // test if the event exists, if not throw error
+    await this.findOne(id);
 
     let updatedDateTimes: EventDateTime[] | undefined = undefined;
     if (updateEventDto.dateTimes) {
