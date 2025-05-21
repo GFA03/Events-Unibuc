@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import apiClient from '@/lib/api';
 import toast from 'react-hot-toast';
 import WithLoader from '@/components/common/WithLoader';
+import { Role } from '@/types/user/roles';
 
 export default function EventDetailsPage() {
   const router = useRouter();
@@ -25,7 +26,10 @@ export default function EventDetailsPage() {
   const id = typeof params?.id === 'string' ? params.id : '';
 
   const { data: event, isLoading, isError } = useEvent(id);
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const isOrganizer = user?.userId === event?.organizerId;
+  const isAdmin = user?.role === Role.ADMIN;
+  const canEdit = isOrganizer || isAdmin;
 
   const handleJoin = async () => {
     if (!isAuthenticated) {
@@ -41,6 +45,22 @@ export default function EventDetailsPage() {
     } catch (error) {
       console.error('Registration failed!', error);
       toast.error('Registration failed!');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      await apiClient.delete(`events/${id}`);
+      toast.success('Event deleted successfully');
+      router.push('/events');
+    } catch (error) {
+      console.error('Failed to delete event!', error);
+      toast.error('Failed to delete event!');
     }
   };
 
@@ -62,9 +82,21 @@ export default function EventDetailsPage() {
           />
 
           <div className="flex flex-col gap-4 p-6 w-full">
-            <p className="bg-red-300 text-sm font-medium px-3 py-1 rounded-xl self-start capitalize">
-              {type}
-            </p>
+            <div className="flex justify-between items-center mb-6">
+              <p className="bg-red-300 text-sm font-medium px-3 py-1 rounded-xl self-start capitalize">
+                {type}
+              </p>
+              {canEdit && (
+                <div className="flex gap-2">
+                  <Button variant="secondary" onClick={() => router.push(`/events/${id}/edit`)}>
+                    Edit
+                  </Button>
+                  <Button variant="danger" onClick={handleDelete}>
+                    Delete
+                  </Button>
+                </div>
+              )}
+            </div>
 
             <h1 className="text-3xl font-bold">{name}</h1>
             <p className="text-sm text-gray-500">Organized by: {organizerId}</p>

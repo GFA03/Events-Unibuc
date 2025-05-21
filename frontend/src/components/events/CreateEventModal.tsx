@@ -6,6 +6,8 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import apiClient from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { Event } from '@/models/event/Event';
+import { useEffect } from 'react';
 
 const createEventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -21,18 +23,37 @@ type CreateEventFormInputs = z.infer<typeof createEventSchema>;
 interface CreateEventModalProps {
   isOpen: boolean;
   onClose: () => void;
+  event?: Event;
+  mode?: 'create' | 'edit';
 }
 
-export default function CreateEventModal({ isOpen, onClose }: CreateEventModalProps) {
+export default function CreateEventModal({
+  isOpen,
+  onClose,
+  event,
+  mode = 'create'
+}: CreateEventModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
-    reset
+    reset,
+    setValue
   } = useForm<CreateEventFormInputs>({
     resolver: zodResolver(createEventSchema)
   });
+
+  useEffect(() => {
+    if (event && mode === 'edit') {
+      setValue('name', event.name);
+      setValue('type', event.type);
+      setValue('description', event.description);
+      setValue('location', event.location);
+      setValue('startDateTime', event.dateTimes[0].startDateTime.toISOString().slice(0, 16));
+      setValue('endDateTime', event.dateTimes[0].endDateTime.toISOString().slice(0, 16));
+    }
+  }, [event, mode, setValue]);
 
   const onSubmit = async (data: CreateEventFormInputs) => {
     const { startDateTime, endDateTime, ...validData } = data;
@@ -45,16 +66,21 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
         }
       ]
     };
-    console.log(postData);
+
     try {
-      await apiClient.post('/events', postData);
-      toast.success('Event created successfully!');
+      if (mode === 'edit' && event) {
+        await apiClient.patch(`/events/${event.id}`, postData);
+        toast.success('Event updated successfully!');
+      } else {
+        await apiClient.post('/events', postData);
+        toast.success('Event created successfully!');
+      }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
       onClose();
       reset();
     } catch (error: any) {
       console.error(error.response?.data?.message);
-      toast.error(error.response?.data?.message || 'Failed to create event');
+      toast.error(error.response?.data?.message || `Failed to ${mode} event`);
     }
   };
 
@@ -64,7 +90,9 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Create New Event</h2>
+          <h2 className="text-2xl font-bold">
+            {mode === 'edit' ? 'Edit Event' : 'Create New Event'}
+          </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <FontAwesomeIcon icon={faXmark} className="text-xl" />
           </button>
@@ -171,7 +199,7 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
             <button
               type="submit"
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Create Event
+              {mode === 'edit' ? 'Save Changes' : 'Create Event'}
             </button>
           </div>
         </form>
