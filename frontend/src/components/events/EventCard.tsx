@@ -12,16 +12,16 @@ export default function EventCard({ event }: EventProps) {
   const { id, name, type, dateTimes, organizer, location } = event;
 
   return (
-    <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full pb-4 overflow-clip relative group">
+    <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full overflow-clip relative group">
       <Link href={`/events/${id}`} className="flex-grow">
         <Image
-          src="/hero-bg.jpg"
+          src={'/unibuc-event-logo.png'}
           alt={name}
           width={300}
           height={200}
-          className="object-cover w-full h-48"
+          className="object-contain w-full bg-white h-48"
         />
-        <div className="ml-4 mt-2">
+        <div className="bg-amber-50 pb-4 pl-4 pr-4 pt-2">
           <span
             className={`inline-block ${type === 'EVENT' ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'} text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded`}>
             {type}

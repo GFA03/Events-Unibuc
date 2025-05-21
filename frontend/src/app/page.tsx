@@ -13,13 +13,13 @@ export default function Home() {
   return (
     <WithLoader isLoading={isLoading} isError={isError}>
       <main className="w-full">
-        <section className="relative h-screen w-full bg-blue-400">
+        <section className="relative h-screen w-full bg-blue-300">
           <Image
             src="/hero-bg.jpg"
             alt="Students socializing"
             layout="fill"
             objectFit="cover"
-            className="opacity-50"
+            className="opacity-80"
           />
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
             <h1 className="text-4xl md:text-6xl font-extrabold text-white drop-shadow-lg">
