@@ -81,23 +81,25 @@ export default function EventDetailsPage() {
                 {format(dateTimes[0].endDateTime, 'PPpp')}
               </p>
 
-              {/* Info tooltip */}
-              <div className="relative">
-                <FontAwesomeIcon
-                  icon={faInfoCircle}
-                  className="ml-2 text-gray-500 cursor-pointer"
-                />
-                <div className="absolute left-0 top-6 z-10 hidden group-hover:block bg-white border border-gray-300 rounded-md shadow-lg p-3 text-sm w-60">
-                  <p className="font-semibold mb-2 text-center text-gray-800">Upcoming Dates</p>
-                  <ul className="list-disc ml-4 space-y-1 text-gray-700">
-                    {dateTimes.map((dt) =>
-                      dt.id !== dateTimes[0].id ? (
-                        <li key={dt.id}>{format(dt.startDateTime, 'PPpp')}</li>
-                      ) : null
-                    )}
-                  </ul>
+              {/* Info tooltip for upcoming dates (If there is more than one date */}
+              {dateTimes.length > 1 && (
+                <div className="relative">
+                  <FontAwesomeIcon
+                    icon={faInfoCircle}
+                    className="ml-2 text-gray-500 cursor-pointer"
+                  />
+                  <div className="absolute left-0 top-6 z-10 hidden group-hover:block bg-white border border-gray-300 rounded-md shadow-lg p-3 text-sm w-60">
+                    <p className="font-semibold mb-2 text-center text-gray-800">Upcoming Dates</p>
+                    <ul className="list-disc ml-4 space-y-1 text-gray-700">
+                      {dateTimes.map((dt) =>
+                        dt.id !== dateTimes[0].id ? (
+                          <li key={dt.id}>{format(dt.startDateTime, 'PPpp')}</li>
+                        ) : null
+                      )}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Buttons */}
