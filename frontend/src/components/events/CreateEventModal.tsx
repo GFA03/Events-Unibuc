@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Event } from '@/models/event/Event';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 const createEventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -43,6 +44,7 @@ export default function CreateEventModal({
   } = useForm<CreateEventFormInputs>({
     resolver: zodResolver(createEventSchema)
   });
+  const router = useRouter();
 
   useEffect(() => {
     if (event && mode === 'edit') {
@@ -71,13 +73,16 @@ export default function CreateEventModal({
       if (mode === 'edit' && event) {
         await apiClient.patch(`/events/${event.id}`, postData);
         toast.success('Event updated successfully!');
+        await queryClient.invalidateQueries({ queryKey: ['event', event.id] });
       } else {
         await apiClient.post('/events', postData);
         toast.success('Event created successfully!');
       }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
+      await queryClient.invalidateQueries({ queryKey: ['events'] });
       onClose();
       reset();
+      router.push('/manage-events');
     } catch (error: any) {
       console.error(error.response?.data?.message);
       toast.error(error.response?.data?.message || `Failed to ${mode} event`);
