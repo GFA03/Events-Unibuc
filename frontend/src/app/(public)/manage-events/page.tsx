@@ -2,33 +2,25 @@
 
 import { useMyEvents } from '@/hooks/useMyEvents';
 import WithLoader from '@/components/common/WithLoader';
+import EventCard from '@/components/events/EventCard';
+import CreateEventCard from '@/components/events/CreateEventCard';
 
 export default function ManageEvents() {
-  const { data: myEvents = [], isLoading, isError, error } = useMyEvents();
-
-  console.error(error);
+  const { data: myEvents = [], isLoading, isError } = useMyEvents();
 
   return (
     <WithLoader
       isLoading={isLoading}
       isError={isError}
       errorMessage={'Failed to get your events...'}>
-      <div>
+      <div className="p-8">
         <h1 className="text-2xl font-bold mb-4">My Events</h1>
-        {myEvents.length === 0 ? (
-          <p>No events found.</p>
-        ) : (
-          <ul className="space-y-2">
-            {myEvents.map((event) => (
-              <li key={event.id} className="bg-gray-100 rounded-md p-4">
-                <p className="font-semibold">{event.name}</p>
-                <p className="text-sm text-gray-600">
-                  {new Date(event.dateTimes[0].startDateTime).toLocaleString()}
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <CreateEventCard />
+          {myEvents.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
       </div>
     </WithLoader>
   );
