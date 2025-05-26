@@ -1,8 +1,8 @@
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faPlus, faTrash, faCalendarDays, faClock } from '@fortawesome/free-solid-svg-icons';
 import apiClient from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,8 +15,10 @@ const createEventSchema = z.object({
   type: z.string().min(1, 'Type is required'),
   description: z.string().min(1, 'Description is required'),
   location: z.string().min(1, 'Location is required'),
-  startDateTime: z.string().min(1, 'Start date is required'),
-  endDateTime: z.string().min(1, 'End date is required')
+  dateTimes: z.array(z.object({
+    startDateTime: z.string().min(1, 'Start date is required'),
+    endDateTime: z.string().min(1, 'End date is required')
+  })).min(1, 'At least one date time is required')
 });
 
 type CreateEventFormInputs = z.infer<typeof createEventSchema>;
@@ -29,21 +31,31 @@ interface CreateEventModalProps {
 }
 
 export default function CreateEventModal({
-  isOpen,
-  onClose,
-  event,
-  mode = 'create'
-}: CreateEventModalProps) {
+                                           isOpen,
+                                           onClose,
+                                           event,
+                                           mode = 'create'
+                                         }: CreateEventModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    setValue
+    setValue,
+    control
   } = useForm<CreateEventFormInputs>({
-    resolver: zodResolver(createEventSchema)
+    resolver: zodResolver(createEventSchema),
+    defaultValues: {
+      dateTimes: [{ startDateTime: '', endDateTime: '' }]
+    }
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'dateTimes'
+  });
+
   const router = useRouter();
 
   useEffect(() => {
@@ -52,30 +64,24 @@ export default function CreateEventModal({
       setValue('type', event.type);
       setValue('description', event.description);
       setValue('location', event.location);
-      setValue('startDateTime', event.dateTimes[0].startDateTime.toISOString().slice(0, 16));
-      setValue('endDateTime', event.dateTimes[0].endDateTime.toISOString().slice(0, 16));
+
+      const formattedDateTimes = event.dateTimes.map(dt => ({
+        startDateTime: dt.startDateTime.toISOString().slice(0, 16),
+        endDateTime: dt.endDateTime.toISOString().slice(0, 16)
+      }));
+
+      setValue('dateTimes', formattedDateTimes);
     }
   }, [event, mode, setValue]);
 
   const onSubmit = async (data: CreateEventFormInputs) => {
-    const { startDateTime, endDateTime, ...validData } = data;
-    const postData = {
-      ...validData,
-      dateTimes: [
-        {
-          startDateTime,
-          endDateTime
-        }
-      ]
-    };
-
     try {
       if (mode === 'edit' && event) {
-        await apiClient.patch(`/events/${event.id}`, postData);
+        await apiClient.patch(`/events/${event.id}`, data);
         toast.success('Event updated successfully!');
         await queryClient.invalidateQueries({ queryKey: ['event', event.id] });
       } else {
-        await apiClient.post('/events', postData);
+        await apiClient.post('/events', data);
         toast.success('Event created successfully!');
       }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
@@ -89,125 +95,227 @@ export default function CreateEventModal({
     }
   };
 
+  const addDateTime = () => {
+    append({ startDateTime: '', endDateTime: '' });
+  };
+
+  const removeDateTime = (index: number) => {
+    if (fields.length > 1) {
+      remove(index);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            {mode === 'edit' ? 'Edit Event' : 'Create New Event'}
-          </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <FontAwesomeIcon icon={faXmark} className="text-xl" />
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 duration-300">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 rounded-t-3xl p-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <FontAwesomeIcon icon={faCalendarDays} className="text-white text-lg" />
+            </div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              {mode === 'edit' ? 'Edit Event' : 'Create New Event'}
+            </h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200 group"
+          >
+            <FontAwesomeIcon icon={faXmark} className="text-gray-500 group-hover:text-gray-700 transition-colors duration-200" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              {...register('name')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
-          </div>
+        {/* Form Content */}
+        <div className="p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Basic Information */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                Basic Information
+              </h3>
 
-          <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-              Type
-            </label>
-            <select
-              id="type"
-              {...register('type')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-              <option value="">Select a type</option>
-              <option value="EVENT">Event</option>
-              <option value="WORKSHOP">Workshop</option>
-            </select>
-            {errors.type && <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>}
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="group">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    {...register('name')}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300"
+                    placeholder="Enter event name"
+                  />
+                  {errors.name && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                    {errors.name.message}
+                  </p>}
+                </div>
 
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea
-              id="description"
-              {...register('description')}
-              rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-            {errors.description && (
-              <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-            )}
-          </div>
+                <div className="group">
+                  <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Type
+                  </label>
+                  <select
+                    id="type"
+                    {...register('type')}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300 bg-white"
+                  >
+                    <option value="">Select a type</option>
+                    <option value="EVENT">Event</option>
+                    <option value="WORKSHOP">Workshop</option>
+                  </select>
+                  {errors.type && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                    {errors.type.message}
+                  </p>}
+                </div>
+              </div>
 
-          <div>
-            <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-              Location
-            </label>
-            <input
-              type="text"
-              id="location"
-              {...register('location')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            />
-            {errors.location && (
-              <p className="mt-1 text-sm text-red-600">{errors.location.message}</p>
-            )}
-          </div>
+              <div className="group">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  {...register('description')}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300 resize-none"
+                  placeholder="Describe your event..."
+                />
+                {errors.description && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                  <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                  {errors.description.message}
+                </p>}
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="startDateTime" className="block text-sm font-medium text-gray-700">
-                Start Date & Time
-              </label>
-              <input
-                type="datetime-local"
-                id="startDateTime"
-                {...register('startDateTime')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              />
-              {errors.startDateTime && (
-                <p className="mt-1 text-sm text-red-600">{errors.startDateTime.message}</p>
+              <div className="group">
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  {...register('location')}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300"
+                  placeholder="Enter event location"
+                />
+                {errors.location && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                  <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                  {errors.location.message}
+                </p>}
+              </div>
+            </div>
+
+            {/* Date Times Section */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  Event Dates & Times
+                </h3>
+                <button
+                  type="button"
+                  onClick={addDateTime}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+                >
+                  <FontAwesomeIcon icon={faPlus} className="text-sm" />
+                  Add Date
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="group animate-in slide-in-from-top-2 duration-300">
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <FontAwesomeIcon icon={faClock} className="text-indigo-500" />
+                          <span className="font-medium text-gray-700">
+                            Date {index + 1}
+                          </span>
+                        </div>
+                        {fields.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeDateTime(index)}
+                            className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-500 hover:text-red-600 transition-all duration-200 hover:scale-110 flex items-center justify-center group"
+                          >
+                            <FontAwesomeIcon icon={faTrash} className="text-sm group-hover:animate-pulse" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Start Date & Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            {...register(`dateTimes.${index}.startDateTime`)}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 bg-white"
+                          />
+                          {errors.dateTimes?.[index]?.startDateTime && (
+                            <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                              {errors.dateTimes[index]?.startDateTime?.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            End Date & Time
+                          </label>
+                          <input
+                            type="datetime-local"
+                            {...register(`dateTimes.${index}.endDateTime`)}
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 bg-white"
+                          />
+                          {errors.dateTimes?.[index]?.endDateTime && (
+                            <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                              {errors.dateTimes[index]?.endDateTime?.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {errors.dateTimes && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                  {errors.dateTimes.message}
+                </p>
               )}
             </div>
 
-            <div>
-              <label htmlFor="endDateTime" className="block text-sm font-medium text-gray-700">
-                End Date & Time
-              </label>
-              <input
-                type="datetime-local"
-                id="endDateTime"
-                {...register('endDateTime')}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              />
-              {errors.endDateTime && (
-                <p className="mt-1 text-sm text-red-600">{errors.endDateTime.message}</p>
-              )}
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-105 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg font-medium"
+              >
+                {mode === 'edit' ? 'Save Changes' : 'Create Event'}
+              </button>
             </div>
-          </div>
-
-          <div className="flex justify-end gap-4 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-              {mode === 'edit' ? 'Save Changes' : 'Create Event'}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
