@@ -51,10 +51,18 @@ export class EventsService {
     }
   }
 
-  findAll(): Promise<Event[]> {
-    return this.eventRepository.find({
+  async findAll(options?: {
+    limit?: number;
+    offset?: number;
+  }): Promise<{ data: Event[]; total: number }> {
+    const { limit, offset } = options || {};
+    const [data, total] = await this.eventRepository.findAndCount({
+      skip: offset,
+      take: limit,
       relations: ['organizer'],
     });
+
+    return { data, total };
   }
 
   async findOne(id: string): Promise<Event> {

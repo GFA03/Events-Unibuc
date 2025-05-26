@@ -4,9 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
   UsePipes,
@@ -66,19 +68,28 @@ export class EventsController {
     description: 'List of all events.',
     type: [Event],
   })
-  findAll() {
-    return this.eventsService.findAll();
+  findAll(
+    @Query('limit', ParseIntPipe) limit = 10,
+    @Query('offset', ParseIntPipe) offset = 0,
+  ) {
+    return this.eventsService.findAll({
+      limit: limit,
+      offset: offset,
+    });
   }
 
   @Get('my-events')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.ORGANIZER)
   @ApiOperation({ summary: 'Get events created by the current user' })
-  @ApiResponse({ status: 200, description: 'List of events created by the user.', type: [Event] })
+  @ApiResponse({
+    status: 200,
+    description: 'List of events created by the user.',
+    type: [Event],
+  })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   findMyEvents(@Req() req: RequestWithUser): Promise<Event[]> {
-    console.log(req.user);
     return this.eventsService.findMyEvents(req.user.userId);
   }
 

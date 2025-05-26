@@ -3,16 +3,31 @@ import { Event } from '@/models/event/Event';
 import { EventDto } from '@/types/event/eventDto';
 import apiClient from '@/lib/api';
 
-async function fetchEvents(): Promise<Event[]> {
-    const response = await apiClient.get<EventDto[]>('/events');
-    console.log(response.data);
-    return response.data.map(Event.fromDto);
+interface PaginatedEventsResponse {
+  data: EventDto[];
+  total: number;
 }
 
-export const useEvents = () => {
-    return useQuery<Event[]>({
-        queryKey: ['events'],
-        queryFn: fetchEvents,
-        staleTime: 1000 * 60 * 5, // 5 minutes: adjust as needed
-    });
+async function fetchEvents(limit = 10, offset = 0): Promise<{ events: Event[]; total: number }> {
+  const response = await apiClient.get<PaginatedEventsResponse>('/events', {
+    params: { limit, offset }
+  });
+  console.log(response.data);
+  return {
+    events: response.data.data.map(Event.fromDto),
+    total: response.data.total
+  };
+}
+
+interface UseEventsOptions {
+  limit?: number;
+  offset?: number;
+}
+
+export const useEvents = ({ limit = 10, offset = 0 }: UseEventsOptions = {}) => {
+  return useQuery({
+    queryKey: ['events', limit, offset],
+    queryFn: () => fetchEvents(limit, offset),
+    staleTime: 1000 * 60 * 5 // 5 minutes: adjust as needed
+  });
 };
