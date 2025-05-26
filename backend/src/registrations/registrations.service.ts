@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateRegistrationDto } from './dto/create-registration.dto';
@@ -14,6 +15,8 @@ import { EventDateTime } from '../events/entities/event-date-time.entity';
 
 @Injectable()
 export class RegistrationsService {
+  private readonly logger = new Logger(RegistrationsService.name);
+
   constructor(
     @InjectRepository(Registration)
     private readonly registrationRepository: Repository<Registration>,
@@ -25,6 +28,9 @@ export class RegistrationsService {
     createRegistrationDto: CreateRegistrationDto,
     currentUser: AuthorizedUser,
   ): Promise<Registration | null> {
+    this.logger.log(
+      `Creating registration for user ${currentUser.userId} for event time slot ${createRegistrationDto.eventDateTimeId}`,
+    );
     const { eventDateTimeId } = createRegistrationDto;
     const userId = currentUser.userId;
 
@@ -34,22 +40,29 @@ export class RegistrationsService {
     });
 
     if (!eventDateTime) {
+      this.logger.warn(`Event time slot not found: ${eventDateTimeId}`);
       throw new NotFoundException(
         `The specified event time slot was not found.`,
       );
     }
 
     if (new Date(eventDateTime.startDateTime) <= new Date()) {
+      this.logger.warn(
+        `Attempted registration for past event slot: ${eventDateTimeId}`,
+      );
       throw new BadRequestException(
         'Cannot register for an event slot that has already started or passed.',
       );
     }
 
-    // 2. Check for existing registration (handled by DB constraint, but check first for clarity)
+    // 2. Check for existing registration
     const existingCount = await this.registrationRepository.count({
       where: { userId, eventDateTimeId },
     });
     if (existingCount > 0) {
+      this.logger.warn(
+        `Duplicate registration attempt by user ${userId} for slot ${eventDateTimeId}`,
+      );
       throw new ConflictException(
         'You are already registered for this event time slot.',
       );
@@ -62,8 +75,15 @@ export class RegistrationsService {
 
     try {
       const saved = await this.registrationRepository.save(newRegistration);
-      return this.findOne(saved.id); // Pass flag to bypass permission check
+      this.logger.log(
+        `Successfully created registration ${saved.id} for user ${userId}`,
+      );
+      return this.findOne(saved.id);
     } catch (error) {
+      this.logger.error(
+        `Failed to create registration: ${error.message}`,
+        error.stack,
+      );
       if (error.code === '23505' || error.message?.includes('UNIQUE')) {
         throw new ConflictException(
           'You are already registered for this event time slot.',
@@ -76,10 +96,12 @@ export class RegistrationsService {
   }
 
   findAll(): Promise<Registration[]> {
+    this.logger.debug('Fetching all registrations');
     return this.registrationRepository.find();
   }
 
   async findOne(id: string): Promise<Registration | null> {
+    this.logger.debug(`Fetching registration with ID: ${id}`);
     const registration = await this.registrationRepository.findOne({
       where: { id },
       relations: [
@@ -90,12 +112,14 @@ export class RegistrationsService {
       ],
     });
     if (!registration) {
+      this.logger.warn(`Registration not found: ${id}`);
       return null;
     }
     return registration;
   }
 
   async findMyRegistrations(userId: string): Promise<Registration[]> {
+    this.logger.debug(`Fetching registrations for user: ${userId}`);
     return this.registrationRepository.find({
       where: { userId },
       relations: [
@@ -108,10 +132,13 @@ export class RegistrationsService {
   }
 
   async remove(id: string): Promise<void> {
+    this.logger.log(`Attempting to remove registration: ${id}`);
     const result = await this.registrationRepository.delete(id);
 
     if (result.affected === 0) {
+      this.logger.warn(`Failed to delete registration: ${id}`);
       throw new NotFoundException('Registration not found');
     }
+    this.logger.log(`Successfully removed registration: ${id}`);
   }
 }

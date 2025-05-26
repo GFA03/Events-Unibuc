@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -14,6 +15,8 @@ import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 
 @Injectable()
 export class EventsService {
+  private readonly logger = new Logger(EventsService.name);
+
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
@@ -24,24 +27,25 @@ export class EventsService {
     createEventDto: CreateEventDto,
     organizer: AuthorizedUser,
   ): Promise<Event> {
+    this.logger.log(`Creating new event by organizer ${organizer.userId}`);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       const newEvent = this.eventRepository.create({
-        ...createEventDto, // Spread DTO properties
-        organizerId: organizer.userId, // Assign organizer
-        // TypeORM handles creating nested DateTimes if cascade is true
+        ...createEventDto,
+        organizerId: organizer.userId,
         dateTimes: createEventDto.dateTimes.map((dateTime) => ({
           ...dateTime,
-        })), // Ensure new objects are created
+        })),
       });
       const savedEvent = await queryRunner.manager.save(Event, newEvent);
       await queryRunner.commitTransaction();
+      this.logger.log(`Successfully created event with ID: ${savedEvent.id}`);
       return this.findOne(savedEvent.id);
     } catch (err) {
-      console.log(err.message);
+      this.logger.error(`Failed to create event: ${err.message}`, err.stack);
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(
         'Failed to create event. Please try again.',
@@ -55,28 +59,34 @@ export class EventsService {
     limit?: number;
     offset?: number;
   }): Promise<{ data: Event[]; total: number }> {
+    this.logger.debug(
+      `Fetching events with options: ${JSON.stringify(options)}`,
+    );
     const { limit, offset } = options || {};
     const [data, total] = await this.eventRepository.findAndCount({
       skip: offset,
       take: limit,
       relations: ['organizer'],
     });
-
+    this.logger.debug(`Found ${total} events`);
     return { data, total };
   }
 
   async findOne(id: string): Promise<Event> {
+    this.logger.debug(`Fetching event with ID: ${id}`);
     const event = await this.eventRepository.findOne({
       where: { id },
-      relations: ['organizer'], // Eager load necessary relations
+      relations: ['organizer'],
     });
     if (!event) {
+      this.logger.warn(`Event not found with ID: ${id}`);
       throw new NotFoundException('Event not found');
     }
     return event;
   }
 
   findMyEvents(userId: string): Promise<Event[]> {
+    this.logger.debug(`Fetching events for user: ${userId}`);
     return this.eventRepository.find({
       where: { organizerId: userId },
       relations: ['organizer'],
@@ -84,12 +94,12 @@ export class EventsService {
   }
 
   async update(id: string, updateEventDto: UpdateEventDto) {
-    // test if the event exists, if not throw error
+    this.logger.log(`Updating event with ID: ${id}`);
     await this.findOne(id);
 
     let updatedDateTimes: EventDateTime[] | undefined = undefined;
     if (updateEventDto.dateTimes) {
-      // Basic validation within service as well (though DTO handles format)
+      this.logger.debug(`Validating date times for event: ${id}`);
       updateEventDto.dateTimes.forEach((dt) => {
         if (new Date(dt.endDateTime) <= new Date(dt.startDateTime)) {
           throw new BadRequestException(
@@ -102,7 +112,6 @@ export class EventsService {
           );
         }
       });
-      // Map DTOs to entities (without IDs as they might be new)
       updatedDateTimes = updateEventDto.dateTimes.map(
         (dtDto) => ({ ...dtDto, eventId: id }) as EventDateTime,
       );
@@ -113,21 +122,23 @@ export class EventsService {
     await queryRunner.startTransaction();
 
     try {
-      const { dateTimes, ...baseUpdateData } = updateEventDto; // Exclude DateTimes from direct update
+      const { dateTimes, ...baseUpdateData } = updateEventDto;
       await queryRunner.manager.update(Event, id, baseUpdateData);
 
       if (updatedDateTimes) {
-        // 1. Delete existing DateTimes for this event
+        this.logger.debug(`Updating date times for event: ${id}`);
         await queryRunner.manager.delete(EventDateTime, { eventId: id });
-
-        // 2. Insert the new ones
         await queryRunner.manager.save(EventDateTime, updatedDateTimes);
       }
 
       await queryRunner.commitTransaction();
-
+      this.logger.log(`Successfully updated event: ${id}`);
       return this.findOne(id);
     } catch (err) {
+      this.logger.error(
+        `Failed to update event ${id}: ${err.message}`,
+        err.stack,
+      );
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(
         'Failed to update event. Please try again.',
@@ -138,12 +149,17 @@ export class EventsService {
   }
 
   async remove(id: string) {
-    const event = await this.findOne(id);
+    this.logger.log(`Attempting to remove event: ${id}`);
+
+    // check if event exists
+    await this.findOne(id);
 
     const result = await this.eventRepository.delete(id);
 
     if (result.affected === 0) {
+      this.logger.warn(`Failed to delete event: ${id}`);
       throw new NotFoundException('Event not found');
     }
+    this.logger.log(`Successfully removed event: ${id}`);
   }
 }
