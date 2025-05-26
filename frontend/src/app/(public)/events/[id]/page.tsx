@@ -71,6 +71,7 @@ export default function EventDetailsPage() {
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
+      router.push('/events');
     } catch (error) {
       console.error('Failed to delete event!', error);
       toast.error('Failed to delete event!');

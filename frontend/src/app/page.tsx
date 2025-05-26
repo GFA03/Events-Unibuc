@@ -8,7 +8,9 @@ import { useEvents } from '@/hooks/useEvents';
 import WithLoader from '@/components/common/WithLoader';
 
 export default function Home() {
-  const { data: events = [], isLoading, isError } = useEvents();
+  const { data, isLoading, isError } = useEvents();
+
+  const events = data?.events || [];
 
   return (
     <WithLoader isLoading={isLoading} isError={isError}>
