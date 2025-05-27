@@ -101,7 +101,7 @@ export default function EventDetailsPage() {
 
   if (!event) return <p>Event not found.</p>;
 
-  const { name, type, description, dateTimes, organizerId, location } = event;
+  const { name, type, description, dateTimes, organizer, location } = event;
 
   // Join Modal Component
   const JoinModal = () => (
@@ -265,7 +265,7 @@ export default function EventDetailsPage() {
 
                     <p className="text-gray-600 mb-6 flex items-center gap-2">
                       <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                      Organized by: {organizerId}
+                      Organized by: {organizer.firstName} {organizer.lastName}
                     </p>
 
                     {/* Event Stats */}
