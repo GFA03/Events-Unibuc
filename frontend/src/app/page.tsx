@@ -6,11 +6,21 @@ import EventCard from '@/components/events/EventCard';
 import FeatureHighlight from '@/components/FeatureHighlight';
 import { useEvents } from '@/hooks/useEvents';
 import WithLoader from '@/components/common/WithLoader';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const { data, isLoading, isError } = useEvents();
 
+  const { isAuthenticated } = useAuth();
+
+  const router = useRouter();
+
   const events = data?.events || [];
+
+  if (isAuthenticated) {
+    router.push('/events');
+  }
 
   return (
     <WithLoader isLoading={isLoading} isError={isError}>
