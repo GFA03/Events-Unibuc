@@ -8,9 +8,21 @@ interface PaginatedEventsResponse {
   total: number;
 }
 
-async function fetchEvents(limit = 10, offset = 0): Promise<{ events: Event[]; total: number }> {
+interface EventsQueryParams {
+  limit?: number;
+  offset?: number;
+  search?: string;
+  type?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  sortBy?: 'date' | 'name' | 'participants';
+  sortOrder?: 'asc' | 'desc';
+}
+
+async function fetchEvents(params: EventsQueryParams): Promise<{ events: Event[]; total: number }> {
   const response = await apiClient.get<PaginatedEventsResponse>('/events', {
-    params: { limit, offset }
+    params
   });
   console.log(response.data);
   return {
@@ -19,15 +31,17 @@ async function fetchEvents(limit = 10, offset = 0): Promise<{ events: Event[]; t
   };
 }
 
-interface UseEventsOptions {
-  limit?: number;
-  offset?: number;
-}
+export const useEvents = (params: EventsQueryParams = {}) => {
+  // Set default values
+  const queryParams = {
+    limit: 10,
+    offset: 0,
+    ...params
+  };
 
-export const useEvents = ({ limit = 10, offset = 0 }: UseEventsOptions = {}) => {
   return useQuery({
-    queryKey: ['events', limit, offset],
-    queryFn: () => fetchEvents(limit, offset),
+    queryKey: ['events', queryParams],
+    queryFn: () => fetchEvents(queryParams),
     staleTime: 1000 * 60 * 5 // 5 minutes: adjust as needed
   });
 };

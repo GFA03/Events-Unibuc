@@ -13,6 +13,18 @@ import { DataSource, Repository } from 'typeorm';
 import { EventDateTime } from './entities/event-date-time.entity';
 import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 
+interface FindAllOptions {
+  limit?: number;
+  offset?: number;
+  search?: string;
+  type?: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  sortBy?: 'date' | 'name' | 'participants';
+  sortOrder?: 'asc' | 'desc';
+}
+
 @Injectable()
 export class EventsService {
   private readonly logger = new Logger(EventsService.name);
@@ -55,19 +67,79 @@ export class EventsService {
     }
   }
 
-  async findAll(options?: {
-    limit?: number;
-    offset?: number;
-  }): Promise<{ data: Event[]; total: number }> {
+  async findAll(
+    options?: FindAllOptions,
+  ): Promise<{ data: Event[]; total: number }> {
     this.logger.debug(
       `Fetching events with options: ${JSON.stringify(options)}`,
     );
-    const { limit, offset } = options || {};
-    const [data, total] = await this.eventRepository.findAndCount({
-      skip: offset,
-      take: limit,
-      relations: ['organizer'],
-    });
+    const {
+      limit = 10,
+      offset = 0,
+      search,
+      type,
+      location,
+      startDate,
+      endDate,
+      sortBy = 'date',
+      sortOrder = 'asc',
+    } = options || {};
+
+    const queryBuilder = this.eventRepository
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.organizer', 'organizer')
+      .leftJoinAndSelect('event.dateTimes', 'dateTimes');
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(LOWER(event.name) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search)) OR LOWER(organizer.firstName) LIKE LOWER(:search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (type) {
+      queryBuilder.andWhere('event.type = :type', { type });
+    }
+
+    if (location) {
+      queryBuilder.andWhere('LOWER(event.location) LIKE LOWER(:location)', {
+        location: `%${location}%`,
+      });
+    }
+    //
+    // if (startDate) {
+    //   queryBuilder.andWhere('dateTimes.startDate >= :startDate', {
+    //     startDate: new Date(startDate),
+    //   });
+    // }
+    //
+    // if (endDate) {
+    //   queryBuilder.andWhere('dateTimes.endDate <= :endDate', {
+    //     endDate: new Date(endDate),
+    //   });
+    // }
+
+    switch (sortBy) {
+      case 'name':
+        queryBuilder.orderBy(
+          'event.name',
+          sortOrder.toUpperCase() as 'ASC' | 'DESC',
+        );
+        break;
+      default:
+        queryBuilder.orderBy(
+          'event.name',
+          sortOrder.toUpperCase() as 'ASC' | 'DESC',
+        );
+        break;
+    }
+
+    // Apply pagination
+    queryBuilder.skip(offset).take(limit);
+
+    // Execute query
+    const [data, total] = await queryBuilder.getManyAndCount();
+
     this.logger.debug(`Found ${total} events`);
     return { data, total };
   }
