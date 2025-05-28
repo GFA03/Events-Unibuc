@@ -5,11 +5,11 @@ import { Registration } from './entities/registration.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { EventsModule } from '../events/events.module';
-import { EventDateTime } from '../events/entities/event-date-time.entity';
+import { Event } from '../events/entities/event.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Registration, EventDateTime]),
+    TypeOrmModule.forFeature([Registration, Event]),
     AuthModule,
     EventsModule,
   ],

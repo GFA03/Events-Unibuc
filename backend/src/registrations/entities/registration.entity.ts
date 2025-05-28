@@ -2,16 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Index, JoinColumn,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { EventDateTime } from '../../events/entities/event-date-time.entity';
 import { User } from '../../users/entities/user.entity';
+import { Event } from '../../events/entities/event.entity';
 
 @Entity('registrations')
-@Unique(['userId', 'eventDateTimeId']) // A user can only register once for a specific time slot
+@Unique(['userId', 'eventId']) // A user can only register once for a specific time slot
 export class Registration {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -22,15 +22,15 @@ export class Registration {
 
   @Index()
   @Column('uuid')
-  eventDateTimeId: string;
+  eventId: string;
 
   @ManyToOne(() => User, (user) => user.registrations, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => EventDateTime, (dt) => dt.registrations, {
+  @ManyToOne(() => Event, (ev) => ev.registrations, {
     onDelete: 'CASCADE',
   })
-  eventDateTime: EventDateTime;
+  event: Event;
 
   @CreateDateColumn()
   registrationDate: Date;

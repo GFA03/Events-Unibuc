@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -10,7 +11,6 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { DataSource, Repository } from 'typeorm';
-import { EventDateTime } from './entities/event-date-time.entity';
 import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 
 interface FindAllOptions {
@@ -48,16 +48,20 @@ export class EventsService {
       const newEvent = this.eventRepository.create({
         ...createEventDto,
         organizerId: organizer.userId,
-        dateTimes: createEventDto.dateTimes.map((dateTime) => ({
-          ...dateTime,
-        })),
       });
       const savedEvent = await queryRunner.manager.save(Event, newEvent);
       await queryRunner.commitTransaction();
       this.logger.log(`Successfully created event with ID: ${savedEvent.id}`);
       return this.findOne(savedEvent.id);
     } catch (err) {
-      this.logger.error(`Failed to create event: ${err.message}`, err.stack);
+      if (err instanceof BadRequestException) {
+        this.logger.error(`Failed to create event: ${err.message}`, err.stack);
+      } else if (err instanceof NotFoundException) {
+        this.logger.warn(`Event not found during creation: ${err.message}`);
+      } else if (err instanceof ConflictException) {
+        this.logger.warn(`Conflict during event creation: ${err.message}`);
+      }
+
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(
         'Failed to create event. Please try again.',
@@ -87,8 +91,7 @@ export class EventsService {
 
     const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
-      .leftJoinAndSelect('event.organizer', 'organizer')
-      .leftJoinAndSelect('event.dateTimes', 'dateTimes');
+      .leftJoinAndSelect('event.organizer', 'organizer');
 
     if (search) {
       queryBuilder.andWhere(
@@ -106,18 +109,18 @@ export class EventsService {
         location: `%${location}%`,
       });
     }
-    //
-    // if (startDate) {
-    //   queryBuilder.andWhere('dateTimes.startDate >= :startDate', {
-    //     startDate: new Date(startDate),
-    //   });
-    // }
-    //
-    // if (endDate) {
-    //   queryBuilder.andWhere('dateTimes.endDate <= :endDate', {
-    //     endDate: new Date(endDate),
-    //   });
-    // }
+
+    if (startDate) {
+      queryBuilder.andWhere('event.startDateTime >= :startDate', {
+        startDate: new Date(startDate),
+      });
+    }
+
+    if (endDate) {
+      queryBuilder.andWhere('event.startDateTime <= :endDate', {
+        endDate: new Date(endDate),
+      });
+    }
 
     switch (sortBy) {
       case 'name':
@@ -126,9 +129,10 @@ export class EventsService {
           sortOrder.toUpperCase() as 'ASC' | 'DESC',
         );
         break;
+      case 'date':
       default:
         queryBuilder.orderBy(
-          'event.name',
+          'event.startDateTime',
           sortOrder.toUpperCase() as 'ASC' | 'DESC',
         );
         break;
@@ -167,26 +171,35 @@ export class EventsService {
 
   async update(id: string, updateEventDto: UpdateEventDto) {
     this.logger.log(`Updating event with ID: ${id}`);
-    await this.findOne(id);
+    const event = await this.findOne(id);
 
-    let updatedDateTimes: EventDateTime[] | undefined = undefined;
-    if (updateEventDto.dateTimes) {
-      this.logger.debug(`Validating date times for event: ${id}`);
-      updateEventDto.dateTimes.forEach((dt) => {
-        if (new Date(dt.endDateTime) <= new Date(dt.startDateTime)) {
+    this.logger.debug(`Validating date times for event: ${id}`);
+
+    // Validating date times
+    if (updateEventDto.startDateTime) {
+      if (new Date(updateEventDto.startDateTime) <= new Date()) {
+        throw new BadRequestException(
+          `Start date must be in the future for all slots.`,
+        );
+      }
+      if (updateEventDto.endDateTime) {
+        if (
+          new Date(updateEventDto.endDateTime) <=
+          new Date(updateEventDto.startDateTime)
+        ) {
           throw new BadRequestException(
             `End date must be after start date for all slots.`,
           );
         }
-        if (new Date(dt.startDateTime) <= new Date()) {
+      } else {
+        if (
+          new Date(event.endDateTime) <= new Date(updateEventDto.startDateTime)
+        ) {
           throw new BadRequestException(
-            `Start date must be in the future for all slots.`,
+            `End date must be after start date for all slots.`,
           );
         }
-      });
-      updatedDateTimes = updateEventDto.dateTimes.map(
-        (dtDto) => ({ ...dtDto, eventId: id }) as EventDateTime,
-      );
+      }
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -194,23 +207,18 @@ export class EventsService {
     await queryRunner.startTransaction();
 
     try {
-      const { dateTimes, ...baseUpdateData } = updateEventDto;
-      await queryRunner.manager.update(Event, id, baseUpdateData);
-
-      if (updatedDateTimes) {
-        this.logger.debug(`Updating date times for event: ${id}`);
-        await queryRunner.manager.delete(EventDateTime, { eventId: id });
-        await queryRunner.manager.save(EventDateTime, updatedDateTimes);
-      }
-
+      await queryRunner.manager.update(Event, id, updateEventDto);
       await queryRunner.commitTransaction();
       this.logger.log(`Successfully updated event: ${id}`);
       return this.findOne(id);
     } catch (err) {
-      this.logger.error(
-        `Failed to update event ${id}: ${err.message}`,
-        err.stack,
-      );
+      if (err instanceof BadRequestException) {
+        this.logger.error(`Failed to update event: ${err.message}`, err.stack);
+      } else if (err instanceof NotFoundException) {
+        this.logger.warn(`Event not found during update: ${err.message}`);
+      } else if (err instanceof ConflictException) {
+        this.logger.warn(`Conflict during event update: ${err.message}`);
+      }
       await queryRunner.rollbackTransaction();
       throw new InternalServerErrorException(
         'Failed to update event. Please try again.',

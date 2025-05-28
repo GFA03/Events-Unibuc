@@ -1,24 +1,23 @@
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faPlus, faTrash, faCalendarDays, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faCalendarDays, faClock } from '@fortawesome/free-solid-svg-icons';
 import apiClient from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Event } from '@/models/event/Event';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { AxiosError } from 'axios';
 
 const createEventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   type: z.string().min(1, 'Type is required'),
   description: z.string().min(1, 'Description is required'),
   location: z.string().min(1, 'Location is required'),
-  dateTimes: z.array(z.object({
-    startDateTime: z.string().min(1, 'Start date is required'),
-    endDateTime: z.string().min(1, 'End date is required')
-  })).min(1, 'At least one date time is required')
+  startDateTime: z.string().min(1, 'Start date is required'),
+  endDateTime: z.string().min(1, 'End date is required')
 });
 
 type CreateEventFormInputs = z.infer<typeof createEventSchema>;
@@ -31,29 +30,20 @@ interface CreateEventModalProps {
 }
 
 export default function CreateEventModal({
-                                           isOpen,
-                                           onClose,
-                                           event,
-                                           mode = 'create'
-                                         }: CreateEventModalProps) {
+  isOpen,
+  onClose,
+  event,
+  mode = 'create'
+}: CreateEventModalProps) {
   const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
-    control
+    setValue
   } = useForm<CreateEventFormInputs>({
-    resolver: zodResolver(createEventSchema),
-    defaultValues: {
-      dateTimes: [{ startDateTime: '', endDateTime: '' }]
-    }
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'dateTimes'
+    resolver: zodResolver(createEventSchema)
   });
 
   const router = useRouter();
@@ -64,13 +54,8 @@ export default function CreateEventModal({
       setValue('type', event.type);
       setValue('description', event.description);
       setValue('location', event.location);
-
-      const formattedDateTimes = event.dateTimes.map(dt => ({
-        startDateTime: dt.startDateTime.toISOString().slice(0, 16),
-        endDateTime: dt.endDateTime.toISOString().slice(0, 16)
-      }));
-
-      setValue('dateTimes', formattedDateTimes);
+      setValue('startDateTime', event.startDateTime.toISOString().slice(0, 16));
+      setValue('endDateTime', event.endDateTime.toISOString().slice(0, 16));
     }
   }, [event, mode, setValue]);
 
@@ -89,19 +74,14 @@ export default function CreateEventModal({
       onClose();
       reset();
       router.push('/manage-events');
-    } catch (error: any) {
-      console.error(error.response?.data?.message);
-      toast.error(error.response?.data?.message || `Failed to ${mode} event`);
-    }
-  };
-
-  const addDateTime = () => {
-    append({ startDateTime: '', endDateTime: '' });
-  };
-
-  const removeDateTime = (index: number) => {
-    if (fields.length > 1) {
-      remove(index);
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error(error.response?.data?.message);
+        toast.error(error.response?.data?.message || `Failed to ${mode} event`);
+        return;
+      }
+      console.error('Unexpected error:', error);
+      toast.error(`Failed to ${mode} event`);
     }
   };
 
@@ -122,9 +102,11 @@ export default function CreateEventModal({
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200 group"
-          >
-            <FontAwesomeIcon icon={faXmark} className="text-gray-500 group-hover:text-gray-700 transition-colors duration-200" />
+            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200 group">
+            <FontAwesomeIcon
+              icon={faXmark}
+              className="text-gray-500 group-hover:text-gray-700 transition-colors duration-200"
+            />
           </button>
         </div>
 
@@ -150,10 +132,12 @@ export default function CreateEventModal({
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300"
                     placeholder="Enter event name"
                   />
-                  {errors.name && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                    {errors.name.message}
-                  </p>}
+                  {errors.name && (
+                    <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                      <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                      {errors.name.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="group">
@@ -163,21 +147,24 @@ export default function CreateEventModal({
                   <select
                     id="type"
                     {...register('type')}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300 bg-white"
-                  >
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300 bg-white">
                     <option value="">Select a type</option>
                     <option value="EVENT">Event</option>
                     <option value="WORKSHOP">Workshop</option>
                   </select>
-                  {errors.type && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                    {errors.type.message}
-                  </p>}
+                  {errors.type && (
+                    <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                      <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                      {errors.type.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
               <div className="group">
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-2">
                   Description
                 </label>
                 <textarea
@@ -187,10 +174,12 @@ export default function CreateEventModal({
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300 resize-none"
                   placeholder="Describe your event..."
                 />
-                {errors.description && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                  <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                  {errors.description.message}
-                </p>}
+                {errors.description && (
+                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                    {errors.description.message}
+                  </p>
+                )}
               </div>
 
               <div className="group">
@@ -204,10 +193,12 @@ export default function CreateEventModal({
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300"
                   placeholder="Enter event location"
                 />
-                {errors.location && <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                  <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                  {errors.location.message}
-                </p>}
+                {errors.location && (
+                  <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                    {errors.location.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -218,84 +209,56 @@ export default function CreateEventModal({
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   Event Dates & Times
                 </h3>
-                <button
-                  type="button"
-                  onClick={addDateTime}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-200 hover:scale-105 hover:shadow-lg"
-                >
-                  <FontAwesomeIcon icon={faPlus} className="text-sm" />
-                  Add Date
-                </button>
               </div>
 
               <div className="space-y-4">
-                {fields.map((field, index) => (
-                  <div key={field.id} className="group animate-in slide-in-from-top-2 duration-300">
-                    <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-200 hover:border-gray-300 transition-all duration-200">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                          <FontAwesomeIcon icon={faClock} className="text-indigo-500" />
-                          <span className="font-medium text-gray-700">
-                            Date {index + 1}
-                          </span>
-                        </div>
-                        {fields.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeDateTime(index)}
-                            className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-500 hover:text-red-600 transition-all duration-200 hover:scale-110 flex items-center justify-center group"
-                          >
-                            <FontAwesomeIcon icon={faTrash} className="text-sm group-hover:animate-pulse" />
-                          </button>
+                <div className="group animate-in slide-in-from-top-2 duration-300">
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <FontAwesomeIcon icon={faClock} className="text-indigo-500" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Start Date & Time
+                        </label>
+                        <input
+                          type="datetime-local"
+                          {...register(`startDateTime`)}
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 bg-white"
+                        />
+                        {errors.startDateTime && (
+                          <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                            <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                            {errors.startDateTime?.message}
+                          </p>
                         )}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Start Date & Time
-                          </label>
-                          <input
-                            type="datetime-local"
-                            {...register(`dateTimes.${index}.startDateTime`)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 bg-white"
-                          />
-                          {errors.dateTimes?.[index]?.startDateTime && (
-                            <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                              {errors.dateTimes[index]?.startDateTime?.message}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            End Date & Time
-                          </label>
-                          <input
-                            type="datetime-local"
-                            {...register(`dateTimes.${index}.endDateTime`)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 bg-white"
-                          />
-                          {errors.dateTimes?.[index]?.endDateTime && (
-                            <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                              <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                              {errors.dateTimes[index]?.endDateTime?.message}
-                            </p>
-                          )}
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          End Date & Time
+                        </label>
+                        <input
+                          type="datetime-local"
+                          {...register(`endDateTime`)}
+                          className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 bg-white"
+                        />
+                        {errors.endDateTime && (
+                          <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                            <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                            {errors?.endDateTime?.message}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
+                )
               </div>
-
-              {errors.dateTimes && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
-                  <div className="w-1 h-1 bg-red-500 rounded-full"></div>
-                  {errors.dateTimes.message}
-                </p>
-              )}
             </div>
 
             {/* Action Buttons */}
@@ -303,14 +266,12 @@ export default function CreateEventModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-105 font-medium"
-              >
+                className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-105 font-medium">
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg font-medium"
-              >
+                className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg font-medium">
                 {mode === 'edit' ? 'Save Changes' : 'Create Event'}
               </button>
             </div>

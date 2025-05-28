@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { EventDateTime } from './event-date-time.entity';
 import { EventType } from './event-type.enum';
+import { Registration } from '../../registrations/entities/registration.entity';
 
 @Entity('events')
 export class Event {
@@ -42,11 +42,15 @@ export class Event {
   })
   organizer: User;
 
-  @OneToMany(() => EventDateTime, (eventDateTime) => eventDateTime.event, {
-    cascade: true, // delete dateTimes when event is deleted
-    eager: true, // load dateTimes eagerly
-  })
-  dateTimes: EventDateTime[];
+  @Index()
+  @Column('datetime')
+  startDateTime: Date;
+
+  @Column('datetime')
+  endDateTime: Date;
+
+  @OneToMany(() => Registration, (registration) => registration.event)
+  registrations: Registration[];
 
   @CreateDateColumn()
   createdAt: Date;

@@ -8,7 +8,6 @@ import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { EventsModule } from './events/events.module';
 import { Event } from './events/entities/event.entity';
-import { EventDateTime } from './events/entities/event-date-time.entity';
 import { RegistrationsModule } from './registrations/registrations.module';
 import { Registration } from './registrations/entities/registration.entity';
 
@@ -30,7 +29,7 @@ import { Registration } from './registrations/entities/registration.entity';
         username: configService.get<string>('DATABASE_USER'), // Read user from env
         password: configService.get<string>('DATABASE_PASSWORD'), // Read password from env
         database: configService.get<string>('DATABASE_NAME'), // Read database name from env
-        entities: [User, Event, EventDateTime, Registration],
+        entities: [User, Event, Registration],
         // synchronize: true, // Keep for dev, disable for prod (use migrations)
         // Recommended for dev inside Docker:
         synchronize: configService.get<string>('NODE_ENV') === 'development',

@@ -1,5 +1,4 @@
-import { EventDateTimeDto } from '@/types/event/eventDateTimeDto';
-import {UserDto} from '@/models/user/userDto';
+import { UserDto } from '@/models/user/userDto';
 
 export interface EventDto {
   id: string;
@@ -9,7 +8,8 @@ export interface EventDto {
   location: string;
   organizerId: string;
   organizer: UserDto;
-  dateTimes: EventDateTimeDto[];
+  startDateTime: string;
+  endDateTime: string;
   createdAt: string;
   updatedAt: string;
 }

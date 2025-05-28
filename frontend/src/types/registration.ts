@@ -1,7 +1,10 @@
-import {registrationEventDateTime} from "@/types/registrationEventDateTime";
+import { Event } from '@/models/event/Event';
 
 export interface Registration {
-    id: string;
-    eventDateTime: registrationEventDateTime;
-    registrationDate: Date;
+  id: string;
+  eventId: string;
+  event: Event;
+  startDateTime: Date;
+  endDateTime: Date;
+  registrationDate: Date;
 }

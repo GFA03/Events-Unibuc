@@ -9,5 +9,7 @@ export default setSeederFactory(Event, () => {
   event.description = faker.lorem.paragraph();
   event.location = faker.location.streetAddress();
   event.type = faker.helpers.arrayElement(Object.values(EventType));
+  event.startDateTime = faker.date.soon();
+  event.endDateTime = faker.date.future({ refDate: event.startDateTime });
   return event;
 });

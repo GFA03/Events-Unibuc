@@ -1,12 +1,10 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { Event } from '../events/entities/event.entity';
-import { EventDateTime } from '../events/entities/event-date-time.entity';
 import { Registration } from '../registrations/entities/registration.entity';
 import { runSeeders, SeederOptions } from 'typeorm-extension';
 import UserSeeder from './seeding/seeds/user.seeder';
 import EventSeeder from './seeding/seeds/event.seeder';
-import EventDateTimeSeeder from './seeding/seeds/event-date-time.seeder';
 import RegistrationSeeder from './seeding/seeds/registration.seeder';
 
 const options: DataSourceOptions & SeederOptions = {
@@ -16,8 +14,8 @@ const options: DataSourceOptions & SeederOptions = {
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [User, Event, EventDateTime, Registration],
-  seeds: [UserSeeder, EventSeeder, EventDateTimeSeeder, RegistrationSeeder],
+  entities: [User, Event, Registration],
+  seeds: [UserSeeder, EventSeeder, RegistrationSeeder],
   factories: ['src/db/seeding/factories/**/*{.ts,.js}'],
 };
 

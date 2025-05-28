@@ -11,7 +11,7 @@ import { Registration } from './entities/registration.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthorizedUser } from '../auth/types/AuthorizedUser';
-import { EventDateTime } from '../events/entities/event-date-time.entity';
+import { Event } from '../events/entities/event.entity';
 
 @Injectable()
 export class RegistrationsService {
@@ -20,8 +20,8 @@ export class RegistrationsService {
   constructor(
     @InjectRepository(Registration)
     private readonly registrationRepository: Repository<Registration>,
-    @InjectRepository(EventDateTime)
-    private readonly eventDateTimeRepository: Repository<EventDateTime>,
+    @InjectRepository(Event)
+    private readonly eventRepository: Repository<Event>,
   ) {}
 
   async create(
@@ -29,26 +29,26 @@ export class RegistrationsService {
     currentUser: AuthorizedUser,
   ): Promise<Registration | null> {
     this.logger.log(
-      `Creating registration for user ${currentUser.userId} for event time slot ${createRegistrationDto.eventDateTimeId}`,
+      `Creating registration for user ${currentUser.userId} for event time slot ${createRegistrationDto.eventId}`,
     );
-    const { eventDateTimeId } = createRegistrationDto;
+    const { eventId } = createRegistrationDto;
     const userId = currentUser.userId;
 
-    // 1. Validate that the EventDateTime slot exists and is in the future
-    const eventDateTime = await this.eventDateTimeRepository.findOne({
-      where: { id: eventDateTimeId },
+    // 1. Validate that the event exists and is in the future
+    const event = await this.eventRepository.findOne({
+      where: { id: eventId },
     });
 
-    if (!eventDateTime) {
-      this.logger.warn(`Event time slot not found: ${eventDateTimeId}`);
+    if (!event) {
+      this.logger.warn(`Event time slot not found: ${eventId}`);
       throw new NotFoundException(
         `The specified event time slot was not found.`,
       );
     }
 
-    if (new Date(eventDateTime.startDateTime) <= new Date()) {
+    if (new Date(event.startDateTime) <= new Date()) {
       this.logger.warn(
-        `Attempted registration for past event slot: ${eventDateTimeId}`,
+        `Attempted registration for past event slot: ${eventId}`,
       );
       throw new BadRequestException(
         'Cannot register for an event slot that has already started or passed.',
@@ -57,11 +57,11 @@ export class RegistrationsService {
 
     // 2. Check for existing registration
     const existingCount = await this.registrationRepository.count({
-      where: { userId, eventDateTimeId },
+      where: { userId, eventId },
     });
     if (existingCount > 0) {
       this.logger.warn(
-        `Duplicate registration attempt by user ${userId} for slot ${eventDateTimeId}`,
+        `Duplicate registration attempt by user ${userId} for slot ${eventId}`,
       );
       throw new ConflictException(
         'You are already registered for this event time slot.',
@@ -69,7 +69,7 @@ export class RegistrationsService {
     }
 
     const newRegistration = this.registrationRepository.create({
-      eventDateTimeId,
+      eventId,
       userId,
     });
 
@@ -80,11 +80,19 @@ export class RegistrationsService {
       );
       return this.findOne(saved.id);
     } catch (error) {
-      this.logger.error(
-        `Failed to create registration: ${error.message}`,
-        error.stack,
-      );
-      if (error.code === '23505' || error.message?.includes('UNIQUE')) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof InternalServerErrorException ||
+        error instanceof Error
+      ) {
+        this.logger.error(
+          `Error during registration creation: ${error.message}`,
+          error.stack,
+        );
+      }
+      if (error instanceof ConflictException) {
         throw new ConflictException(
           'You are already registered for this event time slot.',
         );
@@ -104,12 +112,7 @@ export class RegistrationsService {
     this.logger.debug(`Fetching registration with ID: ${id}`);
     const registration = await this.registrationRepository.findOne({
       where: { id },
-      relations: [
-        'user',
-        'eventDateTime',
-        'eventDateTime.event',
-        'eventDateTime.event.organizer',
-      ],
+      relations: ['user', 'event', 'event.organizer'],
     });
     if (!registration) {
       this.logger.warn(`Registration not found: ${id}`);
@@ -122,12 +125,7 @@ export class RegistrationsService {
     this.logger.debug(`Fetching registrations for user: ${userId}`);
     return this.registrationRepository.find({
       where: { userId },
-      relations: [
-        'user',
-        'eventDateTime',
-        'eventDateTime.event',
-        'eventDateTime.event.organizer',
-      ],
+      relations: ['user', 'event', 'event.organizer'],
     });
   }
 

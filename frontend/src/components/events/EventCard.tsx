@@ -9,7 +9,7 @@ type EventProps = {
 };
 
 export default function EventCard({ event }: EventProps) {
-  const { id, name, type, dateTimes, organizer, location } = event;
+  const { id, name, type, startDateTime, endDateTime, organizer, location } = event;
 
   return (
     <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full overflow-clip relative group">
@@ -33,9 +33,7 @@ export default function EventCard({ event }: EventProps) {
           </div>
           <div className="mt-2 flex flex-wrap flex-row items-center">
             <FontAwesomeIcon icon={faCalendar} className="fa-fw text-black" />
-            <p className="text-sm text-gray-900 truncate">
-              {dateTimes[0].startDateTime.toDateString()}
-            </p>
+            <p className="text-sm text-gray-900 truncate">{startDateTime.toDateString()}</p>
           </div>
           <div className="mt-2 flex flex-wrap flex-row items-center">
             <FontAwesomeIcon icon={faLocationDot} className="fa-fw text-black" />

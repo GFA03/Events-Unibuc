@@ -7,10 +7,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { EventType } from './entities/event-type.enum';
 import { Event } from './entities/event.entity';
-import { EventDateTime } from './entities/event-date-time.entity';
 import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 
 const mockEventsService = {
   create: jest.fn(),
@@ -42,16 +40,7 @@ describe('EventsController', () => {
     user: mockAuthorizedUser,
   } as MockRequestWithUser; // Cast to bypass other Request properties needed by TS
 
-
   const mockEventId = 'mock-uuid-event';
-  const mockEventDateTimeId = 'mock-uuid-event-dt';
-
-  const mockEventDateTime: EventDateTime = {
-    id: mockEventDateTimeId,
-    eventId: mockEventId,
-    startDateTime: new Date('2025-10-01T10:00:00Z'),
-    endDateTime: new Date('2025-10-01T12:00:00Z'),
-  } as EventDateTime;
 
   const mockEvent: Event = {
     id: mockEventId,
@@ -60,7 +49,8 @@ describe('EventsController', () => {
     description: 'This is a description!',
     location: 'Virtual',
     organizerId: mockUserId,
-    dateTimes: [mockEventDateTime],
+    startDateTime: new Date('2025-10-01T10:00:00Z'),
+    endDateTime: new Date('2025-10-01T12:00:00Z'),
     createdAt: new Date(),
     updatedAt: new Date(),
   } as Event;
@@ -70,17 +60,8 @@ describe('EventsController', () => {
     type: EventType.EVENT,
     description: 'Description for the new event.',
     location: 'Conference Room A',
-    dateTimes: [
-      {
-        startDateTime: new Date('2025-11-01T09:00:00Z'),
-        endDateTime: new Date('2025-11-01T17:00:00Z'),
-      },
-    ],
-  };
-
-  const mockUpdateEventDto: UpdateEventDto = {
-    name: 'Updated Test Event Name',
-    location: 'Conference Room B',
+    startDateTime: new Date('2025-11-01T09:00:00Z'),
+    endDateTime: new Date('2025-11-01T17:00:00Z'),
   };
 
   beforeEach(async () => {
@@ -126,7 +107,10 @@ describe('EventsController', () => {
 
       // Assert: Check if service method was called correctly
       expect(service.create).toHaveBeenCalledTimes(1);
-      expect(service.create).toHaveBeenCalledWith(mockCreateEventDto, mockAuthorizedUser);
+      expect(service.create).toHaveBeenCalledWith(
+        mockCreateEventDto,
+        mockAuthorizedUser,
+      );
 
       // Assert: Check if the result matches the expected output
       expect(result).toEqual(expectedEvent);

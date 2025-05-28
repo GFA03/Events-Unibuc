@@ -1,4 +1,3 @@
-import { EventDateTime } from '@/models/event/EventDateTime';
 import { EventDto } from '@/types/event/eventDto';
 import { User } from '@/models/user/User';
 import { EventType, mapToType } from '@/types/event/eventType';
@@ -12,7 +11,8 @@ export class Event {
   public readonly location: string;
   public readonly organizerId: string;
   public readonly organizer: User;
-  public readonly dateTimes: EventDateTime[];
+  public readonly startDateTime: Date;
+  public readonly endDateTime: Date;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
@@ -24,7 +24,8 @@ export class Event {
     location: string,
     organizerId: string,
     organizer: User,
-    dateTimes: EventDateTime[],
+    startDateTime: Date,
+    endDateTime: Date,
     createdAt: Date,
     updatedAt: Date
   ) {
@@ -35,7 +36,8 @@ export class Event {
     this.location = location;
     this.organizerId = organizerId;
     this.organizer = organizer;
-    this.dateTimes = dateTimes;
+    this.startDateTime = new Date(startDateTime);
+    this.endDateTime = new Date(endDateTime);
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
@@ -49,7 +51,8 @@ export class Event {
       dto.location,
       dto.organizerId,
       User.fromDto(dto.organizer),
-      dto.dateTimes.map(EventDateTime.fromDto),
+      new Date(dto.startDateTime),
+      new Date(dto.endDateTime),
       new Date(dto.createdAt),
       new Date(dto.updatedAt)
     );

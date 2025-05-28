@@ -10,7 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const { data, isLoading, isError } = useEvents();
+  const { data, isLoading, isError, error } = useEvents();
+
+  console.log('Home page data:', data, 'Loading:', isLoading, 'Error:', isError);
+  console.log('Home page error:', error);
 
   const { isAuthenticated } = useAuth();
 

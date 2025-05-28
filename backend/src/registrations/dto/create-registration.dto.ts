@@ -9,5 +9,5 @@ export class CreateRegistrationDto {
   })
   @IsNotEmpty()
   @IsUUID()
-  eventDateTimeId: string;
+  eventId: string;
 }

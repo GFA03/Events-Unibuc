@@ -2,8 +2,8 @@ import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { Registration } from '../../../registrations/entities/registration.entity';
 import { User } from '../../../users/entities/user.entity';
-import { EventDateTime } from '../../../events/entities/event-date-time.entity';
 import { Role } from '../../../users/entities/role.enum';
+import { Event } from '../../../events/entities/event.entity';
 
 export default class RegistrationSeeder implements Seeder {
   public async run(
@@ -13,19 +13,19 @@ export default class RegistrationSeeder implements Seeder {
     console.log('Registration seeder');
     const registrationsFactory = factoryManager.get(Registration);
     const userRepo = dataSource.getRepository(User);
-    const dtRepo = dataSource.getRepository(EventDateTime);
+    const eventRepo = dataSource.getRepository(Event);
 
     const users = await userRepo.find();
-    const dateTimes = await dtRepo.find({ relations: ['event'] });
+    const events = await eventRepo.find();
 
     for (const user of users) {
       if (user.role === Role.ORGANIZER || user.role === Role.ADMIN) {
         continue;
       }
-      for (const dt of dateTimes) {
+      for (const event of events) {
         await registrationsFactory.save({
           userId: user.id,
-          eventDateTimeId: dt.id,
+          eventId: event.id,
         });
       }
     }

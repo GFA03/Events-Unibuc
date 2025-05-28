@@ -12,10 +12,7 @@ import {
   faShare,
   faPenToSquare,
   faTrash,
-  faUsers,
   faClock,
-  faXmark,
-  faCheck,
   faTicket
 } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
@@ -27,6 +24,7 @@ import { Role } from '@/types/user/roles';
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import CreateEventModal from '@/components/events/CreateEventModal';
+import { AxiosError } from 'axios';
 
 export default function EventDetailsPage() {
   const router = useRouter();
@@ -34,9 +32,6 @@ export default function EventDetailsPage() {
   const id = typeof params?.id === 'string' ? params.id : '';
   const queryClient = useQueryClient();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
-  const [selectedDateTimeId, setSelectedDateTimeId] = useState<string>('');
-  const [isJoining, setIsJoining] = useState(false);
 
   const { data: event, isLoading, isError } = useEvent(id);
   const { user, isAuthenticated } = useAuth();
@@ -44,35 +39,27 @@ export default function EventDetailsPage() {
   const isAdmin = user?.role === Role.ADMIN;
   const canManageEvent = isOrganizer || isAdmin;
 
-  const handleJoinClick = () => {
+  const handleJoinClick = async () => {
     if (!isAuthenticated) {
       router.push('/login');
       return;
     }
-    setIsJoinModalOpen(true);
-  };
 
-  const handleJoinConfirm = async () => {
-    if (!selectedDateTimeId) {
-      toast.error('Please select a date to join');
-      return;
-    }
-
-    setIsJoining(true);
     try {
       await apiClient.post('registrations', {
-        eventDateTimeId: selectedDateTimeId
+        eventId: event?.id
       });
       toast.success('Registration successful!');
-      setIsJoinModalOpen(false);
-      setSelectedDateTimeId('');
       // Optionally refetch event data to update participant count
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error('Registration failed!', error);
+        toast.error(error.response?.data?.message || 'Registration failed!');
+        return;
+      }
       console.error('Registration failed!', error);
-      toast.error(error.response?.data?.message || 'Registration failed!');
-    } finally {
-      setIsJoining(false);
+      toast.error('Registration failed!');
     }
   };
 
@@ -93,7 +80,12 @@ export default function EventDetailsPage() {
       await queryClient.invalidateQueries({ queryKey: ['events'] });
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
       router.push('/events');
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error('Failed to delete event!', error);
+        toast.error(error.response?.data?.message || 'Failed to delete event!');
+        return;
+      }
       console.error('Failed to delete event!', error);
       toast.error('Failed to delete event!');
     }
@@ -101,105 +93,7 @@ export default function EventDetailsPage() {
 
   if (!event) return <p>Event not found.</p>;
 
-  const { name, type, description, dateTimes, organizer, location } = event;
-
-  // Join Modal Component
-  const JoinModal = () => (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto animate-in slide-in-from-bottom-4 duration-300">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-100 rounded-t-3xl p-6 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-              <FontAwesomeIcon icon={faTicket} className="text-white text-lg" />
-            </div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              Select Event Date
-            </h2>
-          </div>
-          <button
-            onClick={() => {
-              setIsJoinModalOpen(false);
-              setSelectedDateTimeId('');
-            }}
-            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200 group"
-          >
-            <FontAwesomeIcon icon={faXmark} className="text-gray-500 group-hover:text-gray-700 transition-colors duration-200" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="p-6">
-          <p className="text-gray-600 mb-6">Choose which date you&#39;d like to attend:</p>
-
-          <div className="space-y-3 mb-8">
-            {dateTimes.map((dateTime, index) => (
-              <div
-                key={dateTime.id}
-                onClick={() => setSelectedDateTimeId(dateTime.id)}
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
-                  selectedDateTimeId === dateTime.id
-                    ? 'border-green-500 bg-green-50 shadow-lg'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors duration-200 ${
-                      selectedDateTimeId === dateTime.id
-                        ? 'border-green-500 bg-green-500'
-                        : 'border-gray-300'
-                    }`}>
-                      {selectedDateTimeId === dateTime.id && (
-                        <FontAwesomeIcon icon={faCheck} className="text-white text-xs" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        Session {index + 1}
-                      </p>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <FontAwesomeIcon icon={faClock} className="text-xs" />
-                        <span>
-                          {format(dateTime.startDateTime, 'PPpp')} – {format(dateTime.endDateTime, 'p')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
-                      <FontAwesomeIcon icon={faUsers} className="text-xs" />
-                      <span>0/10</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={() => {
-                setIsJoinModalOpen(false);
-                setSelectedDateTimeId('');
-              }}
-              className="px-6 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-105 font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleJoinConfirm}
-              disabled={!selectedDateTimeId || isJoining}
-              className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl transition-all duration-200 hover:scale-105 hover:shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isJoining ? 'Joining...' : 'Join Event'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const { name, type, description, startDateTime, endDateTime, organizer, location } = event;
 
   return (
     <>
@@ -230,11 +124,6 @@ export default function EventDetailsPage() {
                         <span className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-full capitalize shadow-lg">
                           {type}
                         </span>
-                        {dateTimes.length > 1 && (
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
-                            {dateTimes.length} Sessions
-                          </span>
-                        )}
                       </div>
 
                       {/* Management Buttons */}
@@ -245,15 +134,19 @@ export default function EventDetailsPage() {
                               e.preventDefault();
                               setIsEditModalOpen(true);
                             }}
-                            className="w-10 h-10 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-full transition-all duration-200 hover:scale-110 flex items-center justify-center group"
-                          >
-                            <FontAwesomeIcon icon={faPenToSquare} className="text-sm group-hover:animate-pulse" />
+                            className="w-10 h-10 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-full transition-all duration-200 hover:scale-110 flex items-center justify-center group">
+                            <FontAwesomeIcon
+                              icon={faPenToSquare}
+                              className="text-sm group-hover:animate-pulse"
+                            />
                           </button>
                           <button
                             onClick={handleDelete}
-                            className="w-10 h-10 bg-red-100 hover:bg-red-200 text-red-600 rounded-full transition-all duration-200 hover:scale-110 flex items-center justify-center group"
-                          >
-                            <FontAwesomeIcon icon={faTrash} className="text-sm group-hover:animate-pulse" />
+                            className="w-10 h-10 bg-red-100 hover:bg-red-200 text-red-600 rounded-full transition-all duration-200 hover:scale-110 flex items-center justify-center group">
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="text-sm group-hover:animate-pulse"
+                            />
                           </button>
                         </div>
                       )}
@@ -290,33 +183,25 @@ export default function EventDetailsPage() {
                           <div>
                             <p className="text-sm text-gray-600">Next Session</p>
                             <p className="font-bold text-green-700 text-sm">
-                              {format(dateTimes[0].startDateTime, 'MMM dd')}
+                              {format(startDateTime, 'MMM dd')}
                             </p>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Primary Date Display */}
+                    {/* Date and Time Section */}
                     <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-2xl mb-8 border border-gray-200">
                       <div className="flex items-center gap-3 mb-2">
                         <FontAwesomeIcon icon={faClock} className="text-indigo-500" />
-                        <span className="font-semibold text-gray-800">
-                          {dateTimes.length > 1 ? 'Next Session' : 'Event Date'}
-                        </span>
+                        <span className="font-semibold text-gray-800">Event Date</span>
                       </div>
                       <p className="text-gray-700 font-medium">
-                        {format(dateTimes[0].startDateTime, 'EEEE, MMMM do, yyyy')}
+                        {format(startDateTime, 'EEEE, MMMM do, yyyy')}
                       </p>
                       <p className="text-gray-600 text-sm">
-                        {format(dateTimes[0].startDateTime, 'h:mm a')} – {format(dateTimes[0].endDateTime, 'h:mm a')}
+                        {format(startDateTime, 'h:mm a')} – {format(endDateTime, 'h:mm a')}
                       </p>
-
-                      {dateTimes.length > 1 && (
-                        <p className="text-indigo-600 text-sm mt-2 font-medium">
-                          +{dateTimes.length - 1} more session{dateTimes.length > 2 ? 's' : ''}
-                        </p>
-                      )}
                     </div>
 
                     {/* Action Buttons */}
@@ -324,8 +209,7 @@ export default function EventDetailsPage() {
                       <div className="flex items-center gap-4">
                         <button
                           onClick={handleJoinClick}
-                          className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl font-semibold flex items-center gap-2"
-                        >
+                          className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl font-semibold flex items-center gap-2">
                           <FontAwesomeIcon icon={faTicket} />
                           Join Event
                         </button>
@@ -360,35 +244,6 @@ export default function EventDetailsPage() {
                       <h3 className="text-xl font-semibold text-gray-800 mb-3">Description</h3>
                       <p className="text-gray-700 leading-relaxed">{description}</p>
                     </div>
-
-                    {dateTimes.length > 1 && (
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-800 mb-4">All Sessions</h3>
-                        <div className="space-y-3">
-                          {dateTimes.map((dateTime, index) => (
-                            <div key={dateTime.id} className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-xl border border-gray-200">
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <p className="font-semibold text-gray-800">Session {index + 1}</p>
-                                  <p className="text-sm text-gray-600">
-                                    {format(dateTime.startDateTime, 'EEEE, MMMM do, yyyy')}
-                                  </p>
-                                  <p className="text-sm text-gray-500">
-                                    {format(dateTime.startDateTime, 'h:mm a')} – {format(dateTime.endDateTime, 'h:mm a')}
-                                  </p>
-                                </div>
-                                <div className="text-right">
-                                  <div className="flex items-center gap-1 text-sm text-gray-500">
-                                    <FontAwesomeIcon icon={faUsers} className="text-xs" />
-                                    <span>0/10</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
 
                   <div className="space-y-6">
@@ -414,8 +269,6 @@ export default function EventDetailsPage() {
         event={event}
         mode="edit"
       />
-
-      {isJoinModalOpen && <JoinModal />}
     </>
   );
 }
