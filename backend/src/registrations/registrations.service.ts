@@ -127,7 +127,8 @@ export class RegistrationsService {
     this.logger.debug(`Fetching registrations for user: ${userId}`);
     return this.registrationRepository.find({
       where: { userId },
-      relations: ['user', 'event', 'event.organizer'],
+      relations: ['event', 'event.organizer'],
+      order: { event: { startDateTime: 'DESC' } },
     });
   }
 
