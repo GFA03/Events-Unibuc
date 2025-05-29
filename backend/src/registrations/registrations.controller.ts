@@ -107,12 +107,14 @@ export class RegistrationsController {
   async findMyRegistrations(
     @Req() req,
   ): Promise<(null | RegistrationResponseDto)[]> {
-    const registrations = await this.registrationsService.findMyRegistrations(req.user.userId);
+    const registrations = await this.registrationsService.findMyRegistrations(
+      req.user.userId,
+    );
     return registrations.map(RegistrationResponseDto.fromEntity);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a specific registration by its ID' })
+  @ApiOperation({ summary: 'Get a registration by Event ID and User ID' })
   @ApiParam({
     name: 'id',
     description: 'UUID of the registration record',
@@ -129,8 +131,11 @@ export class RegistrationsController {
     description: 'Forbidden (if user cannot access this registration)',
   })
   @ApiResponse({ status: 404, description: 'Registration not found.' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.registrationsService.findOne(id);
+  findOne(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
+    if (!req.user || !req.user.userId) {
+      throw new Error('Unauthorized: User ID not found in request');
+    }
+    return this.registrationsService.findOne(id, req.user.userId);
   }
 
   @Delete(':id')

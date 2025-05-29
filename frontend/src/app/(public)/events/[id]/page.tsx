@@ -26,6 +26,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import CreateEventModal from '@/components/events/CreateEventModal';
 import { AxiosError } from 'axios';
 import Link from 'next/link';
+import { useRegistration } from '@/hooks/registrations/useRegistration';
 
 export default function EventDetailsPage() {
   const router = useRouter();
@@ -40,9 +41,17 @@ export default function EventDetailsPage() {
   const isAdmin = user?.role === Role.ADMIN;
   const canManageEvent = isOrganizer || isAdmin;
 
-  const handleJoinClick = async () => {
+  const { data: registration } = useRegistration(id);
+  const isRegistered = !!registration;
+
+  const handleJoin = async () => {
     if (!isAuthenticated) {
       router.push('/login');
+      return;
+    }
+
+    if (isRegistered) {
+      toast.error('You are already registered for this event.');
       return;
     }
 
@@ -53,6 +62,7 @@ export default function EventDetailsPage() {
       toast.success('Registration successful!');
       // Optionally refetch event data to update participant count
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
+      await queryClient.invalidateQueries({ queryKey: ['registration', id] });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error('Registration failed!', error);
@@ -61,6 +71,34 @@ export default function EventDetailsPage() {
       }
       console.error('Registration failed!', error);
       toast.error('Registration failed!');
+    }
+  };
+
+  const handleUnjoin = async () => {
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    if (!isRegistered) {
+      toast.error('You are not registered for this event.');
+      return;
+    }
+
+    try {
+      await apiClient.delete(`registrations/${registration?.id}`);
+      toast.success('Unregistration successful!');
+      // Optionally refetch event data to update participant count
+      await queryClient.invalidateQueries({ queryKey: ['event', id] });
+      await queryClient.invalidateQueries({ queryKey: ['registration', id] });
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        console.error('Unregistration failed!', error);
+        toast.error(error.response?.data?.message || 'Unregistration failed!');
+        return;
+      }
+      console.error('Unregistration failed!', error);
+      toast.error('Unregistration failed!');
     }
   };
 
@@ -211,12 +249,21 @@ export default function EventDetailsPage() {
                     {/* Action Buttons */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <button
-                          onClick={handleJoinClick}
-                          className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl font-semibold flex items-center gap-2">
-                          <FontAwesomeIcon icon={faTicket} />
-                          Join Event
-                        </button>
+                        {isRegistered ? (
+                          <button
+                            onClick={handleUnjoin}
+                            className="px-8 py-4 bg-gradient-to-r from-red-500 to-amber-600 hover:from-red-600 hover:to-amber-700 text-white rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl font-semibold flex items-center gap-2">
+                            <FontAwesomeIcon icon={faTicket} />
+                            Unjoin Event
+                          </button>
+                        ) : (
+                          <button
+                            onClick={handleJoin}
+                            className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-2xl transition-all duration-200 hover:scale-105 hover:shadow-xl font-semibold flex items-center gap-2">
+                            <FontAwesomeIcon icon={faTicket} />
+                            Join Event
+                          </button>
+                        )}
 
                         <button className="w-12 h-12 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 rounded-2xl transition-all duration-200 hover:scale-110 flex items-center justify-center">
                           <FontAwesomeIcon icon={faHeart} />

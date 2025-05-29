@@ -78,7 +78,7 @@ export class RegistrationsService {
       this.logger.log(
         `Successfully created registration ${saved.id} for user ${userId}`,
       );
-      return this.findOne(saved.id);
+      return this.findOne(eventId, userId);
     } catch (error) {
       if (
         error instanceof BadRequestException ||
@@ -108,14 +108,16 @@ export class RegistrationsService {
     return this.registrationRepository.find();
   }
 
-  async findOne(id: string): Promise<Registration | null> {
-    this.logger.debug(`Fetching registration with ID: ${id}`);
+  async findOne(eventId: string, userId: string): Promise<Registration | null> {
+    this.logger.debug(
+      `Fetching registration with eventId: ${eventId} and userId: ${userId}`,
+    );
     const registration = await this.registrationRepository.findOne({
-      where: { id },
-      relations: ['user', 'event', 'event.organizer'],
+      where: { eventId: eventId, userId: userId },
+      relations: ['event', 'event.organizer'],
     });
     if (!registration) {
-      this.logger.warn(`Registration not found: ${id}`);
+      this.logger.warn(`Registration not found: ${eventId}, ${userId}`);
       return null;
     }
     return registration;
@@ -131,6 +133,25 @@ export class RegistrationsService {
 
   async remove(id: string): Promise<void> {
     this.logger.log(`Attempting to remove registration: ${id}`);
+    const registration = await this.registrationRepository.findOne({
+      where: { id },
+      relations: ['event'],
+    });
+
+    if (!registration) {
+      this.logger.warn(`Registration not found: ${id}`);
+      throw new NotFoundException('Registration not found');
+    }
+
+    if (new Date(registration.event.startDateTime) <= new Date()) {
+      this.logger.warn(
+        `Attempted unregistering for past event slot: ${registration.eventId}`,
+      );
+      throw new BadRequestException(
+        'Cannot unregister from an event slot that has already started or passed.',
+      );
+    }
+
     const result = await this.registrationRepository.delete(id);
 
     if (result.affected === 0) {
