@@ -8,6 +8,7 @@ import { useEvents } from '@/hooks/events/useEvents';
 import WithLoader from '@/components/common/WithLoader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Home() {
   const { data, isLoading, isError, error } = useEvents();
@@ -16,14 +17,15 @@ export default function Home() {
   console.log('Home page error:', error);
 
   const { isAuthenticated } = useAuth();
-
   const router = useRouter();
 
-  const events = data?.events || [];
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/events');
+    }
+  }, [isAuthenticated, router]);
 
-  if (isAuthenticated) {
-    router.push('/events');
-  }
+  const events = data?.events || [];
 
   return (
     <WithLoader isLoading={isLoading} isError={isError}>
