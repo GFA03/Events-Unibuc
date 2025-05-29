@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import EventCard from '@/components/events/EventCard';
 import FeatureHighlight from '@/components/FeatureHighlight';
-import { useEvents } from '@/hooks/useEvents';
+import { useEvents } from '@/hooks/events/useEvents';
 import WithLoader from '@/components/common/WithLoader';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';

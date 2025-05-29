@@ -1,6 +1,6 @@
 'use client';
 
-import { useMyEvents } from '@/hooks/useMyEvents';
+import { useMyEvents } from '@/hooks/events/useMyEvents';
 import WithLoader from '@/components/common/WithLoader';
 import EventCard from '@/components/events/EventCard';
 import CreateEventCard from '@/components/events/CreateEventCard';

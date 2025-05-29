@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEvent } from '@/hooks/useEvent';
+import { useEvent } from '@/hooks/events/useEvent';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -25,6 +25,7 @@ import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import CreateEventModal from '@/components/events/CreateEventModal';
 import { AxiosError } from 'axios';
+import Link from 'next/link';
 
 export default function EventDetailsPage() {
   const router = useRouter();
@@ -158,7 +159,10 @@ export default function EventDetailsPage() {
 
                     <p className="text-gray-600 mb-6 flex items-center gap-2">
                       <span className="w-2 h-2 bg-indigo-500 rounded-full"></span>
-                      Organized by: {organizer.firstName} {organizer.lastName}
+                      Organized by:{' '}
+                      <Link href={`/user/${organizer.id}`} className="hover:underline">
+                        {organizer.firstName} {organizer.lastName}
+                      </Link>
                     </p>
 
                     {/* Event Stats */}
