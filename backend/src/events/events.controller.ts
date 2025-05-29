@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   ParseUUIDPipe,
   Patch,
   Post,
@@ -63,7 +62,7 @@ export class EventsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all events' })
+  @ApiOperation({ summary: 'Get all active events' })
   @ApiResponse({
     status: 200,
     description: 'List of all events.',
