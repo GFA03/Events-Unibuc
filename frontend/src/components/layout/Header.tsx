@@ -21,7 +21,7 @@ export function Header(
     <header
       className={`shadow-md sticky top-0 z-50 ${isBackgroundTransparent ? 'bg-transparent' : 'bg-cyan-600'}`}>
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link href="/">
+        <Link href={isAuthenticated ? '/events/' : '/'}>
           <Image
             src={'/unibuc-logo.webp'}
             alt={'Universitatea Bucuresti Evenimente'}
