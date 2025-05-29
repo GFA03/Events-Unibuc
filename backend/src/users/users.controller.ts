@@ -22,6 +22,7 @@ import { Role } from './entities/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UserResponseDto } from './dto/user-response.dto';
+import { OrganizerResponseDto } from './dto/organizer-response.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -41,6 +42,15 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'Not found' })
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Get('organizer/:id')
+  @ApiOkResponse({ description: 'Successfully retrieved organizer' })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  findOrganizer(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<OrganizerResponseDto | null> {
+    return this.usersService.findOrganizer(id);
   }
 
   @Patch(':id')

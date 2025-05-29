@@ -11,6 +11,8 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { hashPassword } from '../utils/helpers';
 import { UserResponseDto } from './dto/user-response.dto';
+import { OrganizerResponseDto } from './dto/organizer-response.dto';
+import { Role } from './entities/role.enum';
 
 @Injectable()
 export class UsersService {
@@ -75,6 +77,26 @@ export class UsersService {
       return null;
     }
     return user;
+  }
+
+  async findOrganizer(id: string): Promise<OrganizerResponseDto | null> {
+    this.logger.debug(`Fetching organizer with ID: ${id}`);
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ['organizedEvents', 'organizedEvents.organizer'],
+    });
+
+    if (!user) {
+      this.logger.warn(`Organizer not found with ID: ${id}`);
+      return null;
+    }
+
+    if (user.role !== Role.ORGANIZER && user.role !== Role.ADMIN) {
+      this.logger.warn(`User with ID: ${id} is not an organizer`);
+      return null;
+    }
+
+    return OrganizerResponseDto.from(user);
   }
 
   /**
