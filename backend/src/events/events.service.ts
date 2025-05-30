@@ -93,7 +93,7 @@ export class EventsService {
       .createQueryBuilder('event')
       .leftJoinAndSelect('event.organizer', 'organizer');
 
-    queryBuilder.andWhere('event.startDateTime > :currentDate', {
+    queryBuilder.andWhere('event.endDateTime >= :currentDate', {
       currentDate: new Date(),
     });
 

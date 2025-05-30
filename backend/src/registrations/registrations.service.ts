@@ -46,12 +46,12 @@ export class RegistrationsService {
       );
     }
 
-    if (new Date(event.startDateTime) <= new Date()) {
+    if (new Date(event.endDateTime) <= new Date()) {
       this.logger.warn(
         `Attempted registration for past event slot: ${eventId}`,
       );
       throw new BadRequestException(
-        'Cannot register for an event slot that has already started or passed.',
+        'Cannot register for an event that has passed.',
       );
     }
 
