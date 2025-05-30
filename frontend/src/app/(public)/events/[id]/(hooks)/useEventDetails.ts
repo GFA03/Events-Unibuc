@@ -44,6 +44,7 @@ export function useEventDetails() {
       toast.success('Registration successful!');
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
       await queryClient.invalidateQueries({ queryKey: ['registration', id] });
+      await queryClient.invalidateQueries({ queryKey: ['myRegistrations'] });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error('Registration failed!', error);
@@ -71,6 +72,7 @@ export function useEventDetails() {
       toast.success('Unregistration successful!');
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
       await queryClient.invalidateQueries({ queryKey: ['registration', id] });
+      await queryClient.invalidateQueries({ queryKey: ['myRegistrations'] });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error('Unregistration failed!', error);

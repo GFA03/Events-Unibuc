@@ -1,46 +1,42 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { fetchUserRegistrationsClient } from '@/lib/registrations';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
-import { Registration } from '@/types/registration';
 import EventCard from '@/components/events/EventCard';
+import { useRegistrations } from '@/app/(public)/registrations/(hooks)/useRegistrations';
+import WithLoader from '@/components/common/WithLoader';
 
 export default function RegistrationsPage() {
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: registrations, isError, isLoading } = useRegistrations();
 
-  useEffect(() => {
-    fetchUserRegistrationsClient()
-      .then((data) => {
-        setRegistrations(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('Failed to load registrations.');
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <LoadingSpinner />;
-  if (error) return <p className="p-6 text-red-600">{error}</p>;
+  if (!registrations || registrations.length === 0) {
+    return (
+      <WithLoader
+        isLoading={isLoading}
+        isError={isError}
+        errorMessage="Failed to load registrations">
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-4">My Registrations</h1>
+          <p>No registrations yet.</p>
+        </div>
+      </WithLoader>
+    );
+  }
 
   const events = registrations.map((reg) => reg.event);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Registrations</h1>
-      {registrations.length === 0 ? (
-        <p>No registrations yet.</p>
-      ) : (
-        <ul className="space-y-2">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} viewMode="list" />
-          ))}
-        </ul>
-      )}
-    </div>
+    <WithLoader isLoading={isLoading} isError={isError} errorMessage="Failed to load registrations">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">My Registrations</h1>
+        {registrations.length === 0 ? (
+          <p>No registrations yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {events.map((event) => (
+              <EventCard key={event.id} event={event} viewMode="list" />
+            ))}
+          </ul>
+        )}
+      </div>
+    </WithLoader>
   );
 }
