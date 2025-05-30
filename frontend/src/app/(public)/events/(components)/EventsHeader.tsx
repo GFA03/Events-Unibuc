@@ -7,7 +7,7 @@ type Props = {
 
 export default function EventsHeader({ totalCount }: Props) {
   return (
-    <div className="bg-white shadow-sm border-b border-gray-200">
+    <div className="bg-white">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>

@@ -42,13 +42,11 @@ export default function EventsPage() {
 
         {/* Toolbar */}
         <EventsToolbar
-          totalCount={totalCount}
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
           hasActiveFilters={hasActiveFilters}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
-          isLoading={isLoading}
         />
 
         {/* Filters */}

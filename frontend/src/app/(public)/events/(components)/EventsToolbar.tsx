@@ -3,36 +3,25 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFilter, faList, faGrip } from '@fortawesome/free-solid-svg-icons';
 
 interface EventsToolbarProps {
-  totalCount: number;
   showFilters: boolean;
   onToggleFilters: () => void;
   hasActiveFilters: boolean;
   viewMode?: 'grid' | 'list';
   onViewModeChange?: (mode: 'grid' | 'list') => void;
-  isLoading?: boolean;
 }
 
 export function EventsToolbar({
-  totalCount,
   showFilters,
   onToggleFilters,
   hasActiveFilters,
   viewMode = 'grid',
-  onViewModeChange,
-  isLoading = false
+  onViewModeChange
 }: EventsToolbarProps) {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       {/* Results Count */}
       <div className="flex items-center gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Events</h1>
-        {!isLoading && (
-          <span className="text-sm text-gray-600">
-            {totalCount === 0
-              ? 'No events found'
-              : `${totalCount} event${totalCount !== 1 ? 's' : ''} found`}
-          </span>
-        )}
       </div>
 
       {/* Toolbar Actions */}

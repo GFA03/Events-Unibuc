@@ -112,7 +112,7 @@ export function EventsGrid({
           : 'grid-cols-1'
       }`}>
       {events.map((event) => (
-        <EventCard key={event.id} event={event} />
+        <EventCard key={event.id} event={event} viewMode={viewMode} />
       ))}
     </div>
   );
