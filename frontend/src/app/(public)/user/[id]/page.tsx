@@ -30,7 +30,7 @@ export default function OrganizerPage() {
               key={event.id}
               className="animate-in slide-in-from-bottom-4 duration-300"
               style={{ animationDelay: `${index * 50}ms` }}>
-              <EventCard event={event} />
+              <EventCard event={event} viewMode="grid" />
             </div>
           ))}
         </div>
