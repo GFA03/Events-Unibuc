@@ -3,9 +3,9 @@
 import { useEvents } from '@/hooks/events/useEvents';
 import WithLoader from '@/components/common/WithLoader';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
-import HeroSection from '@/app/(home)/HeroSection';
-import FeaturedEvents from '@/app/(home)/FeaturedEvents';
-import HighlightsPresentation from '@/app/(home)/HighlightsPresentation';
+import HeroSection from '@/app/(home)/(components)/HeroSection';
+import FeaturedEvents from '@/app/(home)/(components)/FeaturedEvents';
+import HighlightsPresentation from '@/app/(home)/(components)/HighlightsPresentation';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
 export default function Home() {
