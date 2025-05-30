@@ -257,7 +257,6 @@ export default function CreateEventModal({
                     </div>
                   </div>
                 </div>
-                )
               </div>
             </div>
 
