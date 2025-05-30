@@ -144,7 +144,7 @@ export class RegistrationsService {
       throw new NotFoundException('Registration not found');
     }
 
-    if (new Date(registration.event.startDateTime) <= new Date()) {
+    if (new Date(registration.event.endDateTime) <= new Date()) {
       this.logger.warn(
         `Attempted unregistering for past event slot: ${registration.eventId}`,
       );
