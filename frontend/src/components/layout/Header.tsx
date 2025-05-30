@@ -11,13 +11,10 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 interface HeaderProps {
-  isBackgroundTransparent?: boolean;
   onSearch?: (query: string) => void;
 }
 
-export function Header(
-  { isBackgroundTransparent, onSearch }: HeaderProps = { isBackgroundTransparent: false }
-) {
+export function Header({ onSearch }: HeaderProps) {
   const { isAuthenticated, user, logout, isLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,8 +50,7 @@ export function Header(
   }, [searchParams]);
 
   return (
-    <header
-      className={`shadow-md sticky top-0 z-50 ${isBackgroundTransparent ? 'bg-transparent' : 'bg-cyan-600'}`}>
+    <header className={`shadow-md sticky top-0 z-50 bg-cyan-600`}>
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href={isAuthenticated ? '/events' : '/'}>
           <Image
@@ -88,25 +84,25 @@ export function Header(
             <span className="text-sm text-gray-500">Loading...</span>
           ) : isAuthenticated ? (
             <>
-              <Link href="/registrations" className="text-gray-600 hover:text-indigo-600">
+              <Link href="/registrations" className="text-white hover:text-indigo-600">
                 My Registrations
               </Link>
               {/* Conditionally show Admin links */}
               {user?.role === Role.ADMIN && (
                 <Link
                   href="/manage-events"
-                  className="text-gray-600 hover:text-indigo-600 font-medium">
+                  className="text-white hover:text-indigo-600 font-medium">
                   Manage Events
                 </Link>
               )}
               {user?.role === Role.ORGANIZER && (
                 <Link
                   href="/manage-events"
-                  className="text-gray-600 hover:text-indigo-600 font-medium">
+                  className="text-white hover:text-indigo-600 font-medium">
                   Manage My Events
                 </Link>
               )}
-              <span className="text-sm text-gray-700 hidden sm:block">Hi, {user?.email}</span>
+              <span className="text-sm text-gray-300 hidden sm:block">Hi, {user?.email}</span>
               <Button onClick={logout} variant="secondary" size="sm">
                 Logout
               </Button>
@@ -115,11 +111,6 @@ export function Header(
             <>
               <Link href="/login" className="text-white hover:text-indigo-600">
                 Login
-              </Link>
-              <Link href="/signup">
-                <Button variant="primary" size="sm">
-                  Sign Up
-                </Button>
               </Link>
             </>
           )}
