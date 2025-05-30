@@ -9,8 +9,8 @@ export default function ListEventCard({ event }: { event: Event }) {
   const { id, name, type, startDateTime, endDateTime, organizer, location } = event;
 
   return (
-    <div className="bg-slate-50 rounded-2xl shadow-lg overflow-hidden flex flex-row ml-44 mr-44">
-      <Link href={`/events/${id}`} className="flex">
+    <div className="bg-slate-50 rounded-2xl shadow-lg overflow-hidden flex flex-row ml-4 mr-4 md:ml-16 md:mr-16 lg:ml-32 lg:mr-32 mb-4">
+      <Link href={`/events/${id}`} className="flex w-full">
         {/* Image on the left for list view */}
         <div className="flex">
           <Image
@@ -18,7 +18,7 @@ export default function ListEventCard({ event }: { event: Event }) {
             alt={name}
             width={400}
             height={400}
-            className="object-contain w-64 h-48 bg-white"
+            className="object-contain w-80 h-64 bg-white"
           />
         </div>
 
