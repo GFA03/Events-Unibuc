@@ -6,10 +6,8 @@ import WithLoader from '@/components/common/WithLoader';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faSearch,
   faFilter,
   faCalendarDays,
-  faLocationDot,
   faXmark,
   faChevronLeft,
   faChevronRight,
@@ -17,11 +15,11 @@ import {
   faUsers,
   faTicket
 } from '@fortawesome/free-solid-svg-icons';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface Filters {
   search: string;
   type: string;
-  location: string;
   startDate: string;
   endDate: string;
   sortBy: 'date' | 'name' | 'participants';
@@ -29,12 +27,13 @@ interface Filters {
 }
 
 export default function EventsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [page, setPage] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<Filters>({
-    search: '',
+    search: searchParams.get('search') || '',
     type: '',
-    location: '',
     startDate: '',
     endDate: '',
     sortBy: 'date',
@@ -50,7 +49,6 @@ export default function EventsPage() {
     offset,
     ...(filters.search && { search: filters.search }),
     ...(filters.type && { type: filters.type }),
-    ...(filters.location && { location: filters.location }),
     ...(filters.startDate && { startDate: filters.startDate }),
     ...(filters.endDate && { endDate: filters.endDate }),
     sortBy: filters.sortBy,
@@ -70,6 +68,14 @@ export default function EventsPage() {
     setPage(0);
   }, [filters]);
 
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || '';
+    setFilters((prev) => ({
+      ...prev,
+      search: urlSearch
+    }));
+  }, [searchParams]);
+
   const handleFilterChange = (key: keyof Filters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -78,12 +84,12 @@ export default function EventsPage() {
     setFilters({
       search: '',
       type: '',
-      location: '',
       startDate: '',
       endDate: '',
       sortBy: 'date',
       sortOrder: 'asc'
     });
+    router.push('/events'); // Reset URL to base events page
   };
 
   const hasActiveFilters = Object.values(filters).some((value, index) => {
@@ -143,26 +149,6 @@ export default function EventsPage() {
           <div className="bg-white border-b border-gray-200">
             <div className="max-w-7xl mx-auto px-4 py-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {/* Search */}
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Search Events
-                  </label>
-                  <div className="relative">
-                    <FontAwesomeIcon
-                      icon={faSearch}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    />
-                    <input
-                      type="text"
-                      value={filters.search}
-                      onChange={(e) => handleFilterChange('search', e.target.value)}
-                      placeholder="Search by name or description..."
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
-                    />
-                  </div>
-                </div>
-
                 {/* Event Type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
@@ -177,24 +163,6 @@ export default function EventsPage() {
                       </option>
                     ))}
                   </select>
-                </div>
-
-                {/* Location */}
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <div className="relative">
-                    <FontAwesomeIcon
-                      icon={faLocationDot}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-                    />
-                    <input
-                      type="text"
-                      value={filters.location}
-                      onChange={(e) => handleFilterChange('location', e.target.value)}
-                      placeholder="Filter by location..."
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
-                    />
-                  </div>
                 </div>
 
                 {/* Sort */}
