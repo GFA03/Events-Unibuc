@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Tag } from '@/types/tag';
 
 // Fetch all tags from the API
-function fetchTags() {
+async function fetchTags(): Promise<Tag[]> {
   const response = await apiClient.get<Tag[]>('/tags');
   return response.data;
 }

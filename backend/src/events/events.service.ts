@@ -23,6 +23,7 @@ interface FindAllOptions {
   location?: string;
   startDate?: string;
   endDate?: string;
+  tags?: string; // Filtering by tag ids
   sortBy?: 'date' | 'name' | 'participants';
   sortOrder?: 'asc' | 'desc';
 }
@@ -96,6 +97,7 @@ export class EventsService {
       location,
       startDate,
       endDate,
+      tags,
       sortBy = 'date',
       sortOrder = 'asc',
     } = options || {};
@@ -136,6 +138,13 @@ export class EventsService {
       queryBuilder.andWhere('event.startDateTime <= :endDate', {
         endDate: new Date(endDate),
       });
+    }
+
+    if (tags !== undefined) {
+      const tagIds = tags.split(',').filter(Boolean);
+      if (tagIds.length > 0) {
+        queryBuilder.andWhere('tags.id IN (:...tagIds)', { tagIds });
+      }
     }
 
     switch (sortBy) {

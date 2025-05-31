@@ -20,6 +20,7 @@ export default function EventsPage() {
     queryParams,
     hasActiveFilters,
     setPage,
+    handleTagToggle,
     handleFilterChange,
     clearFilters
   } = useEventsFilters({
@@ -39,7 +40,6 @@ export default function EventsPage() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         {/* Header Section */}
         <EventsHeader totalCount={totalCount} />
-
         {/* Toolbar */}
         <EventsToolbar
           showFilters={showFilters}
@@ -48,16 +48,15 @@ export default function EventsPage() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
-
-        {/* Filters */}
+        Filters
         <EventsFilters
           filters={filters}
           onFilterChange={handleFilterChange}
           onClearFilters={clearFilters}
+          onTagToggle={handleTagToggle}
           hasActiveFilters={hasActiveFilters}
           isVisible={showFilters}
         />
-
         {/* Events Grid */}
         <EventsGrid
           events={events}
@@ -66,7 +65,6 @@ export default function EventsPage() {
           error={error}
           viewMode={viewMode}
         />
-
         {/* Pagination */}
         <Pagination
           currentPage={currentPage}

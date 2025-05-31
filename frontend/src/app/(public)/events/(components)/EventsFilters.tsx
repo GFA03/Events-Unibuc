@@ -3,10 +3,12 @@
 import { Button } from '@/components/common/Button';
 import { Filters } from '../(hooks)/useEventsFilters';
 import { EventType } from '@/types/event/eventType';
+import { useTags } from '@/hooks/useTags';
 
 interface EventsFiltersProps {
   filters: Filters;
   onFilterChange: (key: keyof Filters, value: string) => void;
+  onTagToggle: (tagId: string) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
   isVisible: boolean;
@@ -15,10 +17,13 @@ interface EventsFiltersProps {
 export function EventsFilters({
   filters,
   onFilterChange,
+  onTagToggle,
   onClearFilters,
   hasActiveFilters,
   isVisible
 }: EventsFiltersProps) {
+  const { data: availableTags } = useTags();
+
   if (!isVisible) return null;
 
   return (
@@ -82,6 +87,37 @@ export function EventsFilters({
             </select>
           </div>
         </div>
+
+        {/* Tags Filter Section */}
+        {availableTags.length > 0 && (
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Tags</label>
+            <div className="flex flex-wrap gap-2">
+              {availableTags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => onTagToggle(tag.id)}
+                  className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-all duration-200 ${
+                    filters.tags.includes(tag.id)
+                      ? 'text-white border-transparent shadow-sm'
+                      : 'text-gray-700 border-gray-300 bg-white hover:bg-gray-50'
+                  }`}
+                  style={{
+                    backgroundColor: filters.tags.includes(tag.id) ? '#6B7280' : undefined
+                  }}>
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Show selected tags count */}
+            {filters.tags.length > 0 && (
+              <p className="mt-2 text-sm text-gray-600">
+                {filters.tags.length} tag{filters.tags.length !== 1 ? 's' : ''} selected
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Clear Filters Button */}
         <div className="flex items-end">

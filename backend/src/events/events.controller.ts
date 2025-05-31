@@ -130,6 +130,7 @@ export class EventsController {
     @Query('location') location?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('tags') tags?: string,
     @Query('sortBy') sortBy?: 'date' | 'name' | 'participants',
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
@@ -141,6 +142,7 @@ export class EventsController {
       location,
       startDate,
       endDate,
+      tags,
       sortBy: sortBy || 'date',
       sortOrder: sortOrder || 'asc',
     });
