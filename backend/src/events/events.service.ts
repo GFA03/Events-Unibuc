@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -14,6 +15,8 @@ import { DataSource, Repository } from 'typeorm';
 import { AuthorizedUser } from '../auth/types/AuthorizedUser';
 import { TagsService } from '../tags/tags.service';
 import { EventResponseDto } from './dto/event-response.dto';
+import { FileUploadService } from '../file-upload/file-upload.service';
+import { Role } from '../users/entities/role.enum';
 
 interface FindAllOptions {
   limit?: number;
@@ -37,11 +40,13 @@ export class EventsService {
     private readonly eventRepository: Repository<Event>,
     private readonly tagsService: TagsService,
     private readonly dataSource: DataSource,
+    private fileUploadService: FileUploadService,
   ) {}
 
   async create(
     createEventDto: CreateEventDto,
     organizer: AuthorizedUser,
+    file?: Express.Multer.File,
   ): Promise<Event> {
     this.logger.log(`Creating new event by organizer ${organizer.userId}`);
 
@@ -56,6 +61,11 @@ export class EventsService {
         ...eventData,
         organizerId: organizer.userId,
       });
+
+      if (file) {
+        event.imageUrl = this.fileUploadService.getFileUrl(file.filename);
+        event.imageName = file.filename;
+      }
 
       if (tagIds && tagIds.length > 0) {
         event.tags = await this.tagsService.findByIds(tagIds);
@@ -75,6 +85,11 @@ export class EventsService {
       }
 
       await queryRunner.rollbackTransaction();
+
+      if (file) {
+        await this.fileUploadService.deleteFile(file.filename);
+      }
+
       throw new InternalServerErrorException(
         'Failed to create event. Please try again.',
       );
@@ -194,12 +209,21 @@ export class EventsService {
     });
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto) {
+  async update(
+    id: string,
+    updateEventDto: UpdateEventDto & { removeImage?: boolean },
+    user: AuthorizedUser,
+    file?: Express.Multer.File,
+  ): Promise<Event> {
     this.logger.log(`Updating event with ID: ${id}`);
 
     const event = await this.findOne(id);
 
-    const { tagIds, ...eventData } = updateEventDto;
+    if (event.organizerId !== user.userId || user.role !== Role.ADMIN) {
+      throw new ForbiddenException('You can only update your own events');
+    }
+
+    const { tagIds, removeImage, ...eventData } = updateEventDto;
 
     this.logger.debug(`Validating date times for event: ${id}`);
 
@@ -226,6 +250,19 @@ export class EventsService {
       }
     }
 
+    // Handle image operations
+    const oldImageName = event.imageName;
+
+    if (removeImage) {
+      // Remove existing image
+      event.imageUrl = null;
+      event.imageName = null;
+    } else if (file) {
+      // Replace with new image
+      event.imageUrl = this.fileUploadService.getFileUrl(file.filename);
+      event.imageName = file.filename;
+    }
+
     Object.assign(event, {
       ...eventData,
       startDateTime: updateEventDto.startDateTime
@@ -244,15 +281,32 @@ export class EventsService {
       }
     }
 
+    const updatedEvent = await this.eventRepository.save(event);
+
+    // Clean up old image file if it was replaced or removed
+    if ((removeImage || file) && oldImageName) {
+      await this.fileUploadService.deleteFile(oldImageName);
+    }
+
     this.logger.log(`Successfully updated event: ${id}`);
-    return await this.eventRepository.save(event);
+    return updatedEvent;
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: AuthorizedUser) {
     this.logger.log(`Attempting to remove event: ${id}`);
 
     // check if event exists
-    await this.findOne(id);
+    const event = await this.findOne(id);
+
+    // Check if user is the organizer or admin
+    if (event.organizerId !== user.userId || user.role !== Role.ADMIN) {
+      throw new ForbiddenException('You can only delete your own events');
+    }
+
+    // Delete associated image file
+    if (event.imageName) {
+      await this.fileUploadService.deleteFile(event.imageName);
+    }
 
     const result = await this.eventRepository.delete(id);
 

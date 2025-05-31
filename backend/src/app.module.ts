@@ -12,6 +12,9 @@ import { RegistrationsModule } from './registrations/registrations.module';
 import { Registration } from './registrations/entities/registration.entity';
 import { TagsModule } from './tags/tags.module';
 import { Tag } from './tags/entities/tag.entity';
+import { FileUploadModule } from './file-upload/file-upload.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -38,12 +41,17 @@ import { Tag } from './tags/entities/tag.entity';
         // logging: configService.get<string>('NODE_ENV') === 'development', // Optional: log SQL in dev
       }),
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'), // Serve static files from 'uploads' directory)
+      serveRoot: '/uploads',
+    }),
     // Import other modules
     UsersModule,
     AuthModule,
     EventsModule,
     RegistrationsModule,
     TagsModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

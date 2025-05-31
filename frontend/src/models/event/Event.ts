@@ -8,7 +8,8 @@ export class Event {
   public readonly name: string;
   public readonly type: EventType;
   public readonly description: string;
-  // image: string;
+  public readonly imageUrl: string;
+  public readonly imageName: string;
   public readonly location: string;
   public readonly organizerId: string;
   public readonly organizer: User;
@@ -24,6 +25,8 @@ export class Event {
     type: string,
     description: string,
     location: string,
+    imageUrl: string,
+    imageName: string,
     organizerId: string,
     organizer: User,
     startDateTime: Date,
@@ -37,6 +40,8 @@ export class Event {
     this.type = mapToType(type);
     this.description = description;
     this.location = location;
+    this.imageUrl = imageUrl;
+    this.imageName = imageName;
     this.organizerId = organizerId;
     this.organizer = organizer;
     this.startDateTime = new Date(startDateTime);
@@ -53,6 +58,8 @@ export class Event {
       dto.type,
       dto.description,
       dto.location,
+      dto.imageUrl,
+      dto.imageName,
       dto.organizerId,
       User.fromDto(dto.organizer),
       new Date(dto.startDateTime),

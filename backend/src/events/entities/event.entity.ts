@@ -14,7 +14,6 @@ import {
 import { EventType } from './event-type.enum';
 import { Registration } from '../../registrations/entities/registration.entity';
 import { Tag } from '../../tags/entities/tag.entity';
-import { TagResponseDto } from '../../tags/dto/tag-response.dto';
 
 @Entity('events')
 export class Event {
@@ -37,6 +36,13 @@ export class Event {
 
   @Column({ length: 255, nullable: true })
   location: string;
+
+  // explicitly define the image URL type, else it defaults to 'Object'
+  @Column({ type: String, length: 500, nullable: true })
+  imageUrl: string | null;
+
+  @Column({ type: String, length: 255, nullable: true })
+  imageName: string | null;
 
   @Column()
   organizerId: string; // Foreign key to users table

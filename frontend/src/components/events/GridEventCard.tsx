@@ -7,13 +7,15 @@ import { format } from 'date-fns';
 import TagCard from '@/components/tags/TagCard';
 
 export default function GridEventCard({ event }: { event: Event }) {
-  const { id, name, type, startDateTime, endDateTime, tags, organizer, location } = event;
+  const { id, name, type, startDateTime, imageUrl, endDateTime, tags, organizer, location } = event;
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
   return (
     <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full overflow-clip relative group">
       <Link href={`/events/${id}`} className="flex-grow">
         <Image
-          src={'/unibuc-event-logo.png'}
+          src={imageUrl ? `${baseUrl}${imageUrl}` : '/unibuc-event-logo.png'}
           alt={name}
           width={300}
           height={200}

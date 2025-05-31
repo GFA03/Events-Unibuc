@@ -11,6 +11,8 @@ export class EventResponseDto {
   type: EventType;
   description: string;
   location: string;
+  imageUrl?: string | null; // Optional field for image URL
+  imageName?: string | null; // Optional field for image file name
   organizerId: string;
   organizer: UserResponseDto | null; // Exclude password from the response
   startDateTime: Date;
@@ -25,6 +27,8 @@ export class EventResponseDto {
     this.type = event.type;
     this.description = event.description;
     this.location = event.location;
+    this.imageUrl = event.imageUrl;
+    this.imageName = event.imageName;
     this.organizerId = event.organizerId;
     this.organizer = UserResponseDto.fromEntity(event.organizer);
     this.startDateTime = event.startDateTime;

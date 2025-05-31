@@ -9,15 +9,16 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import {
   ApiBearerAuth,
+  ApiConsumes,
   ApiOperation,
   ApiQuery,
   ApiResponse,
@@ -29,6 +30,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../users/entities/role.enum';
 import { Event } from './entities/event.entity';
 import { RequestWithUser } from '../auth/types/RequestWithUser';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Events')
 @ApiBearerAuth()
@@ -39,13 +41,8 @@ export class EventsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.ORGANIZER)
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Create a new event (Admin/Organizer only)' })
   @ApiResponse({
     status: 201,
@@ -57,8 +54,9 @@ export class EventsController {
   async create(
     @Req() req: RequestWithUser,
     @Body() createEventDto: CreateEventDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<Event> {
-    return await this.eventsService.create(createEventDto, req.user);
+    return await this.eventsService.create(createEventDto, req.user, file);
   }
 
   @Get()
@@ -174,6 +172,7 @@ export class EventsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN, Role.ORGANIZER)
+  @UseInterceptors(FileInterceptor('image'))
   @ApiOperation({ summary: 'Update an event (Admin/Organizer only)' })
   @ApiResponse({
     status: 200,
@@ -183,10 +182,11 @@ export class EventsController {
   @ApiResponse({ status: 404, description: 'Event not found.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   update(
+    @Req() req: RequestWithUser,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    return this.eventsService.update(id, updateEventDto);
+    return this.eventsService.update(id, updateEventDto, req.user);
   }
 
   @Delete(':id')
@@ -196,7 +196,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Event deleted successfully.' })
   @ApiResponse({ status: 404, description: 'Event not found.' })
   @ApiResponse({ status: 403, description: 'Forbidden.' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.eventsService.remove(id);
+  remove(@Req() req: RequestWithUser, @Param('id', ParseUUIDPipe) id: string) {
+    return this.eventsService.remove(id, req.user);
   }
 }
