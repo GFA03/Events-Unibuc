@@ -12,6 +12,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { DataSource, Repository } from 'typeorm';
 import { AuthorizedUser } from '../auth/types/AuthorizedUser';
+import { TagsService } from '../tags/tags.service';
+import { EventResponseDto } from './dto/event-response.dto';
 
 interface FindAllOptions {
   limit?: number;
@@ -32,6 +34,7 @@ export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly tagsService: TagsService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -40,16 +43,24 @@ export class EventsService {
     organizer: AuthorizedUser,
   ): Promise<Event> {
     this.logger.log(`Creating new event by organizer ${organizer.userId}`);
+
+    const { tagIds, ...eventData } = createEventDto;
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      const newEvent = this.eventRepository.create({
-        ...createEventDto,
+      const event = this.eventRepository.create({
+        ...eventData,
         organizerId: organizer.userId,
       });
-      const savedEvent = await queryRunner.manager.save(Event, newEvent);
+
+      if (tagIds && tagIds.length > 0) {
+        event.tags = await this.tagsService.findByIds(tagIds);
+      }
+
+      const savedEvent = await queryRunner.manager.save(Event, event);
       await queryRunner.commitTransaction();
       this.logger.log(`Successfully created event with ID: ${savedEvent.id}`);
       return this.findOne(savedEvent.id);
@@ -73,7 +84,7 @@ export class EventsService {
 
   async findAll(
     options?: FindAllOptions,
-  ): Promise<{ data: Event[]; total: number }> {
+  ): Promise<{ data: EventResponseDto[]; total: number }> {
     this.logger.debug(
       `Fetching events with options: ${JSON.stringify(options)}`,
     );
@@ -91,7 +102,8 @@ export class EventsService {
 
     const queryBuilder = this.eventRepository
       .createQueryBuilder('event')
-      .leftJoinAndSelect('event.organizer', 'organizer');
+      .leftJoinAndSelect('event.organizer', 'organizer')
+      .leftJoinAndSelect('event.tags', 'tags');
 
     queryBuilder.andWhere('event.endDateTime >= :currentDate', {
       currentDate: new Date(),
@@ -149,7 +161,7 @@ export class EventsService {
     const [data, total] = await queryBuilder.getManyAndCount();
 
     this.logger.debug(`Found ${total} events`);
-    return { data, total };
+    return { data: data.map((event) => new EventResponseDto(event)), total };
   }
 
   async findOne(id: string): Promise<Event> {
@@ -175,25 +187,24 @@ export class EventsService {
 
   async update(id: string, updateEventDto: UpdateEventDto) {
     this.logger.log(`Updating event with ID: ${id}`);
+
     const event = await this.findOne(id);
+
+    const { tagIds } = updateEventDto;
 
     this.logger.debug(`Validating date times for event: ${id}`);
 
     // Validating date times
     if (updateEventDto.startDateTime) {
       if (new Date(updateEventDto.startDateTime) <= new Date()) {
-        throw new BadRequestException(
-          `Start date must be in the future for all slots.`,
-        );
+        throw new BadRequestException(`Start date must be in the future.`);
       }
       if (updateEventDto.endDateTime) {
         if (
           new Date(updateEventDto.endDateTime) <=
           new Date(updateEventDto.startDateTime)
         ) {
-          throw new BadRequestException(
-            `End date must be after start date for all slots.`,
-          );
+          throw new BadRequestException(`End date must be after start date.`);
         }
       } else {
         if (
@@ -203,6 +214,14 @@ export class EventsService {
             `End date must be after start date for all slots.`,
           );
         }
+      }
+    }
+
+    if (tagIds !== undefined) {
+      if (tagIds.length > 0) {
+        event.tags = await this.tagsService.findByIds(tagIds);
+      } else {
+        event.tags = [];
       }
     }
 

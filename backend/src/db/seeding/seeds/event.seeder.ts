@@ -1,6 +1,8 @@
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
 import { DataSource } from 'typeorm';
 import { Event } from '../../../events/entities/event.entity';
+import { faker } from '@faker-js/faker';
+import { Tag } from '../../../tags/entities/tag.entity';
 
 export default class EventSeeder implements Seeder {
   public async run(
@@ -11,10 +13,22 @@ export default class EventSeeder implements Seeder {
 
     const eventFactory = factoryManager.get(Event);
 
+    const tagRepository = dataSource.getRepository(Tag);
+
+    const tags = await tagRepository.find();
+
     const organizerId = '22222222-2222-2222-2222-222222222222'; // Organizer from UserSeeder
 
     // Create 10 events and override organizerId manually
-    await eventFactory.saveMany(10, { organizerId: organizerId });
+    for (let i = 0; i < 10; i++) {
+      await eventFactory.save({
+        organizerId: organizerId,
+        tags: faker.helpers.arrayElements(tags, {
+          min: 1,
+          max: 3, // Each event can have 1 to 3 tags
+        }),
+      });
+    }
 
     console.log('Event seeder END');
   }

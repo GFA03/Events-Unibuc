@@ -4,9 +4,10 @@ import { faCalendar, faLocationDot, faUser } from '@fortawesome/free-solid-svg-i
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import TagCard from '@/components/tags/TagCard';
 
 export default function GridEventCard({ event }: { event: Event }) {
-  const { id, name, type, startDateTime, endDateTime, organizer, location } = event;
+  const { id, name, type, startDateTime, endDateTime, tags, organizer, location } = event;
 
   return (
     <div className="bg-slate-50 rounded-2xl shadow-lg flex flex-col justify-between h-full overflow-clip relative group">
@@ -24,6 +25,14 @@ export default function GridEventCard({ event }: { event: Event }) {
             {type}
           </span>
           <h3 className="mt-2 text-lg text-gray-900 truncate">{name}</h3>
+          {/* Tags section */}
+          {tags && tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {tags.map((tag) => (
+                <TagCard key={tag.id} tag={tag} size="small" />
+              ))}
+            </div>
+          )}
           <div className="mt-2 flex flex-wrap flex-row items-center">
             <FontAwesomeIcon icon={faUser} className="fa-fw text-black" />
             <p className="self-center text-sm text-gray-900 truncate">{`${organizer.firstName} ${organizer.lastName}`}</p>

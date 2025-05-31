@@ -6,6 +6,8 @@ import { runSeeders, SeederOptions } from 'typeorm-extension';
 import UserSeeder from './seeding/seeds/user.seeder';
 import EventSeeder from './seeding/seeds/event.seeder';
 import RegistrationSeeder from './seeding/seeds/registration.seeder';
+import TagSeeder from './seeding/seeds/tag.seeder';
+import { Tag } from '../tags/entities/tag.entity';
 
 const options: DataSourceOptions & SeederOptions = {
   type: 'mysql',
@@ -14,8 +16,8 @@ const options: DataSourceOptions & SeederOptions = {
   username: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  entities: [User, Event, Registration],
-  seeds: [UserSeeder, EventSeeder, RegistrationSeeder],
+  entities: [User, Tag, Event, Registration],
+  seeds: [UserSeeder, TagSeeder, EventSeeder, RegistrationSeeder],
   factories: ['src/db/seeding/factories/**/*{.ts,.js}'],
 };
 

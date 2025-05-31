@@ -1,6 +1,7 @@
 import { EventDto } from '@/types/event/eventDto';
 import { User } from '@/models/user/User';
 import { EventType, mapToType } from '@/types/event/eventType';
+import { Tag } from '@/types/tag';
 
 export class Event {
   public readonly id: string;
@@ -13,6 +14,7 @@ export class Event {
   public readonly organizer: User;
   public readonly startDateTime: Date;
   public readonly endDateTime: Date;
+  public readonly tags: Tag[];
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
@@ -26,6 +28,7 @@ export class Event {
     organizer: User,
     startDateTime: Date,
     endDateTime: Date,
+    tags: Tag[],
     createdAt: Date,
     updatedAt: Date
   ) {
@@ -38,6 +41,7 @@ export class Event {
     this.organizer = organizer;
     this.startDateTime = new Date(startDateTime);
     this.endDateTime = new Date(endDateTime);
+    this.tags = tags;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
@@ -53,6 +57,7 @@ export class Event {
       User.fromDto(dto.organizer),
       new Date(dto.startDateTime),
       new Date(dto.endDateTime),
+      dto.tags,
       new Date(dto.createdAt),
       new Date(dto.updatedAt)
     );

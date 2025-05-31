@@ -4,11 +4,13 @@ import { EventsController } from './events.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
 import { AuthModule } from '../auth/auth.module';
+import { TagsModule } from '../tags/tags.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Event]),
     AuthModule, // Provides JwtAuthGuard, RolesGuard
+    TagsModule,
   ],
   controllers: [EventsController],
   providers: [EventsService],

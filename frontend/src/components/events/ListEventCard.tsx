@@ -4,9 +4,10 @@ import { faCalendar, faLocationDot, faUser } from '@fortawesome/free-solid-svg-i
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import TagCard from '@/components/tags/TagCard';
 
 export default function ListEventCard({ event }: { event: Event }) {
-  const { id, name, type, startDateTime, endDateTime, organizer, location } = event;
+  const { id, name, type, startDateTime, endDateTime, organizer, tags, location } = event;
 
   return (
     <div className="bg-slate-50 rounded-2xl shadow-lg overflow-hidden flex flex-row ml-4 mr-4 md:ml-16 md:mr-16 lg:ml-32 lg:mr-32 mb-4">
@@ -30,6 +31,14 @@ export default function ListEventCard({ event }: { event: Event }) {
               {type}
             </span>
             <h3 className="mt-2 text-lg text-gray-900 truncate">{name}</h3>
+            {/* Tags section */}
+            {tags && tags.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {tags.map((tag) => (
+                  <TagCard key={tag.id} tag={tag} size="small" />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mt-2 space-y-2">

@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,6 +13,8 @@ import {
 } from 'typeorm';
 import { EventType } from './event-type.enum';
 import { Registration } from '../../registrations/entities/registration.entity';
+import { Tag } from '../../tags/entities/tag.entity';
+import { TagResponseDto } from '../../tags/dto/tag-response.dto';
 
 @Entity('events')
 export class Event {
@@ -51,6 +55,22 @@ export class Event {
 
   @OneToMany(() => Registration, (registration) => registration.event)
   registrations: Registration[];
+
+  @ManyToMany(() => Tag, (tag) => tag.events, {
+    eager: true,
+  })
+  @JoinTable({
+    name: 'event_tags',
+    joinColumn: {
+      name: 'eventId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'tagId',
+      referencedColumnName: 'id',
+    },
+  })
+  tags: Tag[];
 
   @CreateDateColumn()
   createdAt: Date;

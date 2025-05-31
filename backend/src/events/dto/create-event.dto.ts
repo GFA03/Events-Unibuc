@@ -1,8 +1,11 @@
 import { EventType } from '../entities/event-type.enum';
 import {
+  IsArray,
   IsDate,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   MinDate,
   MinLength,
@@ -11,6 +14,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEndDateTimeAfterStartDateConstraint } from '../constraints/is-end-date-time-after-start-date-constraint';
+import { Tag } from '../../tags/entities/tag.entity';
 
 export class CreateEventDto {
   @ApiProperty({
@@ -35,6 +39,17 @@ export class CreateEventDto {
   @IsNotEmpty()
   @IsString()
   type: EventType;
+
+  @ApiProperty({
+    name: 'tags',
+    description: 'The event tags',
+    type: [Tag],
+    example: '["tag1", "tag2"]',
+  })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  tagIds?: string[];
 
   @ApiProperty({
     name: 'description',

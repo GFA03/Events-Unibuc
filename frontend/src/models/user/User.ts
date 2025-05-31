@@ -7,7 +7,6 @@ export class User {
   public readonly firstName: string;
   public readonly lastName: string;
   public readonly role: Role;
-  public readonly phoneNumber: string;
   public readonly createdAt: string;
   public readonly updatedAt: string;
 
@@ -17,7 +16,6 @@ export class User {
     firstName: string,
     lastName: string,
     role: Role,
-    phoneNumber: string,
     createdAt: string,
     updatedAt: string
   ) {
@@ -26,7 +24,6 @@ export class User {
     this.firstName = firstName;
     this.lastName = lastName;
     this.role = role;
-    this.phoneNumber = phoneNumber;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
@@ -38,7 +35,6 @@ export class User {
       dto.firstName,
       dto.lastName,
       mapToRole(dto.role),
-      dto.phoneNumber,
       dto.createdAt,
       dto.updatedAt
     );
