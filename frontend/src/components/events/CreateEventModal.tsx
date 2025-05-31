@@ -2,14 +2,21 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark, faCalendarDays, faClock } from '@fortawesome/free-solid-svg-icons';
+import {
+  faXmark,
+  faTag,
+  faTimes,
+  faCalendarDays,
+  faClock
+} from '@fortawesome/free-solid-svg-icons';
 import apiClient from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Event } from '@/models/event/Event';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
+import { useTags } from '@/hooks/useTags';
 
 const createEventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -17,7 +24,8 @@ const createEventSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   location: z.string().min(1, 'Location is required'),
   startDateTime: z.string().min(1, 'Start date is required'),
-  endDateTime: z.string().min(1, 'End date is required')
+  endDateTime: z.string().min(1, 'End date is required'),
+  tagIds: z.array(z.string()).optional()
 });
 
 type CreateEventFormInputs = z.infer<typeof createEventSchema>;
@@ -35,7 +43,11 @@ export default function CreateEventModal({
   event,
   mode = 'create'
 }: CreateEventModalProps) {
+  console.log(isOpen);
   const queryClient = useQueryClient();
+  const { data: availableTags } = useTags();
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isTagDropdownOpen, setIsTagDropdownOpen] = useState(false);
   const {
     register,
     handleSubmit,
@@ -56,8 +68,36 @@ export default function CreateEventModal({
       setValue('location', event.location);
       setValue('startDateTime', event.startDateTime.toISOString().slice(0, 16));
       setValue('endDateTime', event.endDateTime.toISOString().slice(0, 16));
+
+      if (event.tags && event.tags.length > 0) {
+        const tagIds = event.tags.map((tag) => tag.id);
+        setSelectedTags(tagIds);
+        setValue('tagIds', tagIds);
+      }
+    } else {
+      setSelectedTags([]);
+      setValue('tagIds', []);
     }
   }, [event, mode, setValue]);
+
+  const handleTagToggle = (tagId: string) => {
+    const updatedTags = selectedTags.includes(tagId)
+      ? selectedTags.filter((id) => id !== tagId)
+      : [...selectedTags, tagId];
+
+    setSelectedTags(updatedTags);
+    setValue('tagIds', updatedTags);
+  };
+
+  const removeTag = (tagId: string) => {
+    const updatedTags = selectedTags.filter((id) => id !== tagId);
+    setSelectedTags(updatedTags);
+    setValue('tagIds', updatedTags);
+  };
+
+  const getTagById = (tagId: string) => {
+    return availableTags?.find((tag) => tag.id === tagId);
+  };
 
   const onSubmit = async (data: CreateEventFormInputs) => {
     try {
@@ -198,6 +238,72 @@ export default function CreateEventModal({
                     <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                     {errors.location.message}
                   </p>
+                )}
+              </div>
+            </div>
+
+            {/* Tags Section */}
+            <div className="group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsTagDropdownOpen(!isTagDropdownOpen)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200 group-hover:border-gray-300 bg-white text-left flex items-center justify-between">
+                  <span className="text-gray-500">
+                    {selectedTags.length > 0
+                      ? `${selectedTags.length} tag(s) selected`
+                      : 'Select tags'}
+                  </span>
+                  <FontAwesomeIcon icon={faTag} className="text-gray-400" />
+                </button>
+
+                {/* Selected Tags Display */}
+                {selectedTags.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {selectedTags.map((tagId) => {
+                      const tag = getTagById(tagId);
+                      return tag ? (
+                        <span
+                          key={tagId}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium">
+                          {tag.name}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(tagId)}
+                            className="hover:bg-indigo-200 rounded-full p-1 transition-colors duration-200">
+                            <FontAwesomeIcon icon={faTimes} className="text-xs" />
+                          </button>
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+
+                {/* Dropdown */}
+                {isTagDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 max-h-60 overflow-y-auto">
+                    {availableTags && availableTags.length > 0 ? (
+                      availableTags.map((tag) => (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          onClick={() => handleTagToggle(tag.id)}
+                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors duration-200 flex items-center justify-between ${
+                            selectedTags.includes(tag.id)
+                              ? 'bg-indigo-50 text-indigo-800'
+                              : 'text-gray-700'
+                          }`}>
+                          <span>{tag.name}</span>
+                          {selectedTags.includes(tag.id) && (
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                          )}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-gray-500 text-center">No tags available</div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>

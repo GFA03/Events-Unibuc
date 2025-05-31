@@ -199,7 +199,7 @@ export class EventsService {
 
     const event = await this.findOne(id);
 
-    const { tagIds } = updateEventDto;
+    const { tagIds, ...eventData } = updateEventDto;
 
     this.logger.debug(`Validating date times for event: ${id}`);
 
@@ -226,6 +226,16 @@ export class EventsService {
       }
     }
 
+    Object.assign(event, {
+      ...eventData,
+      startDateTime: updateEventDto.startDateTime
+        ? new Date(updateEventDto.startDateTime)
+        : event.startDateTime,
+      endDateTime: updateEventDto.endDateTime
+        ? new Date(updateEventDto.endDateTime)
+        : event.endDateTime,
+    });
+
     if (tagIds !== undefined) {
       if (tagIds.length > 0) {
         event.tags = await this.tagsService.findByIds(tagIds);
@@ -234,30 +244,8 @@ export class EventsService {
       }
     }
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      await queryRunner.manager.update(Event, id, updateEventDto);
-      await queryRunner.commitTransaction();
-      this.logger.log(`Successfully updated event: ${id}`);
-      return this.findOne(id);
-    } catch (err) {
-      if (err instanceof BadRequestException) {
-        this.logger.error(`Failed to update event: ${err.message}`, err.stack);
-      } else if (err instanceof NotFoundException) {
-        this.logger.warn(`Event not found during update: ${err.message}`);
-      } else if (err instanceof ConflictException) {
-        this.logger.warn(`Conflict during event update: ${err.message}`);
-      }
-      await queryRunner.rollbackTransaction();
-      throw new InternalServerErrorException(
-        'Failed to update event. Please try again.',
-      );
-    } finally {
-      await queryRunner.release();
-    }
+    this.logger.log(`Successfully updated event: ${id}`);
+    return await this.eventRepository.save(event);
   }
 
   async remove(id: string) {

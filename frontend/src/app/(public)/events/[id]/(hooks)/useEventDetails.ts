@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -15,7 +14,6 @@ export function useEventDetails() {
   const params = useParams();
   const id = typeof params?.id === 'string' ? params.id : '';
   const queryClient = useQueryClient();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const { data: event, isLoading, isError } = useEvent(id);
   const { user, isAuthenticated } = useAuth();
@@ -118,8 +116,6 @@ export function useEventDetails() {
     isError,
     isRegistered,
     canManageEvent,
-    isEditModalOpen,
-    setIsEditModalOpen,
     handleJoin,
     handleUnjoin,
     handleDelete

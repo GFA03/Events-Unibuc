@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import React from 'react';
 import { useEventDetails } from '@/app/(public)/events/[id]/(hooks)/useEventDetails';
 
-export default function EventHeader() {
+export default function EventHeader({ setIsEditModalOpen }: { setIsEditModalOpen: () => void }) {
   const { event } = useEventDetails();
   if (!event) {
     return null;
@@ -28,7 +28,7 @@ export default function EventHeader() {
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-lg">
           <div className="flex flex-col lg:flex-row">
             <ImageSection name={name} />
-            <ContentSection />
+            <ContentSection setIsEditModalOpen={setIsEditModalOpen} />
           </div>
         </div>
       </div>
@@ -51,16 +51,9 @@ function ImageSection({ name }: { name: string }) {
   );
 }
 
-function ContentSection() {
-  const {
-    event,
-    isRegistered,
-    canManageEvent,
-    setIsEditModalOpen,
-    handleUnjoin,
-    handleDelete,
-    handleJoin
-  } = useEventDetails();
+function ContentSection({ setIsEditModalOpen }: { setIsEditModalOpen: () => void }) {
+  const { event, isRegistered, canManageEvent, handleUnjoin, handleDelete, handleJoin } =
+    useEventDetails();
 
   const { name, type, organizer, startDateTime, endDateTime } = event!;
 
