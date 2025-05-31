@@ -28,7 +28,7 @@ export function EventsFilters({
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col flex-wrap lg:flex-row gap-4">
         {/* Event Type Filter */}
         <div className="flex-1">
           <label className="block text-sm font-medium text-gray-700 mb-2">Event Type</label>
