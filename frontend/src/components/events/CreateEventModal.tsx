@@ -9,7 +9,6 @@ import {
   faCalendarDays,
   faClock
 } from '@fortawesome/free-solid-svg-icons';
-import apiClient from '@/lib/api';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Event } from '@/models/event/Event';
@@ -17,6 +16,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import { useTags } from '@/hooks/useTags';
+import { eventService } from '@/services/eventService';
+import ImageUpload from '@/components/common/ImageUpload';
 
 const createEventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -28,7 +29,7 @@ const createEventSchema = z.object({
   tagIds: z.array(z.string()).optional()
 });
 
-type CreateEventFormInputs = z.infer<typeof createEventSchema>;
+export type CreateEventFormInputs = z.infer<typeof createEventSchema>;
 
 interface CreateEventModalProps {
   isOpen: boolean;
@@ -59,6 +60,9 @@ export default function CreateEventModal({
   });
 
   const router = useRouter();
+
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   useEffect(() => {
     if (event && mode === 'edit') {
@@ -99,14 +103,24 @@ export default function CreateEventModal({
     return availableTags?.find((tag) => tag.id === tagId);
   };
 
+  const handleImageChange = (file: File | null) => {
+    setSelectedImage(file);
+    setRemoveImage(false);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setRemoveImage(true);
+  };
+
   const onSubmit = async (data: CreateEventFormInputs) => {
     try {
       if (mode === 'edit' && event) {
-        await apiClient.patch(`/events/${event.id}`, data);
+        eventService.updateEvent(event.id, data, selectedImage, removeImage);
         toast.success('Event updated successfully!');
         await queryClient.invalidateQueries({ queryKey: ['event', event.id] });
       } else {
-        await apiClient.post('/events', data);
+        eventService.createEvent(data, selectedImage);
         toast.success('Event created successfully!');
       }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
@@ -365,6 +379,13 @@ export default function CreateEventModal({
                 </div>
               </div>
             </div>
+
+            {/* Image Upload */}
+            <ImageUpload
+              currentImage={event?.imageUrl || ''}
+              onImageChange={handleImageChange}
+              onRemoveImage={handleRemoveImage}
+            />
 
             {/* Action Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">

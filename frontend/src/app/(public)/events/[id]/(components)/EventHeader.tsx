@@ -11,23 +11,29 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import React from 'react';
+import React, { Dispatch } from 'react';
 import { useEventDetails } from '@/app/(public)/events/[id]/(hooks)/useEventDetails';
+import { Event } from '@/models/event/Event';
 
-export default function EventHeader({ setIsEditModalOpen }: { setIsEditModalOpen: () => void }) {
-  const { event } = useEventDetails();
+export default function EventHeader({
+  event,
+  setIsEditModalOpen
+}: {
+  event: Event;
+  setIsEditModalOpen: Dispatch<React.SetStateAction<boolean>>;
+}) {
   if (!event) {
     return null;
   }
 
-  const { name } = event;
+  const { name, imageUrl } = event;
 
   return (
     <div className="relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-lg">
           <div className="flex flex-col lg:flex-row">
-            <ImageSection name={name} />
+            <ImageSection name={name} imageUrl={imageUrl} />
             <ContentSection setIsEditModalOpen={setIsEditModalOpen} />
           </div>
         </div>
@@ -36,22 +42,30 @@ export default function EventHeader({ setIsEditModalOpen }: { setIsEditModalOpen
   );
 }
 
-function ImageSection({ name }: { name: string }) {
+function ImageSection({ name, imageUrl }: { name: string; imageUrl: string }) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+
+  console.log(baseUrl);
+
   return (
     <div className="lg:w-1/2 relative">
       <Image
-        src="/unibuc-event-logo.png"
+        src={imageUrl ? `${baseUrl}${imageUrl}` : '/unibuc-event-logo.png'}
         alt={name}
         width={600}
         height={400}
-        className="object-cover w-full h-64 lg:h-full"
+        className="object-cover lg:object-contain w-full h-64 lg:h-full"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
     </div>
   );
 }
 
-function ContentSection({ setIsEditModalOpen }: { setIsEditModalOpen: () => void }) {
+function ContentSection({
+  setIsEditModalOpen
+}: {
+  setIsEditModalOpen: Dispatch<React.SetStateAction<boolean>>;
+}) {
   const { event, isRegistered, canManageEvent, handleUnjoin, handleDelete, handleJoin } =
     useEventDetails();
 

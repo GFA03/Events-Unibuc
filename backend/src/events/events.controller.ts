@@ -184,9 +184,10 @@ export class EventsController {
   update(
     @Req() req: RequestWithUser,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateEventDto: UpdateEventDto,
+    @Body() updateEventDto: UpdateEventDto & { removeImage?: boolean },
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.eventsService.update(id, updateEventDto, req.user);
+    return this.eventsService.update(id, updateEventDto, req.user, file);
   }
 
   @Delete(':id')

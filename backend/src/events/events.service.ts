@@ -219,7 +219,7 @@ export class EventsService {
 
     const event = await this.findOne(id);
 
-    if (event.organizerId !== user.userId || user.role !== Role.ADMIN) {
+    if (event.organizerId !== user.userId && user.role !== Role.ADMIN) {
       throw new ForbiddenException('You can only update your own events');
     }
 

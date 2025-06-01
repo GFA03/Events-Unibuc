@@ -21,7 +21,7 @@ export default function EventDetailsPage() {
     <>
       <WithLoader isLoading={isLoading} isError={isError} errorMessage={'Failed to load event'}>
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-          <EventHeader setIsEditModalOpen={setIsEditModalOpen} />
+          <EventHeader event={event} setIsEditModalOpen={setIsEditModalOpen} />
           <EventDetails />
         </div>
       </WithLoader>
