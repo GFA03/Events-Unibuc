@@ -32,8 +32,9 @@ export class UsersController {
   @Get()
   @ApiOkResponse({ description: 'Successfully retrieved' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  findAll() {
-    return this.usersService.findAll();
+  async findAll(): Promise<UserResponseDto[]> {
+    const users = await this.usersService.findAll();
+    return users.map((user) => UserResponseDto.fromEntity(user));
   }
 
   @Get(':id')

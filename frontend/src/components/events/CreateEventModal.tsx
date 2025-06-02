@@ -116,11 +116,11 @@ export default function CreateEventModal({
   const onSubmit = async (data: CreateEventFormInputs) => {
     try {
       if (mode === 'edit' && event) {
-        eventService.updateEvent(event.id, data, selectedImage, removeImage);
+        await eventService.updateEvent(event.id, data, selectedImage, removeImage);
         toast.success('Event updated successfully!');
         await queryClient.invalidateQueries({ queryKey: ['event', event.id] });
       } else {
-        eventService.createEvent(data, selectedImage);
+        await eventService.createEvent(data, selectedImage);
         toast.success('Event created successfully!');
       }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });

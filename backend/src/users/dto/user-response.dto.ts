@@ -25,8 +25,6 @@ export class UserResponseDto {
   updatedAt: Date;
 
   static fromEntity(user: User) {
-    if (!user) return null;
-
     const dto = new UserResponseDto();
     dto.id = user.id;
     dto.email = user.email;
