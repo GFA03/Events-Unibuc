@@ -15,6 +15,7 @@ import { Tag } from './tags/entities/tag.entity';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { join } from 'path';
     RegistrationsModule,
     TagsModule,
     FileUploadModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

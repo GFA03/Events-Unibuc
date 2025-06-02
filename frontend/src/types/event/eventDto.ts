@@ -7,8 +7,8 @@ export interface EventDto {
   type: string;
   description: string;
   location: string;
-  imageUrl?: string;
-  imageName?: string;
+  imageUrl: string;
+  imageName: string;
   organizerId: string;
   organizer: UserDto;
   startDateTime: string;

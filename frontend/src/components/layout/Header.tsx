@@ -99,9 +99,14 @@ export function Header({ onSearch }: HeaderProps) {
                 </>
               )}
               {user?.role === Role.Organizer && (
-                <Link href="/manage-events" className="text-white hover:text-indigo-600">
-                  Manage My Events
-                </Link>
+                <>
+                  <Link href="/manage-events" className="text-white hover:text-indigo-600">
+                    Manage My Events
+                  </Link>
+                  <Link href="/dashboard" className="text-white hover:text-indigo-600">
+                    Dashboard
+                  </Link>
+                </>
               )}
               <span className="text-sm text-gray-300 hidden sm:block">Hi, {user?.email}</span>
               <Button onClick={logout} variant="secondary" size="sm">
