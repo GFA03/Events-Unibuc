@@ -42,11 +42,11 @@ export default function UserCard({ user }: UserCardProps) {
 
   const getRoleBadgeColor = (role: Role) => {
     switch (role) {
-      case Role.ADMIN:
+      case Role.Admin:
         return 'bg-red-100 text-red-800';
-      case Role.ORGANIZER:
+      case Role.Organizer:
         return 'bg-yellow-100 text-yellow-800';
-      case Role.USER:
+      case Role.User:
       default:
         return 'bg-blue-100 text-blue-800';
     }
@@ -63,7 +63,7 @@ export default function UserCard({ user }: UserCardProps) {
             <p className="text-gray-600 mb-2">{user.email}</p>
             <span
               className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
-              {Role[user.role]}
+              {user.role}
             </span>
           </div>
 

@@ -1,10 +1,11 @@
 import apiClient from '@/lib/api';
 import { User } from '@/models/user/User';
+import { UserDto } from '@/models/user/userDto';
 
 class UserService {
   async fetchUsers() {
     const response = await apiClient.get('/users');
-    return response.data.map((user) => User.fromDto(user));
+    return response.data.map((user: UserDto) => User.fromDto(user));
   }
 
   async updateUser(userId: string, userData: Partial<User>) {

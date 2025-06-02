@@ -1,17 +1,17 @@
 export enum Role {
-  USER,
-  ORGANIZER,
-  ADMIN
+  User = 'USER',
+  Organizer = 'ORGANIZER',
+  Admin = 'ADMIN'
 }
 
 export const mapToRole = (role: string) => {
   switch (role) {
     case 'USER':
-      return Role.USER;
+      return Role.User;
     case 'ADMIN':
-      return Role.ADMIN;
+      return Role.Admin;
     case 'ORGANIZER':
-      return Role.ORGANIZER;
+      return Role.Organizer;
     default:
       throw new Error(`Unknown role: ${role}`);
   }

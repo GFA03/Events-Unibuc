@@ -98,13 +98,11 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
                 value={formData.role}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                {Object.keys(Role)
-                  .filter((key) => !isNaN(Number(key)))
-                  .map((key) => (
-                    <option key={key} value={Role[key]}>
-                      {Role[key]}
-                    </option>
-                  ))}
+                {Object.values(Role).map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

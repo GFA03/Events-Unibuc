@@ -88,7 +88,7 @@ export function Header({ onSearch }: HeaderProps) {
                 My Registrations
               </Link>
               {/* Conditionally show Admin links */}
-              {user?.role === Role.ADMIN && (
+              {user?.role === Role.Admin && (
                 <>
                   <Link href="/manage-events" className="text-white hover:text-indigo-600">
                     Manage Events
@@ -98,7 +98,7 @@ export function Header({ onSearch }: HeaderProps) {
                   </Link>
                 </>
               )}
-              {user?.role === Role.ORGANIZER && (
+              {user?.role === Role.Organizer && (
                 <Link href="/manage-events" className="text-white hover:text-indigo-600">
                   Manage My Events
                 </Link>
