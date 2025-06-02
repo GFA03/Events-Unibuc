@@ -1,7 +1,6 @@
 import { Event } from '@/models/event/Event';
 import apiClient from '@/lib/api';
 import { EventDto } from '@/types/event/eventDto';
-import { useQuery } from '@tanstack/react-query';
 import { CreateEventFormInputs } from '@/components/events/CreateEventModal';
 
 interface PaginatedEventsResponse {
@@ -119,34 +118,3 @@ class EventService {
 }
 
 export const eventService = new EventService();
-
-export function useEvent(id: string) {
-  return useQuery({
-    queryKey: ['event', id],
-    queryFn: () => new EventService().fetchEvent(id),
-    enabled: !!id // don't fetch until id is available
-  });
-}
-
-export const useEvents = (params: EventsQueryParams = {}) => {
-  // Set default values
-  const queryParams = {
-    limit: 10,
-    offset: 0,
-    ...params
-  };
-
-  return useQuery({
-    queryKey: ['events', queryParams],
-    queryFn: () => new EventService().fetchEvents(queryParams),
-    staleTime: 1000 * 60 * 5 // 5 minutes: adjust as needed
-  });
-};
-
-export const useMyEvents = () => {
-  return useQuery<Event[]>({
-    queryKey: ['myEvents'],
-    queryFn: new EventService().fetchMyEvents,
-    staleTime: 1000 * 60 * 5 // 5 minutes: adjust as needed
-  });
-};
