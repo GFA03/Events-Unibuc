@@ -25,6 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { Registration } from './entities/registration.entity';
 import { RegistrationResponseDto } from './dto/registration-response.dto';
+import { RequestWithUser } from '../auth/types/RequestWithUser';
 
 @ApiTags('Registrations')
 @ApiBearerAuth()
@@ -56,7 +57,7 @@ export class RegistrationsController {
     description: 'Conflict (User already registered for this slot)',
   })
   create(
-    @Req() req,
+    @Req() req: RequestWithUser,
     @Body() createRegistrationDto: CreateRegistrationDto,
   ): Promise<Registration | null> {
     return this.registrationsService.create(createRegistrationDto, req.user);
@@ -105,12 +106,12 @@ export class RegistrationsController {
     }),
   )
   async findMyRegistrations(
-    @Req() req,
+    @Req() req: RequestWithUser,
   ): Promise<(null | RegistrationResponseDto)[]> {
     const registrations = await this.registrationsService.findMyRegistrations(
       req.user.userId,
     );
-    return registrations.map(RegistrationResponseDto.fromEntity);
+    return registrations.map((reg) => RegistrationResponseDto.fromEntity(reg));
   }
 
   @Get(':id')
@@ -131,7 +132,7 @@ export class RegistrationsController {
     description: 'Forbidden (if user cannot access this registration)',
   })
   @ApiResponse({ status: 404, description: 'Registration not found.' })
-  findOne(@Req() req, @Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Req() req: RequestWithUser, @Param('id', ParseUUIDPipe) id: string) {
     if (!req.user || !req.user.userId) {
       throw new Error('Unauthorized: User ID not found in request');
     }
