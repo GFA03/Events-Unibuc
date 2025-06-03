@@ -48,5 +48,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-
-export const swrFetcher = (url: string) => apiClient.get(url).then((res) => res.data);

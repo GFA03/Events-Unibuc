@@ -1,15 +1,16 @@
-import useSWR from 'swr';
-import { swrFetcher } from '@/lib/api';
 import { Event } from '@/models/event/Event';
+import { useQuery } from '@tanstack/react-query';
+import { analyticsService } from '@/services/analyticsService';
+import { Registration } from '@/types/registration';
 
 interface DashboardSummary {
   totalEvents: number;
   totalRegistrations: number;
   uniqueParticipants: number;
-  recentEvents: Event[];
+  recentEvents: (Event & { registrations: Registration[] })[];
 }
 
-interface EventRegistration {
+export interface EventRegistration {
   eventId: string;
   eventName: string;
   eventDate: string;
@@ -17,31 +18,17 @@ interface EventRegistration {
 }
 
 export function useOrganizerDashboard() {
-  const { data: summary, error: summaryError } = useSWR('/analytics/dashboard/summary', swrFetcher);
+  const { data: summary, isError: summaryError } = useDashboardSummary();
 
   console.log(summary);
   console.log(summaryError);
 
-  const { data: registrationsPerEvent, error: regError } = useSWR(
-    '/analytics/dashboard/events/registrations',
-    swrFetcher
-  );
+  const { data: registrationsPerEvent, isError: regError } = useEventsRegistrations();
 
   console.log(registrationsPerEvent);
   console.log(regError);
 
-  const { data: uniqueParticipants, error: uniqueError } = useSWR(
-    '/analytics/dashboard/participants/unique',
-    swrFetcher
-  );
-
-  console.log(uniqueParticipants);
-  console.log(uniqueError);
-
-  const { data: monthlyData, error: monthlyError } = useSWR(
-    '/analytics/dashboard/registrations/monthly',
-    swrFetcher
-  );
+  const { data: monthlyData, isError: monthlyError } = useMonthlyRegistrations();
 
   console.log(monthlyData);
   console.log(monthlyError);
@@ -51,19 +38,34 @@ export function useOrganizerDashboard() {
     registrationsPerEvent,
     monthlyData,
     isLoading: !summary || !registrationsPerEvent || !monthlyData,
-    error: summaryError || regError || monthlyError
+    isError: summaryError || regError || monthlyError
   };
 }
 
-export function useDailyRegistrations(eventId: string) {
-  const { data, error } = useSWR(
-    eventId ? `/analytics/dashboard/events/${eventId}/registrations/daily` : null,
-    swrFetcher
-  );
+export const useDailyRegistrations = (eventId: string | null) => {
+  return useQuery({
+    queryKey: ['dailyRegistrations', eventId],
+    queryFn: () => analyticsService.getRegistrationsPerDayForEvent(eventId)
+  });
+};
 
-  return {
-    dailyData: data,
-    isLoading: !data && !error,
-    error
-  };
-}
+const useDashboardSummary = () => {
+  return useQuery<DashboardSummary>({
+    queryKey: ['dashboardSummary'],
+    queryFn: analyticsService.getDashboardSummary
+  });
+};
+
+const useEventsRegistrations = () => {
+  return useQuery<EventRegistration[]>({
+    queryKey: ['eventsRegistrations'],
+    queryFn: analyticsService.getRegistrationsPerEvent
+  });
+};
+
+const useMonthlyRegistrations = () => {
+  return useQuery({
+    queryKey: ['monthlyRegistrations'],
+    queryFn: analyticsService.getRegistrationsPerMonth
+  });
+};

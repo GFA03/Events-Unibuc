@@ -1,12 +1,7 @@
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { EventRegistration } from '@/hooks/useAnalytics';
 
-interface ParticipantsPerEvent {
-  eventId: string;
-  eventName: string;
-  uniqueParticipants: number;
-}
-
-export default function RegistrationsPerEventChart({ data }: { data: ParticipantsPerEvent[] }) {
+export default function RegistrationsPerEventChart({ data }: { data: EventRegistration[] }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Registrations per Event</h3>
