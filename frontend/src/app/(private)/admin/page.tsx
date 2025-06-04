@@ -1,7 +1,7 @@
 'use client';
 
 import { useUsers } from '@/hooks/users/useUsers';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
 import UserCard from '@/components/users/UserCard';
 
 export default function AdminPage() {

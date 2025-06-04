@@ -1,4 +1,4 @@
-import { EventDto } from '@/types/event/eventDto';
+import { EventDto } from '@/features/event/types/eventDto';
 
 export interface OrganizerDto {
   id: string;

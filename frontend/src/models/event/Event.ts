@@ -1,7 +1,8 @@
-import { EventDto } from '@/types/event/eventDto';
+import { EventDto } from '@/features/event/types/eventDto';
 import { User } from '@/models/user/User';
-import { EventType, mapToType } from '@/types/event/eventType';
+import { EventType, mapToType } from '@/features/event/types/eventType';
 import { Tag } from '@/types/tag';
+import { Registration } from '@/features/registration/types/registration';
 
 export class Event {
   public readonly id: string;
@@ -12,10 +13,11 @@ export class Event {
   public readonly imageName: string;
   public readonly location: string;
   public readonly organizerId: string;
-  public readonly organizer: User;
+  public readonly organizer: User | null; // Organizer can be null if not set
   public readonly startDateTime: Date;
   public readonly endDateTime: Date;
   public readonly tags: Tag[];
+  public readonly registrations: Registration[];
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
@@ -32,6 +34,7 @@ export class Event {
     startDateTime: Date,
     endDateTime: Date,
     tags: Tag[],
+    registrations: Registration[],
     createdAt: Date,
     updatedAt: Date
   ) {
@@ -44,9 +47,10 @@ export class Event {
     this.imageName = imageName;
     this.organizerId = organizerId;
     this.organizer = organizer;
-    this.startDateTime = new Date(startDateTime);
-    this.endDateTime = new Date(endDateTime);
+    this.startDateTime = startDateTime;
+    this.endDateTime = endDateTime;
     this.tags = tags;
+    this.registrations = registrations;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
@@ -61,10 +65,11 @@ export class Event {
       dto.imageUrl,
       dto.imageName,
       dto.organizerId,
-      User.fromDto(dto.organizer),
+      dto.organizer ? User.fromDto(dto.organizer) : null,
       new Date(dto.startDateTime),
       new Date(dto.endDateTime),
-      dto.tags,
+      dto.tags ? dto.tags : [],
+      dto.registrations?.map((reg) => Registration.fromDto(reg)) || [],
       new Date(dto.createdAt),
       new Date(dto.updatedAt)
     );

@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { useOrganizer } from '@/hooks/users/useOrganizer';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
 import EventCard from '@/components/events/EventCard';
 
 export default function OrganizerPage() {

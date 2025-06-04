@@ -2,11 +2,11 @@
 
 import { useParams } from 'next/navigation';
 import { useEvent } from '@/hooks/events/useEvent';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
 import { useState } from 'react';
-import CreateEventModal from '@/components/events/CreateEventModal';
-import EventHeader from '@/app/(public)/events/[id]/(components)/EventHeader';
-import EventDetails from '@/app/(public)/events/[id]/(components)/EventDetails';
+import CreateEventModal from '@/features/event/components/CreateEventModal';
+import EventHeader from '@/features/event/components/EventHeader';
+import EventDetails from '@/features/event/components/EventDetails';
 
 export default function EventDetailsPage() {
   const params = useParams();

@@ -1,7 +1,7 @@
 import { Event } from '@/models/event/Event';
 import apiClient from '@/lib/api';
-import { EventDto } from '@/types/event/eventDto';
-import { CreateEventFormInputs } from '@/components/events/CreateEventModal';
+import { EventDto } from '@/features/event/types/eventDto';
+import { CreateEventFormInputs } from '@/features/event/components/CreateEventModal';
 
 interface PaginatedEventsResponse {
   data: EventDto[];

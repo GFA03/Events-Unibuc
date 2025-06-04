@@ -1,4 +1,4 @@
-import EditUserModal from './EditUserModal';
+import EditUserModal from '../../features/user/components/EditUserModal';
 import { Role } from '@/types/user/roles';
 import { useState } from 'react';
 import { User } from '@/models/user/User';

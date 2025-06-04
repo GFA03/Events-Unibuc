@@ -1,9 +1,9 @@
 'use client';
 
 import { useMyEvents } from '@/hooks/events/useMyEvents';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
 import EventCard from '@/components/events/EventCard';
-import CreateEventCard from '@/components/events/CreateEventCard';
+import CreateEventCard from '@/features/event/components/CreateEventCard';
 
 export default function ManageEvents() {
   const { data: myEvents = [], isLoading, isError } = useMyEvents();

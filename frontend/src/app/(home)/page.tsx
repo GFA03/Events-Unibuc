@@ -1,12 +1,12 @@
 'use client';
 
 import { useEvents } from '@/hooks/events/useEvents';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
-import HeroSection from '@/app/(home)/(components)/HeroSection';
-import FeaturedEvents from '@/app/(home)/(components)/FeaturedEvents';
-import HighlightsPresentation from '@/app/(home)/(components)/HighlightsPresentation';
-import LoadingSpinner from '@/components/common/LoadingSpinner';
+import HeroSection from '@/components/ui/home/HeroSection';
+import FeaturedEvents from '@/components/ui/home/FeaturedEvents';
+import HighlightsPresentation from '@/components/ui/home/HighlightsPresentation';
+import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 
 export default function Home() {
   const { data, isLoading, isError, error } = useEvents();

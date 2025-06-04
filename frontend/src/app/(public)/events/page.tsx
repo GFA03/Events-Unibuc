@@ -1,14 +1,14 @@
 'use client';
 
 import { useEvents } from '@/hooks/events/useEvents';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
 import { useState } from 'react';
-import EventsHeader from '@/app/(public)/events/(components)/EventsHeader';
-import { useEventsFilters } from '@/app/(public)/events/(hooks)/useEventsFilters';
-import { EventsToolbar } from '@/app/(public)/events/(components)/EventsToolbar';
-import { EventsFilters } from '@/app/(public)/events/(components)/EventsFilters';
-import { EventsGrid } from '@/app/(public)/events/(components)/EventsGrid';
-import { Pagination } from '@/app/(public)/events/(components)/Pagination';
+import EventsHeader from '@/features/event/components/EventsHeader';
+import { useEventsFilters } from '@/features/event/hooks/useEventsFilters';
+import { EventsToolbar } from '@/features/event/components/EventsToolbar';
+import { EventsFilters } from '@/features/event/components/EventsFilters';
+import { EventsGrid } from '@/features/event/components/EventsGrid';
+import { Pagination } from '@/components/ui/common/Pagination';
 
 export default function EventsPage() {
   const [showFilters, setShowFilters] = useState(false);

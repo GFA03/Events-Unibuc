@@ -1,11 +1,13 @@
 'use client';
 
 import EventCard from '@/components/events/EventCard';
-import { useRegistrations } from '@/app/(public)/registrations/(hooks)/useRegistrations';
-import WithLoader from '@/components/common/WithLoader';
+import WithLoader from '@/components/ui/common/WithLoader';
+import { useRegistrations } from '@/features/registration/hooks';
 
 export default function RegistrationsPage() {
   const { data: registrations, isError, isLoading } = useRegistrations();
+
+  console.log(registrations);
 
   if (!registrations || registrations.length === 0) {
     return (
@@ -22,6 +24,10 @@ export default function RegistrationsPage() {
   }
 
   const events = registrations.map((reg) => reg.event);
+
+  if (!events || events.length === 0) {
+    return <p>Failed to load events...</p>;
+  }
 
   return (
     <WithLoader isLoading={isLoading} isError={isError} errorMessage="Failed to load registrations">

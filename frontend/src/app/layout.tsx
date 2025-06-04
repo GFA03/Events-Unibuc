@@ -10,7 +10,7 @@ config.autoAddCss = false;
 library.add(fas);
 
 import { AppProviders } from '@/providers/AppProviders';
-import { ConditionalHeader } from '@/components/layout/ConditionalHeader';
+import { ConditionalHeader } from '@/components/ui/layout/ConditionalHeader';
 
 const inter = Inter({ subsets: ['latin'] });
 
