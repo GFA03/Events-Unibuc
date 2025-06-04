@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, X, Upload } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import Image from 'next/image';
 import { eventService } from '@/services/eventService';
 

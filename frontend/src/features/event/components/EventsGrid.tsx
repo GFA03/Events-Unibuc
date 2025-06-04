@@ -5,7 +5,7 @@ interface EventsGridProps {
   events: Event[];
   isLoading: boolean;
   isError: boolean;
-  error?: any;
+  error?: unknown;
   viewMode?: 'grid' | 'list';
 }
 
