@@ -1,9 +1,7 @@
-'use client';
-
 import { Button } from '@/components/ui/common/Button';
-import { Filters } from '../hooks/useEventsFilters';
+import { Filters } from '@/features/event/types/filters';
 import { EventType } from '@/features/event/types/eventType';
-import { useTags } from '@/hooks/useTags';
+import { useTags } from '@/features/tag/hooks';
 
 interface EventsFiltersProps {
   filters: Filters;

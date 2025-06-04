@@ -1,4 +1,4 @@
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import EventCard from '@/components/events/EventCard';
 
 interface EventsGridProps {

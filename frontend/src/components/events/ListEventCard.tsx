@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import { faCalendar, faLocationDot, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';

@@ -1,4 +1,4 @@
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import GridEventCard from '@/components/events/GridEventCard';
 import ListEventCard from '@/components/events/ListEventCard';
 

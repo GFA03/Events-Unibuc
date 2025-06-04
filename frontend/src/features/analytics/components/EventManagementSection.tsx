@@ -1,13 +1,8 @@
 import { ArrowRight, Settings } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Event } from '@/models/event/Event';
-import { Registration } from '@/features/registration/types/registration';
+import { Event } from '@/features/event/model';
 
-export default function EventManagementSection({
-  recentEvents
-}: {
-  recentEvents: (Event & { registrations: Registration[] })[];
-}) {
+export default function EventManagementSection({ recentEvents }: { recentEvents: Event[] }) {
   const router = useRouter();
 
   return (

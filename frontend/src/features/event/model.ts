@@ -1,8 +1,8 @@
 import { EventDto } from '@/features/event/types/eventDto';
-import { User } from '@/models/user/User';
+import { User } from '@/features/user/model';
 import { EventType, mapToType } from '@/features/event/types/eventType';
-import { Tag } from '@/types/tag';
-import { Registration } from '@/features/registration/types/registration';
+import { Tag } from '@/features/tag/types/tag';
+import { Registration } from '@/features/registration/model';
 
 export class Event {
   public readonly id: string;

@@ -1,6 +1,6 @@
 // hooks/useEvent.ts
 import { useQuery } from '@tanstack/react-query';
-import { eventService } from '@/services/eventService';
+import { eventService } from '@/features/event/service';
 
 export function useEvent(id: string) {
   return useQuery({

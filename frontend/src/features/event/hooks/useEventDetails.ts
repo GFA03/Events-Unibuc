@@ -4,9 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
 import { AxiosError } from 'axios';
-import { useEvent } from '@/hooks/events/useEvent';
+import { useEvent } from '@/features/event/hooks/useEvent';
 import { useRegistration } from '@/features/registration/hooks';
-import { Role } from '@/types/user/roles';
+import { Role } from '@/features/user/types/roles';
 import apiClient from '@/lib/api';
 
 export function useEventDetails() {

@@ -11,12 +11,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
-import { useTags } from '@/hooks/useTags';
-import { eventService } from '@/services/eventService';
+import { useTags } from '@/features/tag/hooks';
+import { eventService } from '@/features/event/service';
 import ImageUpload from '@/components/ui/common/ImageUpload';
 
 const createEventSchema = z.object({

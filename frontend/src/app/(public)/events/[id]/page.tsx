@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useEvent } from '@/hooks/events/useEvent';
+import { useEvent } from '@/features/event/hooks/useEvent';
 import WithLoader from '@/components/ui/common/WithLoader';
 import { useState } from 'react';
 import CreateEventModal from '@/features/event/components/CreateEventModal';

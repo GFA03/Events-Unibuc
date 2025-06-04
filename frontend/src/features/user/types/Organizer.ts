@@ -1,5 +1,5 @@
-import { Event } from '@/models/event/Event';
-import { OrganizerDto } from '@/types/user/organizerDto';
+import { Event } from '@/features/event/model';
+import { OrganizerDto } from '@/features/user/types/organizerDto';
 
 export class Organizer {
   public readonly id: string;

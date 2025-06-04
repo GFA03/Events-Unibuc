@@ -1,8 +1,8 @@
 import EditUserModal from '../../features/user/components/EditUserModal';
-import { Role } from '@/types/user/roles';
+import { Role } from '@/features/user/types/roles';
 import { useState } from 'react';
-import { User } from '@/models/user/User';
-import { userService } from '@/services/userService';
+import { User } from '@/features/user/model';
+import { userService } from '@/features/user/service';
 import toast from 'react-hot-toast';
 
 interface UserCardProps {

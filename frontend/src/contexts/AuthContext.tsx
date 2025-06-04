@@ -9,11 +9,10 @@ import React, {
   useCallback
 } from 'react';
 import { useRouter } from 'next/navigation';
-import apiClient from '@/lib/api';
-import { SignUpDto } from '@/types/user/signUpDto';
-import { LoginDto } from '@/types/user/loginDto';
-import { AuthenticatedUser } from '@/models/user/AuthenticatedUser';
-import { AuthenticatedUserResponse } from '@/types/AuthenticatedUserResponse';
+import { SignUpDto } from '@/features/auth/types/signUpDto';
+import { LoginDto } from '@/features/auth/types/loginDto';
+import { AuthenticatedUser } from '@/features/auth/model';
+import { authService } from '@/features/auth/service';
 
 // Define a type for the context value
 interface AuthContextType {
@@ -29,12 +28,6 @@ interface AuthContextType {
 // Create the context with a default undefined value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper functions for token storage (client-side only)
-const storeToken = (token: string) => localStorage.setItem('authToken', token);
-const getToken = (): string | null => localStorage.getItem('authToken');
-const removeToken = () => localStorage.removeItem('authToken');
-
-// AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   console.log('Initializing AuthProvider...');
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
@@ -43,29 +36,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = useCallback(() => {
     setUser(null);
-    removeToken();
+    authService.removeToken();
     // Optionally clear react-query cache here if needed
     router.push('/login'); // Redirect to login page
   }, [router]);
 
   const fetchUserProfile = useCallback(async () => {
     try {
-      const response = await apiClient.get('/auth/me');
-      const userDto: AuthenticatedUserResponse = response.data;
-      setUser(AuthenticatedUser.fromDto(userDto));
-      return userDto;
-    } catch (error: any) {
+      const user = await authService.fetchUser();
+      setUser(user);
+    } catch (error: unknown) {
       // If /auth/me fails (e.g., token expired), log out
       console.error('Failed to fetch user profile:', error.response?.data || error.message);
       logout(); // Clear state and token if /me fails
-      return null;
     }
   }, [logout]);
 
   // Check auth status on initial load or when token might change
   const checkAuthStatus = useCallback(async () => {
     setIsLoading(true);
-    const token = getToken();
+    const token = authService.getToken();
     if (token) {
       await fetchUserProfile(); // Fetches profile, sets user, or logs out if invalid
     } else {
@@ -81,12 +71,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (credentials: LoginDto) => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post<{ access_token: string }>('/auth/login', credentials);
-      storeToken(response.data.access_token);
-      await fetchUserProfile(); // Fetch profile after storing token
+      await authService.login(credentials); // This will store the token in localStorage
+      await fetchUserProfile(); // Fetch profile after storing token to set user state
       router.push('/events'); // Redirect after successful login
-    } catch (error: any) {
-      console.error('Login failed:', error.response?.data || error.message);
+    } catch (error: unknown) {
       // Re-throw for the form component to handle showing errors
       throw new Error(
         error.response?.data?.message || 'Login failed. Please check your credentials.'
@@ -100,12 +88,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       // Adjust according to whether signup automatically logs in
-      await apiClient.post('/auth/signup', data);
-      // Optional: Directly log in after signup or redirect to login page
-      // For simplicity, redirect to login page with a success message
+      await authService.signup(data);
       router.push('/login?signupSuccess=true'); // Add query param for success message
-      // Or attempt login automatically: await login({ email: data.email, password: data.password });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Signup failed:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Signup failed. Please try again.');
     } finally {

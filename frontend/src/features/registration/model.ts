@@ -1,4 +1,4 @@
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import { RegistrationDto } from '@/features/registration/types/registrationDto';
 
 export class Registration {

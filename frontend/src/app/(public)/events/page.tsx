@@ -1,6 +1,6 @@
 'use client';
 
-import { useEvents } from '@/hooks/events/useEvents';
+import { useEvents } from '@/features/event/hooks/useEvents';
 import WithLoader from '@/components/ui/common/WithLoader';
 import { useState } from 'react';
 import EventsHeader from '@/features/event/components/EventsHeader';

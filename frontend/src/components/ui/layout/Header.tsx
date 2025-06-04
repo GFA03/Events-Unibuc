@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/common/Button';
 import Image from 'next/image';
-import { Role } from '@/types/user/roles';
+import { Role } from '@/features/user/types/roles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';

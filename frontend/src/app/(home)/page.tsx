@@ -1,8 +1,8 @@
 'use client';
 
-import { useEvents } from '@/hooks/events/useEvents';
+import { useEvents } from '@/features/event/hooks/useEvents';
 import WithLoader from '@/components/ui/common/WithLoader';
-import { useAuthRedirect } from '@/hooks/useAuthRedirect';
+import { useAuthRedirect } from '@/features/auth/useAuthRedirect';
 import HeroSection from '@/components/ui/home/HeroSection';
 import FeaturedEvents from '@/components/ui/home/FeaturedEvents';
 import HighlightsPresentation from '@/components/ui/home/HighlightsPresentation';

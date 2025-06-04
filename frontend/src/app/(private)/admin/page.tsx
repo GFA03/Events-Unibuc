@@ -1,6 +1,6 @@
 'use client';
 
-import { useUsers } from '@/hooks/users/useUsers';
+import { useUsers } from '@/features/user/hooks';
 import WithLoader from '@/components/ui/common/WithLoader';
 import UserCard from '@/components/users/UserCard';
 

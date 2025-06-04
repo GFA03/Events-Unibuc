@@ -1,5 +1,5 @@
-import { mapToRole, Role } from '@/types/user/roles';
-import { UserDto } from '@/models/user/userDto';
+import { mapToRole, Role } from '@/features/user/types/roles';
+import { UserDto } from '@/features/user/types/userDto';
 
 export class User {
   public readonly id: string;

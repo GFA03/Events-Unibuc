@@ -100,7 +100,7 @@ export class EventsService {
 
   async findAll(
     options?: FindAllOptions,
-  ): Promise<{ data: EventResponseDto[]; total: number }> {
+  ): Promise<{ events: EventResponseDto[]; total: number }> {
     this.logger.debug(
       `Fetching events with options: ${JSON.stringify(options)}`,
     );
@@ -185,7 +185,7 @@ export class EventsService {
     const [data, total] = await queryBuilder.getManyAndCount();
 
     this.logger.debug(`Found ${total} events`);
-    return { data: data.map((event) => new EventResponseDto(event)), total };
+    return { events: data.map((event) => new EventResponseDto(event)), total };
   }
 
   async findOne(id: string): Promise<Event> {

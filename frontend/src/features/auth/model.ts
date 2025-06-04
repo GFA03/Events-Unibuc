@@ -1,5 +1,5 @@
-import { mapToRole, Role } from '@/types/user/roles';
-import { AuthenticatedUserResponse } from '@/types/AuthenticatedUserResponse';
+import { mapToRole, Role } from '@/features/user/types/roles';
+import { AuthenticatedUserDto } from '@/features/auth/types/AuthenticatedUserDto';
 
 export class AuthenticatedUser {
   public readonly userId: string;
@@ -12,7 +12,7 @@ export class AuthenticatedUser {
     this.email = email;
   }
 
-  static fromDto(dto: AuthenticatedUserResponse) {
+  static fromDto(dto: AuthenticatedUserDto) {
     return new AuthenticatedUser(dto.userId, mapToRole(dto.role), dto.email);
   }
 }

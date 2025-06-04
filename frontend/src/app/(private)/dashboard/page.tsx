@@ -7,9 +7,9 @@ import EventManagementSection from '@/features/analytics/components/EventManagem
 import RegistrationsPerEventChart from '@/features/analytics/components/RegistrationsPerEventChart';
 import MonthlyRegistrationsChart from '@/features/analytics/components/MonthlyRegistrationsChart';
 import { useDailyRegistrations, useOrganizerDashboard } from '@/features/analytics/hooks';
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import DailyRegistrationsChart from '@/features/analytics/components/DailyRegistrationsChart';
-import { useMyEvents } from '@/hooks/events/useMyEvents';
+import { useMyEvents } from '@/features/event/hooks/useMyEvents';
 
 export default function DashboardPage() {
   const { data: events, isLoading: eventsLoading, isError: eventsIsError } = useMyEvents();

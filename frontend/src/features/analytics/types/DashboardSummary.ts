@@ -1,4 +1,4 @@
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import { DashboardSummaryDto } from '@/features/analytics/types/DashboardSummaryDto';
 
 export class DashboardSummary {

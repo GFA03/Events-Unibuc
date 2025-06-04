@@ -1,4 +1,4 @@
-import { Registration } from '@/features/registration/types/registration';
+import { Registration } from '@/features/registration/model';
 import { fetchRegistration, fetchUserRegistrations } from '@/features/registration/api';
 
 class RegistrationService {

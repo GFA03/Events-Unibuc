@@ -1,5 +1,5 @@
 import EventCard from '@/components/events/EventCard';
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import Link from 'next/link';
 
 export default function FeaturedEvents({ events }: { events: Event[] }) {

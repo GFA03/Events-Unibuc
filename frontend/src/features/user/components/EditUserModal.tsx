@@ -1,11 +1,11 @@
-import { User } from '@/models/user/User';
+import { User } from '@/features/user/model';
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Role } from '@/types/user/roles';
+import { Role } from '@/features/user/types/roles';
 import toast from 'react-hot-toast';
 import { useQueryClient } from '@tanstack/react-query';
-import { userService } from '@/services/userService';
+import { userService } from '@/features/user/service';
 
 interface EditUserModalProps {
   user: User;

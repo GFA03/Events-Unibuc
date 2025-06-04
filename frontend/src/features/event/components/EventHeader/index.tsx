@@ -1,4 +1,4 @@
-import { Event } from '@/models/event/Event';
+import { Event } from '@/features/event/model';
 import React, { Dispatch } from 'react';
 import ImageSection from './ImageSection';
 import ContentSection from './ContentSection';

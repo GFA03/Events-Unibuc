@@ -1,22 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { UseEventFiltersOptions } from '@/features/event/types/useEventFiltersOptions';
+import { Filters } from '@/features/event/types/eventFilters';
 
-export interface Filters {
-  search: string;
-  type: string;
-  startDate: string;
-  endDate: string;
-  sortBy: 'date' | 'name' | 'participants';
-  sortOrder: 'asc' | 'desc';
-  tags: string[]; // Filtering by tag ids
-}
-
-interface UseEventsFiltersOptions {
-  limit?: number;
-  onFiltersChange?: (filters: Filters) => void;
-}
-
-export function useEventsFilters({ limit = 12, onFiltersChange }: UseEventsFiltersOptions = {}) {
+export function useEventsFilters({ limit = 12, onFiltersChange }: UseEventFiltersOptions = {}) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [page, setPage] = useState(0);

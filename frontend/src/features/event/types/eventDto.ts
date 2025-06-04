@@ -1,5 +1,5 @@
-import { UserDto } from '@/models/user/userDto';
-import { Tag } from '@/types/tag';
+import { UserDto } from '@/features/user/types/userDto';
+import { Tag } from '@/features/tag/types/tag';
 import { RegistrationDto } from '@/features/registration/types/registrationDto';
 
 export interface EventDto {

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload } from 'lucide-react';
 import Image from 'next/image';
-import { eventService } from '@/services/eventService';
+import { eventService } from '@/features/event/service';
 
 interface ImageUploadProps {
   currentImage?: string;

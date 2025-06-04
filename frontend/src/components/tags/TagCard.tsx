@@ -1,4 +1,4 @@
-import { Tag } from '@/types/tag';
+import { Tag } from '@/features/tag/types/tag';
 
 interface TagProps {
   tag: Tag;

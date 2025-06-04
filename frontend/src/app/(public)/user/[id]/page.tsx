@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useOrganizer } from '@/hooks/users/useOrganizer';
+import { useOrganizer } from '@/features/user/hooks';
 import WithLoader from '@/components/ui/common/WithLoader';
 import EventCard from '@/components/events/EventCard';
 
