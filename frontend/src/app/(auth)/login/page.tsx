@@ -2,21 +2,9 @@
 
 import { LoginForm } from '@/features/auth/components/LoginForm';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import Image from 'next/image';
 
 export default function LoginPage() {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/events');
-    }
-  }, [isAuthenticated, router]);
-
   return (
     <div className="min-h-[calc(100vh-150px)] flex items-center justify-center">
       <div className="max-w-md w-full bg-cyan-600 p-8 rounded-lg shadow-lg">

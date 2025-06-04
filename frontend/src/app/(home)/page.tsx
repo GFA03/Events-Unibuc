@@ -2,11 +2,9 @@
 
 import { useEvents } from '@/features/event/hooks/useEvents';
 import WithLoader from '@/components/ui/common/WithLoader';
-import { useAuthRedirect } from '@/features/auth/useAuthRedirect';
 import HeroSection from '@/components/ui/home/HeroSection';
 import FeaturedEvents from '@/components/ui/home/FeaturedEvents';
 import HighlightsPresentation from '@/components/ui/home/HighlightsPresentation';
-import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 
 export default function Home() {
   const { data, isLoading, isError, error } = useEvents();
@@ -14,16 +12,7 @@ export default function Home() {
   console.log('Home page data:', data, 'Loading:', isLoading, 'Error:', isError);
   console.log('Home page error:', error);
 
-  const { isLoading: authLoading } = useAuthRedirect({
-    redirectTo: '/events',
-    redirectWhen: 'authenticated'
-  });
-
   const events = data?.events || [];
-
-  if (authLoading) {
-    return <LoadingSpinner />;
-  }
 
   return (
     <WithLoader isLoading={isLoading} isError={isError}>

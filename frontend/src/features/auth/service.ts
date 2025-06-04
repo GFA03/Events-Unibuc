@@ -7,15 +7,26 @@ const TOKEN_KEY = 'authToken';
 
 class AuthService {
   storeToken(token: string) {
+    // store in both localStorage and cookies
     localStorage.setItem(TOKEN_KEY, token);
+    document.cookie = `${TOKEN_KEY}=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    // try local storage first, then cookies
+    const localToken = localStorage.getItem(TOKEN_KEY);
+    if (localToken) {
+      return localToken;
+    }
+
+    const cookies = document.cookie.split(';');
+    const tokenCookie = cookies.find((cookie) => cookie.trim().startsWith(`${TOKEN_KEY}=`));
+    return tokenCookie ? tokenCookie.split('=')[1] : null;
   }
 
   removeToken() {
     localStorage.removeItem(TOKEN_KEY);
+    document.cookie = `${TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;`;
   }
 
   async login(credentials: LoginDto) {
