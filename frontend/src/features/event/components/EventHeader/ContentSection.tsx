@@ -14,7 +14,11 @@ export default function ContentSection({
   const { event, isRegistered, canManageEvent, handleUnjoin, handleDelete, handleJoin } =
     useEventDetails();
 
-  const { name, type, organizer, noParticipants, startDateTime, endDateTime } = event!;
+  if (!event) {
+    return <p className="text-red-500">Event not found!</p>;
+  }
+
+  const { name, type, organizer, noParticipants, startDateTime, endDateTime } = event;
 
   if (!organizer) {
     return <p className="text-red-500">Organizer not found!</p>;
@@ -56,6 +60,7 @@ export default function ContentSection({
         isRegistered={isRegistered}
         handleJoin={handleJoin}
         handleUnjoin={handleUnjoin}
+        event={event}
       />
     </div>
   );

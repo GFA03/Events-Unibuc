@@ -5,9 +5,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
 import { format } from 'date-fns';
 import TagCard from '@/components/tags/TagCard';
+import { Share2 } from 'lucide-react';
+import { handleShare } from '@/features/event/utils';
 
 export default function ListEventCard({ event }: { event: Event }) {
   const { id, name, type, startDateTime, endDateTime, organizer, tags, location } = event;
+
+  if (!organizer) {
+    return <p className="text-red-500">Organizer not found!</p>;
+  }
 
   return (
     <div className="bg-slate-50 rounded-2xl shadow-lg overflow-hidden flex flex-row ml-4 mr-4 md:ml-16 md:mr-16 lg:ml-32 lg:mr-32 mb-4">
@@ -59,6 +65,12 @@ export default function ListEventCard({ event }: { event: Event }) {
           </div>
         </div>
       </Link>
+      <button
+        onClick={(e) => handleShare(e, event)}
+        className="absolute bottom-2 right-2 z-10 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all duration-200 opacity-0 group-hover:opacity-100"
+        aria-label="Share event">
+        <Share2 size={16} className="text-gray-700" />
+      </button>
     </div>
   );
 }

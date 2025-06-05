@@ -1,15 +1,19 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShare, faTicket } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
+import { handleShare } from '@/features/event/utils';
+import { Event } from '@/features/event/model';
 
 export default function ActionButtons({
   handleJoin,
   handleUnjoin,
-  isRegistered
+  isRegistered,
+  event
 }: {
   handleJoin: () => void;
   handleUnjoin: () => void;
   isRegistered: boolean;
+  event: Event;
 }) {
   return (
     <div className="flex items-center justify-between">
@@ -31,7 +35,9 @@ export default function ActionButtons({
         )}
       </div>
 
-      <button className="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-700 rounded-2xl transition-all duration-200 hover:scale-110 flex items-center justify-center">
+      <button
+        className="w-12 h-12 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-700 rounded-2xl transition-all duration-200 hover:scale-110 flex items-center justify-center"
+        onClick={(e) => handleShare(e, event)}>
         <FontAwesomeIcon icon={faShare} />
       </button>
     </div>
