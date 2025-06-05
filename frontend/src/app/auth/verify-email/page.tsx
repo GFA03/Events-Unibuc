@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle, Clock, Mail, RefreshCw, XCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle,
+  Clock,
+  Mail,
+  RefreshCw,
+  XCircle
+} from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { authService } from '@/features/auth/service';
@@ -18,7 +26,7 @@ export default function VerifyEmailPage() {
 
   const [verificationState, setVerificationState] = useState<VerificationState>({
     status: 'loading',
-    message: 'Verifying email...',
+    message: 'Verifying email...'
   });
   const [email, setEmail] = useState('');
   const [showResendForm, setShowResendForm] = useState(false);
@@ -33,7 +41,9 @@ export default function VerifyEmailPage() {
       });
     },
     onError: (error: Error) => {
-      const isTokenExpired = error.message.toLowerCase().includes('expired') || error.message.toLowerCase().includes('invalid');
+      const isTokenExpired =
+        error.message.toLowerCase().includes('expired') ||
+        error.message.toLowerCase().includes('invalid');
       setVerificationState({
         status: isTokenExpired ? 'invalid-token' : 'error',
         message: error.message
@@ -41,7 +51,7 @@ export default function VerifyEmailPage() {
       if (isTokenExpired) {
         setShowResendForm(true);
       }
-    },
+    }
   });
 
   // Resend verification mutation
@@ -59,7 +69,7 @@ export default function VerifyEmailPage() {
         status: 'error',
         message: error.message
       });
-    },
+    }
   });
 
   // Verify email on component mount
@@ -72,8 +82,10 @@ export default function VerifyEmailPage() {
       return;
     }
 
+    // Call verification only once
     verifyMutation.mutate(token);
-  }, [token, verifyMutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // empty dependency ensures this runs only once on mount
 
   const handleResendEmail = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,16 +133,13 @@ export default function VerifyEmailPage() {
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center">
               <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-              <span className="text-green-800 font-medium">
-                    Your account is now active!
-                  </span>
+              <span className="text-green-800 font-medium">Your account is now active!</span>
             </div>
           </div>
 
           <button
             onClick={() => router.push('/auth/login')}
-            className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-          >
+            className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
             Continue to Login
             <ArrowRight className="w-4 h-4 ml-2" />
           </button>
@@ -144,12 +153,8 @@ export default function VerifyEmailPage() {
             <div className="flex items-start">
               <XCircle className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0" />
               <div>
-                    <span className="text-red-800 font-medium block">
-                      Verification Failed
-                    </span>
-                <span className="text-red-700 text-sm mt-1 block">
-                      {verificationState.message}
-                    </span>
+                <span className="text-red-800 font-medium block">Verification Failed</span>
+                <span className="text-red-700 text-sm mt-1 block">{verificationState.message}</span>
               </div>
             </div>
           </div>
@@ -157,8 +162,7 @@ export default function VerifyEmailPage() {
           {!showResendForm && (
             <button
               onClick={() => setShowResendForm(true)}
-              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-            >
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
               <Mail className="w-4 h-4 mr-2" />
               Request New Verification Email
             </button>
@@ -188,8 +192,7 @@ export default function VerifyEmailPage() {
             <button
               type="submit"
               disabled={resendMutation.isPending}
-              className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-            >
+              className="flex-1 flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
               {resendMutation.isPending ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               ) : (
@@ -201,8 +204,7 @@ export default function VerifyEmailPage() {
             <button
               type="button"
               onClick={() => setShowResendForm(false)}
-              className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-            >
+              className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
               Cancel
             </button>
           </div>
@@ -225,12 +227,11 @@ export default function VerifyEmailPage() {
           Need help?{' '}
           <a
             href="/support"
-            className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200"
-          >
+            className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors duration-200">
             Contact Support
           </a>
         </p>
       </div>
     </main>
-  )
+  );
 }

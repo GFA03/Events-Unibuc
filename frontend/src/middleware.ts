@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (!isAuthenticated && redirectedRules.unauthenticatedRedirects.includes(pathname)) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   return NextResponse.next();

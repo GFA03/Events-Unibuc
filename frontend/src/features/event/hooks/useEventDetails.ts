@@ -26,7 +26,7 @@ export function useEventDetails() {
 
   const handleJoin = async () => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/auth/login');
       return;
     }
 
@@ -56,7 +56,7 @@ export function useEventDetails() {
 
   const handleUnjoin = async () => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/auth/login');
       return;
     }
 
@@ -85,7 +85,7 @@ export function useEventDetails() {
   const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/auth/login');
       return;
     }
 

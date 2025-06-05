@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     authService.removeToken();
     // Optionally clear react-query cache here if needed
-    router.push('/login'); // Redirect to login page
+    router.push('/auth/login'); // Redirect to login page
   }, [router]);
 
   const fetchUserProfile = useCallback(async () => {
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Adjust according to whether signup automatically logs in
       await authService.signup(data);
-      router.push('/login?signupSuccess=true'); // Add query param for success message
+      router.push('/auth/login?signupSuccess=true'); // Add query param for success message
     } catch (error: unknown) {
       console.error('Signup failed:', error.response?.data || error.message);
       throw new Error(error.response?.data?.message || 'Signup failed. Please try again.');

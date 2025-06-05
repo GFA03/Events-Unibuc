@@ -38,8 +38,8 @@ apiClient.interceptors.response.use(
       console.error('API Error: Unauthorized. Redirecting to login...');
       // Clear token from storage
       localStorage.removeItem('authToken');
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (window.location.pathname !== '/auth/login') {
+        window.location.href = '/auth/login';
       }
     }
     // Return the error so components can handle specific API errors
