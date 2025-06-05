@@ -158,7 +158,7 @@ export class EventsController {
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   findMyEvents(@Req() req: RequestWithUser): Promise<Event[]> {
-    return this.eventsService.findMyEvents(req.user.userId);
+    return this.eventsService.findMyEvents(req.user.id);
   }
 
   @Get(':id')

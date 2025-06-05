@@ -17,7 +17,7 @@ class UserService {
     return Organizer.fromDto(data);
   }
 
-  async updateUser(userId: string, userData: Partial<User>): User {
+  async updateUser(userId: string, userData: Partial<User>): Promise<User> {
     const { data } = await apiUpdateUser(userId, userData);
     return User.fromDto(data);
   }

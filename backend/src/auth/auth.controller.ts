@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Request,
   UseGuards,
   UsePipes,
@@ -27,37 +28,15 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthorizedUser } from './types/AuthorizedUser';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { RequestWithUser } from './types/RequestWithUser';
+import { RequestWithUserResponse } from './types/RequestWithUserResponse';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('login')
-  @UseGuards(LocalAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  @ApiOperation({ summary: 'Authenticate user and return JWT' })
-  @ApiBody({ type: LoginUserDto })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Successfully authenticated',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Invalid credentials',
-  })
-  login(
-    @Request() req, // req.user is set by the LocalStrategy
-    @Body() loginUserDto: LoginUserDto, // DTO is used to validate the request body and Swagger definition
-  ): Promise<AccessToken> {
-    console.log(req.user);
-    return this.authService.login(req.user);
-  }
-
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -76,11 +55,37 @@ export class AuthController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Internal Server Error.',
   })
-  async signUp(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<UserResponseDto | null> {
-    const newUser = await this.authService.signup(createUserDto);
-    return UserResponseDto.fromEntity(newUser);
+  async signUp(@Body() createUserDto: CreateUserDto) {
+    return this.authService.signup(createUserDto);
+  }
+
+  @Post('login')
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Authenticate user and return JWT' })
+  @ApiBody({ type: LoginUserDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Successfully authenticated',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Invalid credentials',
+  })
+  login(
+    @Request() req: RequestWithUserResponse, // req.user is set by the LocalStrategy
+  ): Promise<AccessToken> {
+    return this.authService.login(req.user);
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    return this.authService.verifyEmail(token);
+  }
+
+  @Post('resend-verification')
+  async resendVerification(@Body('email') email: string) {
+    return this.authService.resendVerificationEmail(email);
   }
 
   @Get('me')
@@ -98,9 +103,9 @@ export class AuthController {
   })
   getProfile(@Request() req: RequestWithUser): AuthorizedUser {
     // req.user is populated by JwtAuthGuard -> JwtStrategy.validate
-    // It contains the payload defined in JwtStrategy (userId, email, role)
+    // It contains the payload defined in JwtStrategy (id, email, role)
     // Return the payload directly as it contains the necessary info
-    // If more data is needed, fetch from UsersService using userPayload.userId
+    // If more data is needed, fetch from UsersService using userPayload.id
     return req.user;
   }
 }

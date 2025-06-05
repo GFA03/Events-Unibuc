@@ -38,6 +38,15 @@ export class User {
   })
   role: Role;
 
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
+  @Column({ type: String, nullable: true })
+  emailVerificationToken: string | null;
+
+  @Column({ type: Date, nullable: true })
+  emailVerificationTokenExpires: Date | null;
+
   @OneToMany(() => Event, (event) => event.organizer)
   organizedEvents: Event[];
 

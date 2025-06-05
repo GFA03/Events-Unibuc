@@ -21,7 +21,7 @@ export default function LoginPage() {
         <LoginForm />
         <p className="mt-6 text-center text-sm text-white">
           Don&#39;t have an account?{' '}
-          <Link href="/signup" className="font-medium text-indigo-200 hover:text-indigo-50">
+          <Link href="/auth/signup" className="font-medium text-indigo-200 hover:text-indigo-50">
             Sign Up
           </Link>
         </p>

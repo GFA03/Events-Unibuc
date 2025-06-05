@@ -36,7 +36,6 @@ export class RegistrationsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED) // Return 201 on successful creation
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })) // Validate request body
   @ApiOperation({ summary: 'Register current user for an event time slot' })
   @ApiResponse({
     status: 201,
@@ -109,7 +108,7 @@ export class RegistrationsController {
     @Req() req: RequestWithUser,
   ): Promise<(null | RegistrationResponseDto)[]> {
     const registrations = await this.registrationsService.findMyRegistrations(
-      req.user.userId,
+      req.user.id,
     );
     return registrations.map((reg) => RegistrationResponseDto.fromEntity(reg));
   }
@@ -133,10 +132,10 @@ export class RegistrationsController {
   })
   @ApiResponse({ status: 404, description: 'Registration not found.' })
   findOne(@Req() req: RequestWithUser, @Param('id', ParseUUIDPipe) id: string) {
-    if (!req.user || !req.user.userId) {
+    if (!req.user || !req.user.id) {
       throw new Error('Unauthorized: User ID not found in request');
     }
-    return this.registrationsService.findOne(id, req.user.userId);
+    return this.registrationsService.findOne(id, req.user.id);
   }
 
   @Delete(':id')

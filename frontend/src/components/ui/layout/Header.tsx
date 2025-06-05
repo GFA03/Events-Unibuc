@@ -52,7 +52,7 @@ export function Header({ onSearch }: HeaderProps) {
   return (
     <header className={`shadow-md sticky top-0 z-50 bg-cyan-600`}>
       <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link href={isAuthenticated ? '/events' : '/public'}>
+        <Link href={isAuthenticated ? '/events' : '/'}>
           <Image
             src={'/unibuc-logo.webp'}
             alt={'Universitatea Bucuresti Evenimente'}
@@ -115,7 +115,7 @@ export function Header({ onSearch }: HeaderProps) {
             </>
           ) : (
             <>
-              <Link href="/login" className="text-white hover:text-indigo-600">
+              <Link href="/auth/login" className="text-white hover:text-indigo-600">
                 Login
               </Link>
             </>

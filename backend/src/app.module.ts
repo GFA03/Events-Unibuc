@@ -16,6 +16,7 @@ import { FileUploadModule } from './file-upload/file-upload.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     TagsModule,
     FileUploadModule,
     AnalyticsModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

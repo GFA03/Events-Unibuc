@@ -30,7 +30,7 @@ describe('EventsController', () => {
 
   const mockUserId = 'mock-uuid-ctrl';
   const mockAuthorizedUser: AuthorizedUser = {
-    userId: mockUserId,
+    id: mockUserId,
     email: 'test.ctrl@example.com',
     role: Role.ORGANIZER, // Use a role allowed by @Roles
   };
@@ -103,7 +103,11 @@ describe('EventsController', () => {
       mockEventsService.create.mockResolvedValue(expectedEvent);
 
       // Act: Call the controller method
-      const result = await controller.create(mockRequest, mockCreateEventDto);
+      const result = await controller.create(
+        mockRequest,
+        mockCreateEventDto,
+        null,
+      );
 
       // Assert: Check if service method was called correctly
       expect(service.create).toHaveBeenCalledTimes(1);

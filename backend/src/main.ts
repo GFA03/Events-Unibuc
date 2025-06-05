@@ -11,7 +11,14 @@ async function bootstrap() {
 
   app.enableCors();
   // Catch all exceptions
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true, // Automatically transform payloads to DTO instances
+      disableErrorMessages: process.env.NODE_ENV === 'production', // Disable detailed errors in prod
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('Evenimente Unibuc')

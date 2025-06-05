@@ -13,7 +13,7 @@ export const useUsers = () => {
 export function useOrganizer(id: string) {
   return useQuery({
     queryKey: ['organizer', id],
-    queryFn: () => fetchOrganizer(id),
+    queryFn: () => userService.getOrganizer(id),
     enabled: !!id // Only fetch if `id` exists
   });
 }

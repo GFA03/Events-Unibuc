@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const redirectedRules = {
-  authenticatedRedirects: ['/', '/login', '/signup'],
+  authenticatedRedirects: ['/', '/auth/login', '/auth/signup'],
   unauthenticatedRedirects: ['/registrations', '/manage-events', '/dashboard', '/admin', '/profile']
 };
 

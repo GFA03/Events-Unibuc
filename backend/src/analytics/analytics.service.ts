@@ -80,7 +80,7 @@ export class AnalyticsService {
     this.logger.log(`Fetching daily registration counts for event ${eventId}`);
 
     const event = await this.eventRepository.findOne({
-      where: { id: eventId, organizerId: user.userId },
+      where: { id: eventId, organizerId: user.id },
     });
 
     if (!event) {
@@ -88,9 +88,9 @@ export class AnalyticsService {
       throw new NotFoundException('Event not found!');
     }
 
-    if (event.organizerId !== user.userId && user.role !== Role.ADMIN) {
+    if (event.organizerId !== user.id && user.role !== Role.ADMIN) {
       this.logger.warn(
-        `Unauthorized access: Event ${eventId} does not belong to organizer ${user.userId}`,
+        `Unauthorized access: Event ${eventId} does not belong to organizer ${user.id}`,
       );
       throw new UnauthorizedException(
         "You are not authorized to access this event's analytics.",

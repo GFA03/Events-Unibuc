@@ -19,7 +19,7 @@ export function useEventDetails() {
   const { user, isAuthenticated } = useAuth();
   const { data: registration } = useRegistration(id);
 
-  const isOrganizer = user?.userId === event?.organizerId;
+  const isOrganizer = user?.id === event?.organizerId;
   const isAdmin = user?.role === Role.Admin;
   const canManageEvent = isOrganizer || isAdmin;
   const isRegistered = !!registration;

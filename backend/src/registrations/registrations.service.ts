@@ -29,10 +29,10 @@ export class RegistrationsService {
     currentUser: AuthorizedUser,
   ): Promise<Registration | null> {
     this.logger.log(
-      `Creating registration for user ${currentUser.userId} for event time slot ${createRegistrationDto.eventId}`,
+      `Creating registration for user ${currentUser.id} for event time slot ${createRegistrationDto.eventId}`,
     );
     const { eventId } = createRegistrationDto;
-    const userId = currentUser.userId;
+    const userId = currentUser.id;
 
     // 1. Validate that the event exists and is in the future
     const event = await this.eventRepository.findOne({

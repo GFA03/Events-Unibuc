@@ -4,7 +4,7 @@ import { Header } from './Header';
 
 export function ConditionalHeader() {
   const pathname = usePathname();
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isAuthPage = pathname === '/auth/login' || pathname === '/auth/signup';
 
   if (isAuthPage) return null;
 

@@ -48,7 +48,7 @@ export class EventsService {
     organizer: AuthorizedUser,
     file?: Express.Multer.File,
   ): Promise<Event> {
-    this.logger.log(`Creating new event by organizer ${organizer.userId}`);
+    this.logger.log(`Creating new event by organizer ${organizer.id}`);
 
     const { tagIds, ...eventData } = createEventDto;
 
@@ -59,7 +59,7 @@ export class EventsService {
     try {
       const event = this.eventRepository.create({
         ...eventData,
-        organizerId: organizer.userId,
+        organizerId: organizer.id,
       });
 
       if (file) {
@@ -219,7 +219,7 @@ export class EventsService {
 
     const event = await this.findOne(id);
 
-    if (event.organizerId !== user.userId && user.role !== Role.ADMIN) {
+    if (event.organizerId !== user.id && user.role !== Role.ADMIN) {
       throw new ForbiddenException('You can only update your own events');
     }
 
@@ -299,7 +299,7 @@ export class EventsService {
     const event = await this.findOne(id);
 
     // Check if user is the organizer or admin
-    if (event.organizerId !== user.userId || user.role !== Role.ADMIN) {
+    if (event.organizerId !== user.id || user.role !== Role.ADMIN) {
       throw new ForbiddenException('You can only delete your own events');
     }
 

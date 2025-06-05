@@ -25,12 +25,12 @@ export class AnalyticsController {
   @Get('summary')
   async getDashboardSummary(@Req() req: RequestWithUser) {
     console.log(req.user);
-    return this.analyticsService.getDashboardSummary(req.user.userId);
+    return this.analyticsService.getDashboardSummary(req.user.id);
   }
 
   @Get('events/registrations')
   async getRegistrationsPerEvent(@Req() req: RequestWithUser) {
-    return this.analyticsService.getRegistrationsPerEvent(req.user.userId);
+    return this.analyticsService.getRegistrationsPerEvent(req.user.id);
   }
 
   @Get('events/:eventId/registrations/daily')
@@ -46,9 +46,6 @@ export class AnalyticsController {
     @Req() req: RequestWithUser,
     @Query('year') year?: number,
   ) {
-    return this.analyticsService.getRegistrationsPerMonth(
-      req.user.userId,
-      year,
-    );
+    return this.analyticsService.getRegistrationsPerMonth(req.user.id, year);
   }
 }

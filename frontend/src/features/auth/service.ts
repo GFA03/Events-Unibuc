@@ -1,5 +1,11 @@
 import { LoginDto } from '@/features/auth/types/loginDto';
-import { getAuthenticatedUser, loginRequest, signupRequest } from '@/features/auth/api';
+import {
+  apiResendVerificationEmail,
+  apiVerifyEmail,
+  getAuthenticatedUser,
+  loginRequest,
+  signupRequest
+} from '@/features/auth/api';
 import { SignUpDto } from '@/features/auth/types/signUpDto';
 import { AuthenticatedUser } from '@/features/auth/model';
 
@@ -36,6 +42,17 @@ class AuthService {
 
   async signup(data: SignUpDto) {
     await signupRequest(data);
+  }
+
+  async verifyEmail(token: string) {
+    const { data } = await apiVerifyEmail(token);
+    console.log(data);
+    return data;
+  }
+
+  async resendVerificationEmail(email: string) {
+    const { data } = await apiResendVerificationEmail(email);
+    return data;
   }
 
   async fetchUser(): Promise<AuthenticatedUser> {

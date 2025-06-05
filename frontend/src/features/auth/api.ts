@@ -11,6 +11,14 @@ export async function signupRequest(data: SignUpDto) {
   return apiClient.post('/auth/signup', data);
 }
 
+export async function apiVerifyEmail(token: string) {
+  return apiClient.get(`/auth/verify-email?token=${token}`);
+}
+
+export async function apiResendVerificationEmail(email: string) {
+  return apiClient.post(`/auth/resend-verification`, email);
+}
+
 export async function getAuthenticatedUser() {
   return apiClient.get<AuthenticatedUserDto>('/auth/me');
 }

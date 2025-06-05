@@ -1,5 +1,5 @@
 export interface AuthenticatedUserDto {
-  userId: string;
+  id: string;
   role: string;
   email: string;
 }

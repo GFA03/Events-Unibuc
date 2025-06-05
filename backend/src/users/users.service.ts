@@ -28,7 +28,11 @@ export class UsersService {
    * Throws ConflictException if email already exists
    * @param createUserDto
    */
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(
+    createUserDto: CreateUserDto,
+    emailVerificationToken: string,
+    emailVerificationTokenExpires: Date,
+  ): Promise<User> {
     this.logger.log(`Creating new user with email: ${createUserDto.email}`);
     const { email } = createUserDto;
 
@@ -43,6 +47,8 @@ export class UsersService {
 
     const newUser = {
       ...createUserDto,
+      emailVerificationToken,
+      emailVerificationTokenExpires,
       password: await hashPassword(createUserDto.password),
     };
 
@@ -104,7 +110,7 @@ export class UsersService {
    * Returns UserResponseDto or null in case user not found
    * @param email
    */
-  async findOneByEmail(email: string): Promise<UserResponseDto | null> {
+  async findOneByEmail(email: string): Promise<User | null> {
     this.logger.debug(`Fetching user with email: ${email}`);
     const user = await this.userRepository.findOneBy({ email });
 
@@ -113,7 +119,7 @@ export class UsersService {
       return null;
     }
 
-    return UserResponseDto.fromEntity(user);
+    return user;
   }
 
   /**
@@ -141,6 +147,29 @@ export class UsersService {
   async findByPayload({ email }: any): Promise<UserResponseDto | null> {
     this.logger.debug(`Finding user by payload with email: ${email}`);
     return this.findOneByEmail(email);
+  }
+
+  /**
+   * Find user by email validation token
+   * Return User or null if not found
+   * @param token
+   */
+  async findByEmailVerificationToken(token: string): Promise<User | null> {
+    return this.userRepository.findOneBy({
+      emailVerificationToken: token,
+    });
+  }
+
+  /**
+   * Mark email as verified
+   * @param userId
+   */
+  async markEmailAsVerified(userId: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      isEmailVerified: true,
+      emailVerificationToken: null,
+      emailVerificationTokenExpires: null,
+    });
   }
 
   /**
@@ -174,6 +203,23 @@ export class UsersService {
       );
       throw error;
     }
+  }
+
+  /**
+   * Update email verification token, after it expired
+   * @param userId
+   * @param token
+   * @param expires
+   */
+  async updateVerificationToken(
+    userId: string,
+    token: string,
+    expires: Date,
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      emailVerificationToken: token,
+      emailVerificationTokenExpires: expires,
+    });
   }
 
   /**
