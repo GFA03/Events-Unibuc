@@ -14,7 +14,11 @@ export default function ContentSection({
   const { event, isRegistered, canManageEvent, handleUnjoin, handleDelete, handleJoin } =
     useEventDetails();
 
-  const { name, type, organizer, startDateTime, endDateTime } = event!;
+  const { name, type, organizer, noParticipants, startDateTime, endDateTime } = event!;
+
+  if (!organizer) {
+    return <p className="text-red-500">Organizer not found!</p>;
+  }
 
   return (
     <div className="lg:w-1/2 p-8 lg:p-12">
@@ -44,7 +48,7 @@ export default function ContentSection({
         </Link>
       </p>
 
-      <EventStats startDateTime={startDateTime} />
+      <EventStats noParticipants={noParticipants} startDateTime={startDateTime} />
 
       <EventDateTime startDateTime={startDateTime} endDateTime={endDateTime} />
 

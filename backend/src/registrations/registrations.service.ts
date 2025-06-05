@@ -68,6 +68,19 @@ export class RegistrationsService {
       );
     }
 
+    // 3. Check if there are available slots
+    if (event.noParticipants) {
+      const registrationsCount = await this.registrationRepository.count({
+        where: { eventId },
+      });
+      if (registrationsCount >= event.noParticipants) {
+        this.logger.warn(
+          `No available slots for event time slot ${eventId} for user ${userId}`,
+        );
+        throw new ConflictException('No available slots for this event.');
+      }
+    }
+
     const newRegistration = this.registrationRepository.create({
       eventId,
       userId,
@@ -130,6 +143,15 @@ export class RegistrationsService {
       relations: ['event', 'event.organizer'],
       order: { event: { startDateTime: 'DESC' } },
     });
+  }
+
+  async findRegistrationsCountByEventId(eventId: string): Promise<number> {
+    this.logger.debug(`Fetching registrations count for event: ${eventId}`);
+    const count = await this.registrationRepository.count({
+      where: { eventId },
+    });
+    this.logger.log(`Found ${count} registrations for event: ${eventId}`);
+    return count;
   }
 
   async remove(id: string): Promise<void> {

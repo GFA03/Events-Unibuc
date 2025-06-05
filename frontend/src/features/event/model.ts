@@ -12,6 +12,7 @@ export class Event {
   public readonly imageUrl: string;
   public readonly imageName: string;
   public readonly location: string;
+  public readonly noParticipants: number | null; // Nullable for events that do not have a participant limit
   public readonly organizerId: string;
   public readonly organizer: User | null; // Organizer can be null if not set
   public readonly startDateTime: Date;
@@ -27,10 +28,11 @@ export class Event {
     type: string,
     description: string,
     location: string,
+    noParticipants: number | null,
     imageUrl: string,
     imageName: string,
     organizerId: string,
-    organizer: User,
+    organizer: User | null,
     startDateTime: Date,
     endDateTime: Date,
     tags: Tag[],
@@ -42,6 +44,7 @@ export class Event {
     this.name = name;
     this.type = mapToType(type);
     this.description = description;
+    this.noParticipants = noParticipants;
     this.location = location;
     this.imageUrl = imageUrl;
     this.imageName = imageName;
@@ -62,6 +65,7 @@ export class Event {
       dto.type,
       dto.description,
       dto.location,
+      dto.noParticipants,
       dto.imageUrl,
       dto.imageName,
       dto.organizerId,

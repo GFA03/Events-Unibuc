@@ -138,6 +138,13 @@ export class RegistrationsController {
     return this.registrationsService.findOne(id, req.user.id);
   }
 
+  @Get('count/:eventId')
+  findEventRegistrationsCount(
+    @Param('eventId', ParseUUIDPipe) eventId: string,
+  ) {
+    return this.registrationsService.findRegistrationsCountByEventId(eventId);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT) // Return 204 on successful deletion
   @ApiOperation({

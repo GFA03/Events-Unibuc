@@ -34,8 +34,11 @@ export class Event {
   @Column('text')
   description: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ length: 255 })
   location: string;
+
+  @Column({ type: Number, nullable: true })
+  noParticipants: number | null; // Nullable to allow events without a participant limit
 
   // explicitly define the image URL type, else it defaults to 'Object'
   @Column({ type: String, length: 500, nullable: true })

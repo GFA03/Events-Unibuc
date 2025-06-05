@@ -1,5 +1,9 @@
 import { Registration } from '@/features/registration/model';
-import { fetchRegistration, fetchUserRegistrations } from '@/features/registration/api';
+import {
+  fetchEventRegistrationsCount,
+  fetchRegistration,
+  fetchUserRegistrations
+} from '@/features/registration/api';
 
 class RegistrationService {
   async fetchMyRegistrations(): Promise<Registration[]> {
@@ -10,6 +14,11 @@ class RegistrationService {
   async fetchRegistration(eventId: string): Promise<Registration> {
     const { data } = await fetchRegistration(eventId);
     return Registration.fromDto(data);
+  }
+
+  async getEventRegistrationsCount(eventId: string): Promise<number> {
+    const { data } = await fetchEventRegistrationsCount(eventId);
+    return data;
   }
 }
 

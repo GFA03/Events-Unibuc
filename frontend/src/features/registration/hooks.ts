@@ -19,3 +19,11 @@ export const useRegistration = (eventId: string) => {
     enabled: !!eventId && isAuthenticated // Only run the query if eventId is provided
   });
 };
+
+export const useEventRegistrations = (eventId: string) => {
+  return useQuery({
+    queryKey: ['eventRegistrations', eventId],
+    queryFn: () => registrationService.getEventRegistrationsCount(eventId),
+    enabled: !!eventId // Only run the query if eventId is provided
+  });
+};

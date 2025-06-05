@@ -7,7 +7,7 @@ import {
   apiFetchMyEvents,
   apiUpdateEvent
 } from '@/features/event/api';
-import { PaginatedEventsResponse } from '@/features/event/types/PaginatedEventsResponse';
+import { PaginatedEvents } from '@/features/event/types/PaginatedEventsResponse';
 import { EventsQueryParams } from '@/features/event/types/EventsQueryParams';
 
 class EventService {
@@ -42,7 +42,7 @@ class EventService {
     return Event.fromDto(data);
   }
 
-  async fetchEvents(params: EventsQueryParams): Promise<PaginatedEventsResponse> {
+  async fetchEvents(params: EventsQueryParams): Promise<PaginatedEvents> {
     const { data } = await apiFetchEvents(params);
     console.log(data);
     return {

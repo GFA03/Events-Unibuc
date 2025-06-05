@@ -8,10 +8,11 @@ export interface EventDto {
   type: string;
   description: string;
   location: string;
+  noParticipants: number | null;
   imageUrl: string;
   imageName: string;
   organizerId: string;
-  organizer: UserDto;
+  organizer: UserDto | null;
   startDateTime: string;
   endDateTime: string;
   tags: Tag[];

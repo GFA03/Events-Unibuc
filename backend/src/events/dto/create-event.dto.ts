@@ -3,9 +3,11 @@ import {
   IsArray,
   IsDate,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
   MinDate,
   MinLength,
@@ -67,9 +69,14 @@ export class CreateEventDto {
     type: String,
     example: 'Event location',
   })
-  @IsNotEmpty()
   @MaxLength(255, { message: 'Location must be at most 255 characters' })
+  @IsNotEmpty({ message: 'Location is required' })
+  @IsString()
   location: string;
+
+  @IsNumber()
+  @Max(1000, { message: 'Maximum number of participants cannot exceed 1000' })
+  noParticipants: number;
 
   @ApiProperty({ example: '2025-10-20T09:00:00.000Z' })
   @IsNotEmpty({ message: 'Start date/time is required' })

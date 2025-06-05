@@ -10,7 +10,8 @@ export class EventResponseDto {
   name: string;
   type: EventType;
   description: string;
-  location: string;
+  location?: string;
+  noParticipants?: number | null;
   imageUrl?: string | null; // Optional field for image URL
   imageName?: string | null; // Optional field for image file name
   organizerId: string;
@@ -27,6 +28,7 @@ export class EventResponseDto {
     this.type = event.type;
     this.description = event.description;
     this.location = event.location;
+    this.noParticipants = event.noParticipants;
     this.imageUrl = event.imageUrl;
     this.imageName = event.imageName;
     this.organizerId = event.organizerId;
