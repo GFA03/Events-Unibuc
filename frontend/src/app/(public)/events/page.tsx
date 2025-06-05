@@ -48,7 +48,6 @@ export default function EventsPage() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
         />
-        Filters
         <EventsFilters
           filters={filters}
           onFilterChange={handleFilterChange}

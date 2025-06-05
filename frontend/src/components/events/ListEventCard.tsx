@@ -9,7 +9,9 @@ import { Share2 } from 'lucide-react';
 import { handleShare } from '@/features/event/utils';
 
 export default function ListEventCard({ event }: { event: Event }) {
-  const { id, name, type, startDateTime, endDateTime, organizer, tags, location } = event;
+  const { id, name, type, startDateTime, endDateTime, imageUrl, organizer, tags, location } = event;
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
 
   if (!organizer) {
     return <p className="text-red-500">Organizer not found!</p>;
@@ -21,7 +23,7 @@ export default function ListEventCard({ event }: { event: Event }) {
         {/* Image on the left for list view */}
         <div className="flex">
           <Image
-            src={'/unibuc-event-logo.png'}
+            src={imageUrl ? `${baseUrl}${imageUrl}` : '/unibuc-event-logo.png'}
             alt={name}
             width={400}
             height={400}

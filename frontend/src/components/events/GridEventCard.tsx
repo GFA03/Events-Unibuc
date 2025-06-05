@@ -27,7 +27,7 @@ export default function GridEventCard({ event }: { event: Event }) {
       </button>
       <Link href={`/events/${id}`} className="flex-grow">
         <Image
-          src={imageUrl ? `${baseUrl}/${imageUrl}` : '/unibuc-event-logo.png'}
+          src={imageUrl ? `${baseUrl}${imageUrl}` : '/unibuc-event-logo.png'}
           alt={name}
           width={300}
           height={200}
