@@ -59,7 +59,7 @@ class EventService {
 
   getImageUrl(imageUrl: string): string {
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-    return imageUrl ? `${baseUrl}${imageUrl}` : '';
+    return imageUrl ? `${baseUrl}/${imageUrl}` : '';
   }
 
   private prepareEventFormData(event: CreateEventFormInputs, image?: File | null): FormData {

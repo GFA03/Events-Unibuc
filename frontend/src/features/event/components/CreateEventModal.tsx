@@ -24,6 +24,7 @@ const createEventSchema = z.object({
   type: z.string().min(1, 'Type is required'),
   description: z.string().min(1, 'Description is required'),
   location: z.string().min(1, 'Location is required'),
+  noParticipants: z.number().int().positive('Must be greater than 0').optional(),
   startDateTime: z.string().min(1, 'Start date is required'),
   endDateTime: z.string().min(1, 'End date is required'),
   tagIds: z.array(z.string()).optional()
@@ -58,6 +59,8 @@ export default function CreateEventModal({
   } = useForm<CreateEventFormInputs>({
     resolver: zodResolver(createEventSchema)
   });
+
+  const [hasParticipantLimit, setHasParticipantLimit] = useState(false);
 
   const router = useRouter();
 
@@ -120,6 +123,7 @@ export default function CreateEventModal({
         toast.success('Event updated successfully!');
         await queryClient.invalidateQueries({ queryKey: ['event', event.id] });
       } else {
+        console.log(typeof data.noParticipants);
         await eventService.createEvent(data, selectedImage);
         toast.success('Event created successfully!');
       }
@@ -254,6 +258,38 @@ export default function CreateEventModal({
                   </p>
                 )}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={hasParticipantLimit}
+                  onChange={(e) => {
+                    setHasParticipantLimit(e.target.checked);
+                    if (!e.target.checked) setValue('noParticipants', undefined);
+                  }}
+                />
+                Limit number of participants
+              </label>
+
+              {hasParticipantLimit && (
+                <div>
+                  <input
+                    type="number"
+                    {...register('noParticipants', { valueAsNumber: true })}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all duration-200"
+                    placeholder="Maximum number of participants"
+                    min={1}
+                  />
+                  {errors.noParticipants && (
+                    <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
+                      <div className="w-1 h-1 bg-red-500 rounded-full"></div>
+                      {errors.noParticipants.message}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Tags Section */}
