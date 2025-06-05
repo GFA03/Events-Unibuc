@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/common/Button';
 import { Input } from '@/components/ui/common/Input';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { AxiosError } from 'axios';
 
 // Define schema with Zod
 const loginSchema = z.object({
@@ -35,8 +36,13 @@ export function LoginForm() {
       toast.success('Login successful!');
       // Redirect handled by AuthContext
     } catch (err: unknown) {
-      setError(err?.message || 'An unknown error occurred.');
-      toast.error(err?.message || 'Login failed.');
+      if (err instanceof AxiosError) {
+        setError(err?.message || 'An unknown error occurred.');
+        toast.error(err?.message || 'Login failed.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
+        toast.error('Login failed. Please try again later.');
+      }
     }
   };
 
