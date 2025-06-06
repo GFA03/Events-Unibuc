@@ -27,6 +27,8 @@ export class UsersService {
    * Creates and returns the new user
    * Throws ConflictException if email already exists
    * @param createUserDto
+   * @param emailVerificationToken
+   * @param emailVerificationTokenExpires
    */
   async create(
     createUserDto: CreateUserDto,
@@ -190,6 +192,16 @@ export class UsersService {
     if (!user) {
       this.logger.warn(`Update failed - user not found: ${id}`);
       throw new NotFoundException('User not found');
+    }
+
+    // Don't let user update admin role
+    if (
+      updateData.role &&
+      updateData.role === Role.ADMIN &&
+      user.role !== Role.ADMIN
+    ) {
+      this.logger.warn(`Update failed - user cannot be set as admin: ${id}`);
+      throw new ConflictException('Cannot set user as admin');
     }
 
     try {
