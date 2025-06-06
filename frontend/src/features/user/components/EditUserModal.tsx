@@ -1,5 +1,5 @@
 import { User } from '@/features/user/model';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Role } from '@/features/user/types/roles';
@@ -22,6 +22,17 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
     email: user?.email,
     role: user?.role
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

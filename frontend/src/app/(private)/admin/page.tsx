@@ -7,6 +7,8 @@ import UserCard from '@/components/users/UserCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faUsers, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { Pagination } from '@/components/ui/common/Pagination';
+import EditUserModal from '@/features/user/components/EditUserModal';
+import { User } from '@/features/user/model';
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,6 +17,19 @@ export default function AdminPage() {
     limit: 10,
     offset: 0,
     ...(searchTerm && { search: searchTerm.trim() })
+  };
+
+  const [user, setUser] = useState<User | null>(null);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleEditClick = (user: User) => {
+    setUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
   };
 
   const { data: data, isLoading, isError } = useUsers(queryParams);
@@ -146,7 +161,7 @@ export default function AdminPage() {
                   <div
                     key={user.id}
                     className="transform transition-all duration-200 hover:scale-105">
-                    <UserCard user={user} />
+                    <UserCard user={user} onEdit={handleEditClick} />
                   </div>
                 ))}
               </div>
@@ -155,7 +170,7 @@ export default function AdminPage() {
               <div className="sm:hidden space-y-4">
                 {users.map((user) => (
                   <div key={user.id} className="transform transition-all duration-200">
-                    <UserCard user={user} />
+                    <UserCard user={user} onEdit={handleEditClick} />
                   </div>
                 ))}
               </div>
@@ -196,6 +211,7 @@ export default function AdminPage() {
           isLoading={isLoading}
         />
       </div>
+      {user && <EditUserModal user={user} isOpen={isEditModalOpen} onClose={handleCloseModal} />}
     </WithLoader>
   );
 }

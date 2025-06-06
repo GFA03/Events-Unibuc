@@ -1,25 +1,14 @@
-import EditUserModal from '../../features/user/components/EditUserModal';
 import { Role } from '@/features/user/types/roles';
-import { useState } from 'react';
 import { User } from '@/features/user/model';
 import { userService } from '@/features/user/service';
 import toast from 'react-hot-toast';
 
 interface UserCardProps {
   user: User;
+  onEdit: (user: User) => void;
 }
 
-export default function UserCard({ user }: UserCardProps) {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  const handleEditClick = () => {
-    setIsEditModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsEditModalOpen(false);
-  };
-
+export default function UserCard({ user, onEdit }: UserCardProps) {
   const handleDeleteClick = async () => {
     if (window.confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?`)) {
       try {
@@ -69,7 +58,7 @@ export default function UserCard({ user }: UserCardProps) {
 
           <div className="flex space-x-2">
             <button
-              onClick={handleEditClick}
+              onClick={() => onEdit(user)}
               className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
               title="Edit User">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,8 +93,6 @@ export default function UserCard({ user }: UserCardProps) {
           <p>Updated: {formatDate(user.updatedAt)}</p>
         </div>
       </div>
-
-      <EditUserModal user={user} isOpen={isEditModalOpen} onClose={handleCloseModal} />
     </>
   );
 }
