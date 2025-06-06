@@ -1,67 +1,32 @@
 import { User } from '@/features/user/model';
-import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Role } from '@/features/user/types/roles';
-import toast from 'react-hot-toast';
-import { useQueryClient } from '@tanstack/react-query';
-import { userService } from '@/features/user/service';
 
 interface EditUserModalProps {
   user: User;
   isOpen: boolean;
   onClose: () => void;
+  formData: Partial<User>;
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onSubmit: () => void;
 }
 
-export default function EditUserModal({ user, isOpen, onClose }: EditUserModalProps) {
-  const queryClient = useQueryClient();
-
-  const [formData, setFormData] = useState({
-    firstName: user?.firstName,
-    lastName: user?.lastName,
-    email: user?.email,
-    role: user?.role
-  });
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role
-      });
-    }
-  }, [user]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async () => {
-    try {
-      await userService.updateUser(user.id, formData);
-      toast.success('User updated successfully!');
-      await queryClient.invalidateQueries({ queryKey: ['users'] });
-    } catch (error) {
-      console.error('Error saving user:', error);
-      // Handle error (e.g., show notification)
-      toast.error('Failed to save user. Please try again.');
-    }
-    onClose();
-  };
-
+export default function EditUserModal({
+  user,
+  isOpen,
+  onClose,
+  formData,
+  onChange,
+  onSubmit
+}: EditUserModalProps) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Edit User</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Edit {user.firstName}&#39;s Info</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">
             <FontAwesomeIcon icon={faTimes} className="text-xs" />
           </button>
@@ -75,7 +40,7 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
                 type="text"
                 name="firstName"
                 value={formData.firstName}
-                onChange={handleInputChange}
+                onChange={onChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -86,7 +51,7 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
                 type="text"
                 name="lastName"
                 value={formData.lastName}
-                onChange={handleInputChange}
+                onChange={onChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -97,7 +62,7 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={handleInputChange}
+                onChange={onChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -107,7 +72,7 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
               <select
                 name="role"
                 value={formData.role}
-                onChange={handleInputChange}
+                onChange={onChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 {Object.values(Role).map((role) => (
                   <option key={role} value={role}>
@@ -127,7 +92,7 @@ export default function EditUserModal({ user, isOpen, onClose }: EditUserModalPr
             </button>
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={onSubmit}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
               Save Changes
             </button>

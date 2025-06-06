@@ -9,6 +9,10 @@ import { faSearch, faUsers, faUserShield } from '@fortawesome/free-solid-svg-ico
 import { Pagination } from '@/components/ui/common/Pagination';
 import EditUserModal from '@/features/user/components/EditUserModal';
 import { User } from '@/features/user/model';
+import { userService } from '@/features/user/service';
+import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import { Role } from '@/features/user/types/roles';
 
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,11 +25,45 @@ export default function AdminPage() {
 
   const [user, setUser] = useState<User | null>(null);
 
+  const queryClient = useQueryClient();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const handleEditClick = (user: User) => {
-    setUser(user);
+  const [formData, setFormData] = useState<Partial<User>>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: Role.User // default
+  });
+
+  const handleEditClick = (selectedUser: User) => {
+    setUser(selectedUser);
+    setFormData({
+      firstName: selectedUser.firstName,
+      lastName: selectedUser.lastName,
+      email: selectedUser.email,
+      role: selectedUser.role
+    });
     setIsEditModalOpen(true);
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (!user) return;
+    try {
+      await userService.updateUser(user.id, formData);
+      toast.success('User updated successfully!');
+      await queryClient.invalidateQueries({ queryKey: ['users'] });
+      setIsEditModalOpen(false);
+    } catch (err) {
+      toast.error('Failed to update user.');
+    }
   };
 
   const handleCloseModal = () => {
@@ -211,7 +249,16 @@ export default function AdminPage() {
           isLoading={isLoading}
         />
       </div>
-      {user && <EditUserModal user={user} isOpen={isEditModalOpen} onClose={handleCloseModal} />}
+      {user && (
+        <EditUserModal
+          user={user}
+          isOpen={isEditModalOpen}
+          formData={formData}
+          onClose={handleCloseModal}
+          onChange={handleFormChange}
+          onSubmit={handleSubmit}
+        />
+      )}
     </WithLoader>
   );
 }
