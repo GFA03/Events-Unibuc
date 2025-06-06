@@ -1,12 +1,13 @@
 import { User } from '@/features/user/model';
-import { UserDto } from '@/features/user/types/userDto';
 import { apiDeleteUser, apiUpdateUser, fetchOrganizer, fetchUsers } from '@/features/user/api';
 import { Organizer } from '@/features/user/types/Organizer';
+import { PaginatedUsers } from '@/features/user/types/PaginatedUsers';
+import { UserParams } from '@/features/user/types/userParams';
 
 class UserService {
-  async getUsers() {
-    const { data } = await fetchUsers();
-    return data.map((user: UserDto) => User.fromDto(user));
+  async getUsers(params: UserParams): Promise<PaginatedUsers> {
+    const { data } = await fetchUsers(params);
+    return { users: data.users.map(User.fromDto), total: data.total };
   }
 
   async getOrganizer(id: string): Promise<Organizer> {

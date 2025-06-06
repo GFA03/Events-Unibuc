@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Event } from '@/features/event/model';
 import { eventService } from '@/features/event/service';
+import { PaginatedEvents } from '@/features/event/types/PaginatedEventsResponse';
 
 interface EventsQueryParams {
   limit?: number;
@@ -22,7 +22,7 @@ export const useEvents = (params: EventsQueryParams = {}) => {
     ...params
   };
 
-  return useQuery<{ events: Event[]; total: number }>({
+  return useQuery<PaginatedEvents>({
     queryKey: ['events', queryParams],
     queryFn: () => eventService.fetchEvents(queryParams),
     staleTime: 1000 * 60 * 5 // 5 minutes: adjust as needed

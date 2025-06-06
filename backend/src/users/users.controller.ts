@@ -7,6 +7,7 @@ import {
   Delete,
   ParseUUIDPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -32,9 +33,16 @@ export class UsersController {
   @Get()
   @ApiOkResponse({ description: 'Successfully retrieved' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.usersService.findAll();
-    return users.map((user) => UserResponseDto.fromEntity(user));
+  async findAll(
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('search') search?: string,
+  ) {
+    return this.usersService.findAll({
+      limit: limit ? parseInt(limit, 10) : 10,
+      offset: offset ? parseInt(offset, 10) : 0,
+      search,
+    });
   }
 
   @Get(':id')

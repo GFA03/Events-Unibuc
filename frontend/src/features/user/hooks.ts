@@ -1,11 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import { User } from '@/features/user/model';
 import { userService } from '@/features/user/service';
+import { UserParams } from '@/features/user/types/userParams';
+import { PaginatedUsers } from '@/features/user/types/PaginatedUsers';
 
-export const useUsers = () => {
-  return useQuery<User[]>({
-    queryKey: ['users'],
-    queryFn: userService.getUsers,
+export const useUsers = (params: UserParams = {}) => {
+  const queryParams = {
+    limit: 10,
+    offset: 0,
+    ...params
+  };
+
+  return useQuery<PaginatedUsers>({
+    queryKey: ['users', queryParams],
+    queryFn: () => userService.getUsers(queryParams),
     staleTime: 1000 * 60 * 5 // 5 minutes
   });
 };

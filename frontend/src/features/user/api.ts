@@ -2,9 +2,11 @@ import apiClient from '@/lib/api';
 import { User } from '@/features/user/model';
 import { UserDto } from '@/features/user/types/userDto';
 import { OrganizerDto } from '@/features/user/types/organizerDto';
+import { UserParams } from '@/features/user/types/userParams';
+import { PaginatedUsersResponse } from '@/features/user/types/PaginatedUsers';
 
-export async function fetchUsers() {
-  return apiClient.get('/users');
+export async function fetchUsers(params: UserParams) {
+  return apiClient.get<PaginatedUsersResponse>('/users', { params });
 }
 
 export async function fetchOrganizer(id: string) {

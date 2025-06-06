@@ -17,7 +17,7 @@ export default function LoginPage() {
             className="mx-auto mb-6"
           />
         </Link>
-        <h2 className="text-2xl text-white font-bold text-center mb-6">Conectați-vă</h2>
+        <h2 className="text-2xl text-white font-bold text-center mb-6">Login</h2>
         <LoginForm />
         <p className="mt-6 text-center text-sm text-white">
           Don&#39;t have an account?{' '}

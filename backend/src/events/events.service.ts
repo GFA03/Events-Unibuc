@@ -129,7 +129,7 @@ export class EventsService {
     if (search) {
       queryBuilder.andWhere(
         '(LOWER(event.name) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search)) OR LOWER(organizer.firstName) LIKE LOWER(:search)',
-        { search: `%${search}%` },
+        { search: `%${search.toLowerCase()}%` },
       );
     }
 

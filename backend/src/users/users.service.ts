@@ -13,6 +13,13 @@ import { hashPassword } from '../utils/helpers';
 import { UserResponseDto } from './dto/user-response.dto';
 import { OrganizerResponseDto } from './dto/organizer-response.dto';
 import { Role } from './entities/role.enum';
+import * as sea from 'node:sea';
+
+interface FindAllOptions {
+  limit?: number;
+  offset?: number;
+  search?: string;
+}
 
 @Injectable()
 export class UsersService {
@@ -67,9 +74,29 @@ export class UsersService {
   /**
    * Returns list of all Users
    */
-  findAll(): Promise<User[]> {
+  async findAll(
+    options?: FindAllOptions,
+  ): Promise<{ users: UserResponseDto[]; total: number }> {
     this.logger.debug('Fetching all users');
-    return this.userRepository.find();
+    const { limit = 10, offset = 0, search } = options || {};
+
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(LOWER(user.email) LIKE :search OR LOWER(user.firstName) LIKE :search OR LOWER(user.lastName) LIKE :search)',
+        { search: `%${search.toLowerCase()}%` },
+      );
+    }
+
+    queryBuilder.skip(offset).take(limit);
+
+    const [users, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      users: users.map((user) => UserResponseDto.fromEntity(user)),
+      total,
+    };
   }
 
   /**

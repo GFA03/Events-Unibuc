@@ -98,9 +98,9 @@ export default function DashboardPage() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RegistrationsPerEventChart data={registrationsPerEvent} />
-          <MonthlyRegistrationsChart data={monthlyData} />
-          <DailyRegistrationsChart data={dailyData} eventName={selectedEventForDaily?.name} />
+          <RegistrationsPerEventChart data={registrationsPerEvent!} />
+          <MonthlyRegistrationsChart data={monthlyData!} />
+          <DailyRegistrationsChart data={dailyData!} eventName={selectedEventForDaily?.name} />
         </div>
       </div>
     </div>
