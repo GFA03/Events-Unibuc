@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/common/Button';
 import Image from 'next/image';
 import { Role } from '@/features/user/types/roles';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
+import { ChevronDown } from 'lucide-react';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -20,6 +21,8 @@ export function Header({ onSearch }: HeaderProps) {
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get('search') || '');
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleSearch = (searchTerm: string) => {
     if (onSearch) {
@@ -48,6 +51,10 @@ export function Header({ onSearch }: HeaderProps) {
     const urlSearch = searchParams.get('search') || '';
     setSearch(urlSearch);
   }, [searchParams]);
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <header className={`shadow-md sticky top-0 z-50 bg-cyan-600`}>
@@ -80,19 +87,24 @@ export function Header({ onSearch }: HeaderProps) {
           <Link href="/events" className="text-white hover:text-indigo-600">
             Events
           </Link>
-          {isLoading ? (
-            <span className="text-sm text-gray-500">Loading...</span>
-          ) : isAuthenticated ? (
+
+          {isAuthenticated ? (
             <>
-              <Link href="/registrations" className="text-white hover:text-indigo-600">
-                My Registrations
-              </Link>
-              {/* Conditionally show Admin links */}
-              {user?.role === Role.Admin && (
+              {user?.role === Role.User && (
+                <Link href="/registrations" className="text-white hover:text-indigo-600">
+                  My Registrations
+                </Link>
+              )}
+              {(user?.role === Role.Admin || user?.role === Role.Organizer) && (
                 <>
                   <Link href="/manage-events" className="text-white hover:text-indigo-600">
                     Manage Events
                   </Link>
+                </>
+              )}
+
+              {user?.role === Role.Admin && (
+                <>
                   <Link href="/admin" className="text-white hover:text-indigo-600">
                     Admin Panel
                   </Link>
@@ -100,18 +112,44 @@ export function Header({ onSearch }: HeaderProps) {
               )}
               {user?.role === Role.Organizer && (
                 <>
-                  <Link href="/manage-events" className="text-white hover:text-indigo-600">
-                    Manage My Events
-                  </Link>
                   <Link href="/dashboard" className="text-white hover:text-indigo-600">
                     Dashboard
                   </Link>
                 </>
               )}
-              <span className="text-sm text-gray-300 hidden sm:block">Hi, {user?.email}</span>
-              <Button onClick={logout} variant="secondary" size="sm">
-                Logout
-              </Button>
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center space-x-2 text-white cursor-pointer hover:text-indigo-200 focus:outline-none">
+                  <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-medium">
+                      {user?.email?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <ChevronDown
+                    className={`w-3 h-3 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                    <Link
+                      href="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setDropdownOpen(false)}>
+                      Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setDropdownOpen(false);
+                      }}
+                      className="block w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>

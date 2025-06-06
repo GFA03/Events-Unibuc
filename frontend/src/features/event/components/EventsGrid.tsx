@@ -1,5 +1,6 @@
 import { Event } from '@/features/event/model';
 import EventCard from '@/components/events/EventCard';
+import { AxiosError } from 'axios';
 
 interface EventsGridProps {
   events: Event[];
@@ -63,7 +64,9 @@ export function EventsGrid({
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md text-center">
           <h3 className="text-lg font-medium text-red-800 mb-2">Failed to load events</h3>
           <p className="text-red-600 mb-4">
-            {error?.message || 'Something went wrong while fetching events.'}
+            {error instanceof AxiosError
+              ? error.response?.data?.message
+              : 'Something went wrong while fetching events.'}
           </p>
           <button
             onClick={() => window.location.reload()}
