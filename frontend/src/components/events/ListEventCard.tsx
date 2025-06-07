@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import TagCard from '@/components/tags/TagCard';
 import { Share2 } from 'lucide-react';
 import { handleShare } from '@/features/event/utils';
+import { eventTypeColor } from '@/features/event/types/eventType';
 
 export default function ListEventCard({ event }: { event: Event }) {
   const { id, name, type, startDateTime, endDateTime, imageUrl, organizer, tags, location } = event;
@@ -35,7 +36,7 @@ export default function ListEventCard({ event }: { event: Event }) {
         <div className="flex-1 bg-white p-4 flex flex-col justify-between">
           <div>
             <span
-              className={`inline-block ${type === 'EVENT' ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'} text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded`}>
+              className={`inline-block ${eventTypeColor(type)} text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded`}>
               {type}
             </span>
             <h3 className="mt-2 text-lg text-gray-900 truncate">{name}</h3>

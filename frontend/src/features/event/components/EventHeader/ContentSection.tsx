@@ -5,6 +5,7 @@ import ManagementButtons from './ManagementButtons';
 import EventStats from '@/features/event/components/EventHeader/EventStats';
 import EventDateTime from '@/features/event/components/EventHeader/EventDateTime';
 import ActionButtons from '@/features/event/components/EventHeader/ActionButtons';
+import { eventTypeColor } from '@/features/event/types/eventType';
 
 export default function ContentSection({
   setIsEditModalOpen
@@ -28,7 +29,7 @@ export default function ContentSection({
     <div className="lg:w-1/2 p-8 lg:p-12">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center gap-3">
-          <span className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-full capitalize shadow-lg">
+          <span className={`px-4 py-2 ${eventTypeColor(type)} text-sm font-medium rounded-full capitalize shadow-lg`}>
             {type}
           </span>
         </div>
@@ -52,7 +53,7 @@ export default function ContentSection({
         </Link>
       </p>
 
-      <EventStats noParticipants={noParticipants} startDateTime={startDateTime} />
+      <EventStats noParticipants={noParticipants} />
 
       <EventDateTime startDateTime={startDateTime} endDateTime={endDateTime} />
 

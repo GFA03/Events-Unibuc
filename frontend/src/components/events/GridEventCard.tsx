@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import TagCard from '@/components/tags/TagCard';
 import { handleShare } from '@/features/event/utils';
 import { Share2 } from 'lucide-react';
+import { eventTypeColor } from '@/features/event/types/eventType';
 
 export default function GridEventCard({ event }: { event: Event }) {
   const { id, name, type, startDateTime, imageUrl, endDateTime, tags, organizer, location } = event;
@@ -35,7 +36,7 @@ export default function GridEventCard({ event }: { event: Event }) {
         />
         <div className="bg-white pb-4 pl-4 pr-4 pt-2">
           <span
-            className={`inline-block ${type === 'EVENT' ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'} text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded`}>
+            className={`inline-block ${eventTypeColor(type)} text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded`}>
             {type}
           </span>
           <h3 className="mt-2 text-lg text-gray-900 truncate">{name}</h3>

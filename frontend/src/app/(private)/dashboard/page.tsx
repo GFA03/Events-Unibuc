@@ -1,24 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import StatCard from '@/features/analytics/components/StatCard';
 import { Activity, Calendar, Eye, Plus, Users } from 'lucide-react';
 import EventManagementSection from '@/features/analytics/components/EventManagementSection';
 import RegistrationsPerEventChart from '@/features/analytics/components/RegistrationsPerEventChart';
 import MonthlyRegistrationsChart from '@/features/analytics/components/MonthlyRegistrationsChart';
-import { useDailyRegistrations, useOrganizerDashboard } from '@/features/analytics/hooks';
-import { Event } from '@/features/event/model';
-import DailyRegistrationsChart from '@/features/analytics/components/DailyRegistrationsChart';
+import { useOrganizerDashboard } from '@/features/analytics/hooks';
 import { useMyEvents } from '@/features/event/hooks/useMyEvents';
 
 export default function DashboardPage() {
   const { data: events, isLoading: eventsLoading, isError: eventsIsError } = useMyEvents();
-
-  const [selectedEventForDaily, setSelectedEventForDaily] = useState<Event | null>(
-    events ? events[0] : null
-  );
-
-  console.log(selectedEventForDaily);
 
   const { summary, registrationsPerEvent, monthlyData, isLoading, isError } =
     useOrganizerDashboard();
@@ -27,11 +18,6 @@ export default function DashboardPage() {
   console.log(summary);
   console.log(registrationsPerEvent);
   console.log(monthlyData);
-  console.log(selectedEventForDaily);
-
-  const { data: dailyData } = useDailyRegistrations(selectedEventForDaily?.id || null);
-
-  console.log(dailyData);
 
   // isLoading and eventsLoading makes sure: summary, registrationsPerEvent, monthlyData and dailyData are all loaded before rendering
   if (isLoading || eventsLoading) {
@@ -100,7 +86,6 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <RegistrationsPerEventChart data={registrationsPerEvent!} />
           <MonthlyRegistrationsChart data={monthlyData!} />
-          <DailyRegistrationsChart data={dailyData!} eventName={selectedEventForDaily?.name} />
         </div>
       </div>
     </div>

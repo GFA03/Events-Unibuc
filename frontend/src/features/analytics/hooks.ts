@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { analyticsService } from '@/features/analytics/service';
+import { DashboardSummary } from '@/features/analytics/types/DashboardSummary';
+import { EventRegistration } from '@/features/analytics/types/EventRegistration';
 
 export function useOrganizerDashboard() {
   const { data: summary, isError: isSummaryError } = useDashboardSummary();

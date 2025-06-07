@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/common/Button';
-import { Filters } from '@/features/event/types/filters';
+import { Filters } from '@/features/event/types/eventFilters';
 import { EventType } from '@/features/event/types/eventType';
 import { useTags } from '@/features/tag/hooks';
+import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 
 interface EventsFiltersProps {
   filters: Filters;
@@ -23,6 +24,10 @@ export function EventsFilters({
   const { data: availableTags } = useTags();
 
   if (!isVisible) return null;
+
+  if (!availableTags) {
+    return <LoadingSpinner />
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
