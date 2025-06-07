@@ -14,7 +14,7 @@ export default function ManageTagCard({tag, onEdit, onDelete}: Props) {
         <div className="flex items-center space-x-3">
           <div
             className="w-4 h-4 rounded-full"
-            style={{ backgroundColor: 'transparent'}}
+            style={{ backgroundColor: '#3B82F6'}}
           />
           <h3 className="text-lg font-semibold text-gray-900">
             {tag.name}
