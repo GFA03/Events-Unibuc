@@ -6,7 +6,7 @@ export async function fetchUserRegistrations() {
 }
 
 export async function fetchRegistration(eventId: string) {
-  return apiClient.get<RegistrationDto>(`/registrations/${eventId}`);
+  return apiClient.get<RegistrationDto | null>(`/registrations/${eventId}`);
 }
 
 export async function fetchEventRegistrationsCount(eventId: string) {

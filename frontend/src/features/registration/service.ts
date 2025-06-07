@@ -11,9 +11,9 @@ class RegistrationService {
     return data.map((dto) => Registration.fromDto(dto));
   }
 
-  async fetchRegistration(eventId: string): Promise<Registration> {
+  async fetchRegistration(eventId: string): Promise<Registration | null> {
     const { data } = await fetchRegistration(eventId);
-    return Registration.fromDto(data);
+    return data ? Registration.fromDto(data) : null;
   }
 
   async getEventRegistrationsCount(eventId: string): Promise<number> {
