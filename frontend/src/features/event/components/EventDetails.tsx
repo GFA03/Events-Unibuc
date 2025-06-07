@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { useEventDetails } from '@/features/event/hooks/useEventDetails';
+import Link from 'next/link';
 
 export default function EventDetails() {
   const { event } = useEventDetails();
@@ -33,7 +34,14 @@ export default function EventDetails() {
                   <FontAwesomeIcon icon={faLocationDot} className="text-indigo-500" />
                   Location
                 </h3>
-                <p className="text-gray-700">{location}</p>
+                <Link
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline break-words"
+                >
+                  {location}
+                </Link>
               </div>
             </div>
           </div>
