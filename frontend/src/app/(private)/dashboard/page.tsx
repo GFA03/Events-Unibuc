@@ -20,7 +20,7 @@ export default function DashboardPage() {
   console.log(monthlyData);
 
   // isLoading and eventsLoading makes sure: summary, registrationsPerEvent, monthlyData and dailyData are all loaded before rendering
-  if (isLoading || eventsLoading) {
+  if (!summary || isLoading || eventsLoading) {
     return <p>Loading...</p>;
   }
 
