@@ -8,3 +8,11 @@ export function useTags() {
     staleTime: 1000 * 60 * 60 // 1 hour
   });
 }
+
+export function useTagsWithEventCount() {
+  return useQuery({
+    queryKey: ['tagsEvents'],
+    queryFn: tagService.getTagsWithEventCount,
+    staleTime: 1000 * 60 * 5 // 5 minutes
+  })
+}

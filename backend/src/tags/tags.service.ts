@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from './entities/tag.entity';
 import { In, Repository } from 'typeorm';
 import { TagResponseDto } from './dto/tag-response.dto';
+import { TagWithEventCountDto } from './dto/tag-with-event-count.dto';
 
 @Injectable()
 export class TagsService {
@@ -47,6 +48,25 @@ export class TagsService {
         order: { name: 'ASC' },
       })
       .then((tags) => tags.map((tag) => TagResponseDto.from(tag)));
+  }
+
+  async findAllWithEventCount(): Promise<TagWithEventCountDto[]> {
+    this.logger.log('Fetching all tags with event count');
+    const tags = await this.tagRepository
+      .createQueryBuilder('tag')
+      .leftJoin('tag.events', 'event')
+      .select('tag.id', 'id')
+      .addSelect('tag.name', 'name')
+      .addSelect('COUNT(event.id)', 'eventCount')
+      .groupBy('tag.id')
+      .orderBy('tag.name', 'ASC')
+      .getRawMany();
+
+    return tags.map((t: Tag & { eventCount: string }) => ({
+      id: t.id,
+      name: t.name,
+      count: parseInt(t.eventCount, 10),
+    }));
   }
 
   // Find tag by ID, if not found throw NotFoundException

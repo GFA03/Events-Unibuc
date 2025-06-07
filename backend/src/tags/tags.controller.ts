@@ -36,6 +36,12 @@ export class TagsController {
     return this.tagsService.findAll();
   }
 
+  // Fetch all tags with event count
+  @Get('/events')
+  findAllTagsWithEventCount() {
+    return this.tagsService.findAllWithEventCount();
+  }
+
   @Get(':uuid')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
