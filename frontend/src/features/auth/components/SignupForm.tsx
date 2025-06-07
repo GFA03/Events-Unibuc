@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/common/Input';
 import { Button } from '@/components/ui/common/Button';
+import { AxiosError } from 'axios';
 
 const signupSchema = z
   .object({
@@ -37,6 +38,7 @@ export function SignupForm() {
   });
 
   const onSubmit: SubmitHandler<SignupFormInputs> = async ({
+                                                             // eslint-disable-next-line @typescript-eslint/no-unused-vars
     confirmPassword, // exclude from signup
     ...data
   }) => {
@@ -46,8 +48,12 @@ export function SignupForm() {
       toast.success('Signup successful!');
       // Redirect handled by AuthContext
     } catch (err: unknown) {
-      setError(err?.message || 'An unknown error occurred.');
-      toast.error(err?.message || 'buttonSignup failed.');
+      if (err instanceof AxiosError) {
+        setError(err?.message || 'An unknown error occurred.');
+        toast.error(err?.message || 'buttonSignup failed.');
+      }
+      setError('An unknown error occurred.');
+      toast.error('buttonSignup failed.');
     }
   };
 

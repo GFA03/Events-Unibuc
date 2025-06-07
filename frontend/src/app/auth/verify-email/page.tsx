@@ -24,7 +24,7 @@ export default function VerifyEmailPage() {
     showResendForm,
     setShowResendForm,
     handleResendEmail
-  } = useEmailVerification(token);
+  } = useEmailVerification();
 
   useEffect(() => {
     if (!token) {

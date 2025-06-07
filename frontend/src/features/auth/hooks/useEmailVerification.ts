@@ -9,7 +9,7 @@ export interface VerificationState {
   message: string;
 }
 
-export function useEmailVerification(token: string | null) {
+export function useEmailVerification() {
   const [verificationState, setVerificationState] = useState<VerificationState>({
     status: 'loading',
     message: 'Verifying email...'
@@ -18,7 +18,7 @@ export function useEmailVerification(token: string | null) {
   const [showResendForm, setShowResendForm] = useState(false);
 
   const verifyMutation = useMutation({
-    mutationFn: authService.verifyEmail,
+    mutationFn: (token: string) => authService.verifyEmail(token),
     onSuccess: (data) => {
       setVerificationState({
         status: 'success',
