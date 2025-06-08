@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useUsers } from '@/features/user/hooks';
 import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
+import { useTags } from '@/features/tag/hooks';
 
 interface AdminCard {
   title: string;
@@ -30,9 +31,20 @@ interface AdminCard {
 export default function AdminPage() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
-  const { data, isLoading } = useUsers();
+  const { data, isLoading: usersLoading, isError: usersError } = useUsers();
 
   const totalUsers = data?.total;
+
+  const { data: tags, isLoading: tagsLoading, isError: tagsError } = useTags();
+
+
+  if (!tags || usersLoading || tagsLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (usersError || tagsError) {
+    return <p>Unknown error</p>
+  }
 
   const adminCards: AdminCard[] = [
     {
@@ -58,7 +70,7 @@ export default function AdminPage() {
       href: '/admin/tags',
       stats: {
         label: 'Total Tags',
-        value: '89',
+        value: tags.length,
         color: 'text-purple-600'
       },
       color: {
@@ -69,9 +81,6 @@ export default function AdminPage() {
     }
   ];
 
-  if (isLoading) {
-    return <LoadingSpinner />
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -1,7 +1,7 @@
 'use client';
 
 import StatCard from '@/features/analytics/components/StatCard';
-import { Activity, Calendar, Eye, Plus, Users } from 'lucide-react';
+import { Activity, Calendar, Plus, Users } from 'lucide-react';
 import EventManagementSection from '@/features/analytics/components/EventManagementSection';
 import RegistrationsPerEventChart from '@/features/analytics/components/RegistrationsPerEventChart';
 import MonthlyRegistrationsChart from '@/features/analytics/components/MonthlyRegistrationsChart';
@@ -58,7 +58,7 @@ export default function DashboardPage() {
             value={summary.uniqueParticipants.toLocaleString()}
             icon={Activity}
             subtitle="Individual attendees"
-            trend="12% repeat rate"
+            trend="+10% participants"
           />
         </div>
 
@@ -73,10 +73,6 @@ export default function DashboardPage() {
               <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <Plus className="h-4 w-4 mr-2" />
                 Create New Event
-              </button>
-              <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                <Eye className="h-4 w-4 mr-2" />
-                View All Analytics
               </button>
             </div>
           </div>

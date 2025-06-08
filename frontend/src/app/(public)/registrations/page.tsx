@@ -23,7 +23,7 @@ export default function RegistrationsPage() {
     );
   }
 
-  const events = registrations.map((reg) => reg.event);
+  const events = registrations.map((reg) => reg.event!);
 
   if (!events || events.length === 0) {
     return <p>Failed to load events...</p>;

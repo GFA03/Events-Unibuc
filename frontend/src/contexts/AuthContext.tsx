@@ -13,6 +13,7 @@ import { SignUpDto } from '@/features/auth/types/signUpDto';
 import { LoginDto } from '@/features/auth/types/loginDto';
 import { AuthenticatedUser } from '@/features/auth/model';
 import { authService } from '@/features/auth/service';
+import { AxiosError } from 'axios';
 
 // Define a type for the context value
 interface AuthContextType {
@@ -47,7 +48,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(user);
     } catch (error: unknown) {
       // If /auth/me fails (e.g., token expired), log out
-      console.error('Failed to fetch user profile:', error.response?.data || error.message);
+      if (error instanceof AxiosError){
+        console.error('Failed to fetch user profile:', error.response?.data || error.message);
+      }
+      console.error(error);
       logout(); // Clear state and token if /me fails
     }
   }, [logout]);
@@ -76,8 +80,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.push('/events'); // Redirect after successful login
     } catch (error: unknown) {
       // Re-throw for the form component to handle showing errors
+      if (error instanceof AxiosError) {
+        throw new Error(
+          error.response?.data?.message || 'Login failed. Please check your credentials.'
+        );
+      }
+      console.error(error);
       throw new Error(
-        error.response?.data?.message || 'Login failed. Please check your credentials.'
+        'Login failed. Please check your credentials.'
       );
     } finally {
       setIsLoading(false);
@@ -91,8 +101,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await authService.signup(data);
       router.push('/auth/login?signupSuccess=true'); // Add query param for success message
     } catch (error: unknown) {
-      console.error('Signup failed:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'Signup failed. Please try again.');
+      if (error instanceof AxiosError) {
+        console.error('Signup failed:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || 'Signup failed. Please try again.');
+      }
+      console.error(error);
+      throw new Error('Signup failed. Please try again');
+
     } finally {
       setIsLoading(false);
     }

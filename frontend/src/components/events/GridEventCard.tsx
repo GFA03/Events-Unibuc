@@ -32,7 +32,7 @@ export default function GridEventCard({ event }: { event: Event }) {
           alt={name}
           width={300}
           height={200}
-          className="object-contain w-full bg-white h-48"
+          className={`${imageUrl ? 'object-cover' : 'object-contain'} w-full bg-white h-48`}
         />
         <div className="bg-white pb-4 pl-4 pr-4 pt-2">
           <span

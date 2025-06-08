@@ -24,7 +24,7 @@ export class DashboardSummary {
       dto.totalEvents,
       dto.totalRegistrations,
       dto.uniqueParticipants,
-      dto.recentsEvents ? dto.recentEvents.map((ev) => Event.fromDto(ev)) : []
+      dto.recentEvents ? dto.recentEvents.map((ev) => Event.fromDto(ev)) : []
     );
   }
 }
