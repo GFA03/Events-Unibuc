@@ -7,6 +7,7 @@ import { comparePassword } from '../utils/helpers';
 import { EmailService } from '../email/email.service';
 import { randomBytes } from 'node:crypto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,14 @@ export class AuthService {
     const user = await this.usersService.findByLogin(email);
     if (!user) {
       this.logger.warn(`Validation failed - user not found: ${email}`);
+      return null;
+    }
+
+    // Is the user email verified?
+    if (!user.isEmailVerified) {
+      this.logger.warn(
+        `Validation failed - email not verified for user: ${email}`,
+      );
       return null;
     }
 
@@ -177,6 +186,87 @@ export class AuthService {
 
     return {
       message: 'Verification email sent! Please check your inbox.',
+    };
+  }
+
+  /**
+   * Initiates password reset process by sending reset email.
+   */
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    this.logger.log(`Forgot password request for: ${email}`);
+
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      // Don't reveal if user exists or not for security reasons
+      return {
+        message:
+          'If an account with that email exists, a password reset link has been sent.',
+      };
+    }
+
+    // Generate password reset token
+    const resetToken = randomBytes(32).toString('hex');
+    const tokenExpires = new Date();
+    tokenExpires.setHours(tokenExpires.getHours() + 1); // 1 hour expiration
+
+    // Save reset token to user
+    await this.usersService.updatePasswordResetToken(
+      user.id,
+      resetToken,
+      tokenExpires,
+    );
+
+    // Send password reset email
+    await this.emailService.sendPasswordResetEmail(
+      user.email,
+      user.firstName,
+      resetToken,
+    );
+
+    this.logger.log(`Password reset email sent for user: ${user.id}`);
+
+    return {
+      message:
+        'If an account with that email exists, a password reset link has been sent.',
+    };
+  }
+
+  /**
+   * Resets user password using reset token.
+   */
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    this.logger.log(
+      `Attempting password reset with token: ${token.substring(0, 8)}...`,
+    );
+
+    const user = await this.usersService.findOneByPasswordResetToken(token);
+
+    if (!user || !user.passwordResetToken || !user.passwordResetTokenExpires) {
+      throw new BadRequestException('Invalid or expired reset token');
+    }
+
+    // Check if token has expired
+    if (user.passwordResetTokenExpires < new Date()) {
+      throw new BadRequestException('Reset token has expired');
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update user password and clear reset token
+    await this.usersService.updatePassword(user.id, hashedPassword);
+    await this.usersService.clearPasswordResetToken(user.id);
+
+    this.logger.log(`Password successfully reset for user: ${user.id}`);
+
+    return {
+      message:
+        'Password has been successfully reset. You can now log in with your new password.',
     };
   }
 

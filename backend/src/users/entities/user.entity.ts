@@ -21,6 +21,12 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ type: String, nullable: true })
+  passwordResetToken: string | null;
+
+  @Column({ type: Date, nullable: true })
+  passwordResetTokenExpires: Date | null;
+
   @Column({ length: 100 })
   firstName: string;
 

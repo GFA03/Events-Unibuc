@@ -61,4 +61,33 @@ export class EmailService {
       );
     }
   }
+
+  async sendPasswordResetEmail(
+    email: string,
+    firstName: string,
+    resetToken: string,
+  ): Promise<void> {
+    const resetUrl = `${this.configService.get('FRONTEND_URL')}/auth/reset-password?token=${resetToken}`;
+
+    try {
+      await this.mailerService.sendMail({
+        to: email,
+        subject: 'Password Reset Request',
+        template: './forgot-password',
+        context: {
+          firstName,
+          resetUrl,
+          appName: this.configService.get<string>('APP_NAME'),
+        },
+      });
+
+      this.logger.log(`Password reset email sent to ${email}`);
+    } catch (error) {
+      this.logger.error(
+        `Password reset email failed: ${error?.message}`,
+        error?.stack,
+      );
+      throw error;
+    }
+  }
 }

@@ -1,6 +1,8 @@
 import { LoginDto } from '@/features/auth/types/loginDto';
 import {
+  apiForgotPasswordEmail,
   apiResendVerificationEmail,
+  apiResetPassword,
   apiVerifyEmail,
   getAuthenticatedUser,
   loginRequest,
@@ -52,6 +54,16 @@ class AuthService {
 
   async resendVerificationEmail(email: string) {
     const { data } = await apiResendVerificationEmail(email);
+    return data;
+  }
+
+  async forgotPassword(email: string) {
+    const { data } = await apiForgotPasswordEmail(email);
+    return data;
+  }
+
+  async resetPassword(token: string, password: string) {
+    const { data } = await apiResetPassword(token, password);
     return data;
   }
 

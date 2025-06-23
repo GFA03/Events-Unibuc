@@ -13,7 +13,6 @@ import { hashPassword } from '../utils/helpers';
 import { UserResponseDto } from './dto/user-response.dto';
 import { OrganizerResponseDto } from './dto/organizer-response.dto';
 import { Role } from './entities/role.enum';
-import * as sea from 'node:sea';
 
 interface FindAllOptions {
   limit?: number;
@@ -112,6 +111,15 @@ export class UsersService {
       return null;
     }
     return user;
+  }
+
+  /**
+   * Finds user by password reset token.
+   */
+  async findOneByPasswordResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { passwordResetToken: token },
+    });
   }
 
   async findOrganizer(id: string): Promise<OrganizerResponseDto | null> {
@@ -262,6 +270,29 @@ export class UsersService {
   }
 
   /**
+   * Updates user's password reset token and expiration.
+   */
+  async updatePasswordResetToken(
+    userId: string,
+    resetToken: string,
+    tokenExpires: Date,
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      passwordResetToken: resetToken,
+      passwordResetTokenExpires: tokenExpires,
+    });
+  }
+
+  /**
+   * Updates user's password.
+   */
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+    });
+  }
+
+  /**
    * Remove user after id
    * Throws NotFoundException if user not found
    * @param id
@@ -279,5 +310,15 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
     this.logger.log(`Successfully removed user: ${id}`);
+  }
+
+  /**
+   * Clears password reset token and expiration.
+   */
+  async clearPasswordResetToken(userId: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      passwordResetToken: null,
+      passwordResetTokenExpires: null,
+    });
   }
 }

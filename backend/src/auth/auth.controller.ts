@@ -29,6 +29,8 @@ import { AuthorizedUser } from './types/AuthorizedUser';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { RequestWithUser } from './types/RequestWithUser';
 import { RequestWithUserResponse } from './types/RequestWithUserResponse';
+import { ForgotPasswordDto } from './types/ForgotPasswordDto';
+import { ResetPasswordDto } from './types/ResetPasswordDto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -86,6 +88,37 @@ export class AuthController {
   @Post('resend-verification')
   async resendVerification(@Body('email') email: string) {
     return this.authService.resendVerificationEmail(email);
+  }
+
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Request password reset' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset email sent (if account exists)',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request',
+  })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password using token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password successfully reset',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or expired token',
+  })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
   }
 
   @Get('me')
