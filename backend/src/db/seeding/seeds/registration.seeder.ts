@@ -23,6 +23,10 @@ export default class RegistrationSeeder implements Seeder {
         continue;
       }
       for (const event of events) {
+        // 30% chance of registration
+        if (Math.random() > 0.3) {
+          continue;
+        }
         await registrationsFactory.save({
           userId: user.id,
           eventId: event.id,

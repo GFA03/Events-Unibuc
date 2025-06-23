@@ -17,12 +17,15 @@ export default class EventSeeder implements Seeder {
 
     const tags = await tagRepository.find();
 
-    const organizerId = '22222222-2222-2222-2222-222222222222'; // Organizer from UserSeeder
+    const organizers = [
+      '22222222-2222-2222-2222-222222222222',
+      '33333333-3333-3333-3333-333333333333',
+      '44444444-4444-4444-4444-444444444444',
+    ];
 
-    // Create 10 events and override organizerId manually
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 20; i++) {
       await eventFactory.save({
-        organizerId: organizerId,
+        organizerId: faker.helpers.arrayElement(organizers),
         tags: faker.helpers.arrayElements(tags, {
           min: 1,
           max: 3, // Each event can have 1 to 3 tags

@@ -25,11 +25,29 @@ export default class UserSeeder implements Seeder {
       },
       {
         id: '22222222-2222-2222-2222-222222222222',
-        email: 'organizer@example.com',
-        password: await hashPassword('organizerpass'),
-        firstName: 'Organizer',
-        lastName: 'User',
+        email: 'organizer1@example.com',
+        password: await hashPassword('organizerpass1'),
+        firstName: 'ASMI',
+        lastName: 'UB',
         phoneNumber: '0700000002',
+        role: Role.ORGANIZER,
+      },
+      {
+        id: '33333333-3333-3333-3333-333333333333',
+        email: 'organizer2@example.com',
+        password: await hashPassword('organizerpass2'),
+        firstName: 'ASLS',
+        lastName: 'UB',
+        phoneNumber: '0700000003',
+        role: Role.ORGANIZER,
+      },
+      {
+        id: '44444444-4444-4444-4444-444444444444',
+        email: 'organizer3@example.com',
+        password: await hashPassword('organizerpass3'),
+        firstName: 'ASAA',
+        lastName: 'UB',
+        phoneNumber: '0700000004',
         role: Role.ORGANIZER,
       },
     ];
@@ -37,7 +55,7 @@ export default class UserSeeder implements Seeder {
     await repo.insert(users); // Use insert() to preserve IDs
 
     const userFactory = factoryManager.get(User);
-    await userFactory.saveMany(5);
+    await userFactory.saveMany(100);
 
     console.log('User seeder END');
   }
