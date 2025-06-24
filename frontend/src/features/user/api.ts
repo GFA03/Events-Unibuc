@@ -35,3 +35,7 @@ export async function apiChangePersonalInfo(firstName: string, lastName: string,
 export async function apiDeleteUser(id: string) {
   return apiClient.delete(`/users/${id}`);
 }
+
+export async function apiDeleteCurrentUser() {
+  return apiClient.post(`/users/delete`);
+}

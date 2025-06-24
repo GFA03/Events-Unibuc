@@ -137,4 +137,19 @@ export class UsersController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.remove(id);
   }
+
+  @Post('delete')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete current user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User deleted successfully.',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized (Token missing, invalid, or expired).',
+  })
+  async deleteCurrentUser(@Request() req: RequestWithUser): Promise<void> {
+    return this.usersService.remove(req.user.id);
+  }
 }

@@ -8,7 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 import { ChevronDown } from 'lucide-react';
 
 interface HeaderProps {
@@ -16,7 +15,7 @@ interface HeaderProps {
 }
 
 export function Header({ onSearch }: HeaderProps) {
-  const { isAuthenticated, user, logout, isLoading } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 

@@ -2,10 +2,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { userService } from '@/features/user/service';
+import toast from 'react-hot-toast';
+import { AxiosError } from 'axios';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileDeleteAccountSection() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const { logout } = useAuth();
 
   const handleDeleteAccount = async () => {
     const confirmed = confirm(
@@ -23,20 +28,17 @@ export default function ProfileDeleteAccountSection() {
     setLoading(true);
 
     try {
-      // Add your API call here
-      const response = await fetch('/api/user/delete', {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        alert('Account deleted successfully');
-        router.push('/');
-      } else {
-        alert('Failed to delete account');
-      }
+      await userService.deleteCurrentUser();
+      toast.success('Account deleted successfully');
+      logout();
     } catch (error) {
-      console.error('Error deleting account:', error);
-      alert('An error occurred while deleting account');
+      if (error instanceof AxiosError) {
+        console.error('Error deleting account:', error.response?.data);
+        toast.error(error.response?.data.message || 'An error occurred while deleting account');
+      } else {
+        console.error('Error deleting account:', error);
+        alert('An error occurred while deleting account');
+      }
     } finally {
       setLoading(false);
     }

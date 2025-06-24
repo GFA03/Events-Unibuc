@@ -2,6 +2,7 @@ import { User } from '@/features/user/model';
 import {
   apiChangePassword,
   apiChangePersonalInfo,
+  apiDeleteCurrentUser,
   apiDeleteUser,
   apiUpdateUser,
   fetchOrganizer,
@@ -42,6 +43,11 @@ class UserService {
 
   async deleteUser(userId: string) {
     const { data } = await apiDeleteUser(userId);
+    return data;
+  }
+
+  async deleteCurrentUser() {
+    const { data } = await apiDeleteCurrentUser();
     return data;
   }
 }

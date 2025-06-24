@@ -72,11 +72,11 @@ export default function ProfilePersonalInfoForm() {
       await checkAuthStatus();
     } catch (error) {
       if (error instanceof AxiosError) {
-        console.error('Error changing password:', error.response?.data);
-        toast.error(error.response?.data.message || 'An error occurred while changing password');
+        console.error('Error updating profile:', error.response?.data);
+        toast.error(error.response?.data.message || 'An error occurred while updating profile');
       } else {
         console.error('Error updating profile:', error);
-        toast.error('An error occurred while changing password');
+        toast.error('An error occurred while updating profile');
       }
     } finally {
       setIsLoading(false);
