@@ -17,6 +17,21 @@ export async function apiUpdateUser(id: string, data: Partial<User>) {
   return apiClient.patch<UserDto>(`/users/${id}`, data);
 }
 
+export async function apiChangePassword(currentPassword: string, newPassword: string) {
+  return apiClient.post(`/users/password`, {
+    currentPassword,
+    newPassword
+  });
+}
+
+export async function apiChangePersonalInfo(firstName: string, lastName: string, email: string) {
+  return apiClient.post('/users/personal-info', {
+    firstName,
+    lastName,
+    email
+  });
+}
+
 export async function apiDeleteUser(id: string) {
   return apiClient.delete(`/users/${id}`);
 }

@@ -21,6 +21,7 @@ export default class UserSeeder implements Seeder {
         firstName: 'Admin',
         lastName: 'User',
         phoneNumber: '0700000001',
+        isEmailVerified: true,
         role: Role.ADMIN,
       },
       {
@@ -30,6 +31,7 @@ export default class UserSeeder implements Seeder {
         firstName: 'ASMI',
         lastName: 'UB',
         phoneNumber: '0700000002',
+        isEmailVerified: true,
         role: Role.ORGANIZER,
       },
       {
@@ -39,6 +41,7 @@ export default class UserSeeder implements Seeder {
         firstName: 'ASLS',
         lastName: 'UB',
         phoneNumber: '0700000003',
+        isEmailVerified: true,
         role: Role.ORGANIZER,
       },
       {
@@ -48,6 +51,7 @@ export default class UserSeeder implements Seeder {
         firstName: 'ASAA',
         lastName: 'UB',
         phoneNumber: '0700000004',
+        isEmailVerified: true,
         role: Role.ORGANIZER,
       },
     ];

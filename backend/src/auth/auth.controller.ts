@@ -8,8 +8,6 @@ import {
   Query,
   Request,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,

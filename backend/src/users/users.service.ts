@@ -9,10 +9,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { hashPassword } from '../utils/helpers';
+import { comparePassword, hashPassword } from '../utils/helpers';
 import { UserResponseDto } from './dto/user-response.dto';
 import { OrganizerResponseDto } from './dto/organizer-response.dto';
 import { Role } from './entities/role.enum';
+import { UpdatePersonalInfoDto } from './dto/update-personal-info.dto';
 
 interface FindAllOptions {
   limit?: number;
@@ -181,7 +182,11 @@ export class UsersService {
    * Return UserResponseDto or null if not found
    * @param email
    */
-  async findByPayload({ email }: any): Promise<UserResponseDto | null> {
+  async findByPayload({
+    email,
+  }: {
+    email: string;
+  }): Promise<UserResponseDto | null> {
     this.logger.debug(`Finding user by payload with email: ${email}`);
     return this.findOneByEmail(email);
   }
@@ -250,6 +255,64 @@ export class UsersService {
       );
       throw error;
     }
+  }
+
+  /**
+   * Change user password
+   * @param id
+   * @param currentPassword
+   * @param newPassword
+   */
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    this.logger.log(`Changing password for user with ID: ${id}`);
+    const user = await this.findOne(id);
+
+    if (!user) {
+      this.logger.warn(`Change password failed - user not found: ${id}`);
+      throw new NotFoundException('User not found');
+    }
+
+    const isCurrentPasswordValid = await comparePassword(
+      currentPassword,
+      user.password,
+    );
+    if (!isCurrentPasswordValid) {
+      this.logger.warn(
+        `Change password failed - invalid current password for user: ${id}`,
+      );
+      throw new ConflictException('Invalid current password');
+    }
+
+    // Update with new hashed password
+    const hashedNewPassword = await hashPassword(newPassword);
+    await this.updatePassword(id, hashedNewPassword);
+    this.logger.log(`Successfully changed password for user: ${id}`);
+  }
+
+  async changePersonalInfo(
+    id: string,
+    updatePersonalInfoDto: UpdatePersonalInfoDto,
+  ): Promise<UserResponseDto> {
+    this.logger.log(`Changing personal info for user with ID: ${id}`);
+    const user = await this.findOne(id);
+
+    if (!user) {
+      this.logger.warn(`Change personal info failed - user not found: ${id}`);
+      throw new NotFoundException('User not found');
+    }
+
+    // Update only allowed fields
+    const updatedUser = await this.userRepository.save({
+      ...user,
+      ...updatePersonalInfoDto,
+    });
+
+    this.logger.log(`Successfully changed personal info for user: ${id}`);
+    return UserResponseDto.fromEntity(updatedUser);
   }
 
   /**
