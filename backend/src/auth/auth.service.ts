@@ -31,7 +31,7 @@ export class AuthService {
     const user = await this.usersService.findByLogin(email);
     if (!user) {
       this.logger.warn(`Validation failed - user not found: ${email}`);
-      return null;
+      throw new BadRequestException('Email or password is incorrect');
     }
 
     // Is the user email verified?
@@ -39,7 +39,7 @@ export class AuthService {
       this.logger.warn(
         `Validation failed - email not verified for user: ${email}`,
       );
-      return null;
+      throw new BadRequestException('You need to verify your email first');
     }
 
     const areEqual = await comparePassword(pass, user.password);
@@ -48,7 +48,7 @@ export class AuthService {
       this.logger.warn(
         `Validation failed - invalid password for user: ${email}`,
       );
-      return null;
+      throw new BadRequestException('Email or password is incorrect');
     }
 
     this.logger.debug(`Successfully validated user: ${email}`);

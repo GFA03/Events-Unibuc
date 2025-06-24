@@ -1,14 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { userService } from '@/features/user/service';
 import toast from 'react-hot-toast';
 import { AxiosError } from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileDeleteAccountSection() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { logout } = useAuth();
 

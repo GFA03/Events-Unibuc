@@ -37,11 +37,11 @@ export function LoginForm() {
       // Redirect handled by AuthContext
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
-        setError(err?.message || 'An unknown error occurred.');
-        toast.error(err?.message || 'Login failed.');
+        setError(err.response?.data.message || 'An unknown error occurred.');
+        toast.error(err.response?.data.message || 'Login failed.');
       } else {
-        setError('An unexpected error occurred. Please try again later.');
-        toast.error('Login failed. Please try again later.');
+        // TODO: Handle other error types if needed
+        setError(err?.message || 'An unexpected error occurred. Please try again later.');
       }
     }
   };
