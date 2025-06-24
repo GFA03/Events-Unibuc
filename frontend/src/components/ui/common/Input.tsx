@@ -18,7 +18,7 @@ export function Input<T extends FieldValues>({
 }: InputProps<T>) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-white mb-1">
+      <label htmlFor={id} className="block text-sm font-medium text-black mb-1">
         {label}
       </label>
       <input

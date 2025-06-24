@@ -1,31 +1,75 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { userService } from '@/features/user/service';
 import toast from 'react-hot-toast';
 import { AxiosError } from 'axios';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Input } from '../ui/common/Input';
+import { Button } from '@/components/ui/common/Button';
+
+const profilePersonalInfoSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, { message: 'First name is required' })
+    .min(2, { message: 'First name must be at least 2 characters' })
+    .max(50, { message: 'First name must be less than 50 characters' })
+    .regex(/^[a-zA-Z\s-']+$/, {
+      message: 'First name can only contain letters, spaces, hyphens, and apostrophes'
+    }),
+  lastName: z
+    .string()
+    .min(1, { message: 'Last name is required' })
+    .min(2, { message: 'Last name must be at least 2 characters' })
+    .max(50, { message: 'Last name must be less than 50 characters' })
+    .regex(/^[a-zA-Z\s-']+$/, {
+      message: 'Last name can only contain letters, spaces, hyphens, and apostrophes'
+    }),
+  email: z
+    .string()
+    .min(1, { message: 'Email is required' })
+    .email({ message: 'Please enter a valid email address' })
+    .max(100, { message: 'Email must be less than 100 characters' })
+});
+
+export type ProfilePersonalInfoFormData = z.infer<typeof profilePersonalInfoSchema>;
 
 export default function ProfilePersonalInfoForm() {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const { user, checkAuthStatus } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Form states
-  const [profileData, setProfileData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || ''
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    setValue
+  } = useForm<ProfilePersonalInfoFormData>({
+    resolver: zodResolver(profilePersonalInfoSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: ''
+    }
   });
 
-  const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
+  // Initialize form with user data when user is loaded
+  useEffect(() => {
+    if (user) {
+      setValue('firstName', user.firstName || '');
+      setValue('lastName', user.lastName || '');
+      setValue('email', user.email || '');
+    }
+  }, [user, setValue]);
+
+  const onSubmit = async (data: ProfilePersonalInfoFormData) => {
+    setIsLoading(true);
 
     try {
-      await userService.changePersonalInfo(
-        profileData.firstName,
-        profileData.lastName,
-        profileData.email
-      );
+      await userService.changePersonalInfo(data.firstName, data.lastName, data.email);
       toast.success('Profile updated successfully!');
+      // Update the user context with new data
+      await checkAuthStatus();
     } catch (error) {
       if (error instanceof AxiosError) {
         console.error('Error changing password:', error.response?.data);
@@ -35,65 +79,61 @@ export default function ProfilePersonalInfoForm() {
         toast.error('An error occurred while changing password');
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="mb-8">
       <h2 className="text-lg font-semibold text-gray-800 mb-4">Personal Information</h2>
-      <form onSubmit={handleProfileUpdate} className="space-y-4">
-        <div>
-          <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
-            First Name
-          </label>
-          <input
-            type="text"
-            id="firstName"
-            value={profileData.firstName}
-            onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-            placeholder="Enter your first name"
-            required
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input
+          id="firstName"
+          label="First Name"
+          type="text"
+          register={register}
+          error={errors.firstName?.message}
+          placeholder="Enter your first name"
+          disabled={isLoading}
+        />
 
-        <div>
-          <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
-            Last Name
-          </label>
-          <input
-            type="text"
-            id="lastName"
-            value={profileData.lastName}
-            onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-            placeholder="Enter your last name"
-            required
-          />
-        </div>
+        <Input
+          id="lastName"
+          label="Last Name"
+          type="text"
+          register={register}
+          error={errors.lastName?.message}
+          placeholder="Enter your last name"
+          disabled={isLoading}
+        />
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={profileData.email}
-            onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-            placeholder="Enter your email address"
-            required
-          />
-        </div>
+        <Input
+          id="email"
+          label="Email Address"
+          type="email"
+          register={register}
+          error={errors.email?.message}
+          placeholder="Enter your email address"
+          disabled={isLoading}
+        />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-cyan-600 text-white py-2 px-4 rounded-md hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          {loading ? 'Updating...' : 'Update Profile'}
-        </button>
+        <div className="flex space-x-4">
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={isLoading || !isDirty}
+            className="flex-1">
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Updating...
+              </>
+            ) : (
+              'Update Profile'
+            )}
+          </Button>
+        </div>
       </form>
     </div>
   );
