@@ -3,13 +3,25 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { CustomLogger } from './utils/logger.service';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new CustomLogger(),
   });
 
-  app.enableCors();
+  // Helmet should be used to secure HTTP headers, before any other app.use
+  app.use(helmet());
+
+  app.enableCors({
+    // origin: [
+    //   'http://localhost:3000', // Your frontend URL
+    //   'https://yourdomain.com', // Your production domain
+    // ],
+    // credentials: true, // Allow cookies to be sent
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    // allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  });
   // Catch all exceptions
   app.useGlobalPipes(
     new ValidationPipe({
