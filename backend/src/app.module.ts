@@ -17,6 +17,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { EmailModule } from './email/email.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -37,15 +38,21 @@ import { EmailModule } from './email/email.module';
         password: configService.get<string>('DATABASE_PASSWORD'), // Read password from env
         database: configService.get<string>('DATABASE_NAME'), // Read database name from env
         entities: [User, Event, Registration, Tag],
-        // synchronize: true, // Keep for dev, disable for prod (use migrations)
         // Recommended for dev inside Docker:
         synchronize: configService.get<string>('NODE_ENV') === 'development',
-        // logging: configService.get<string>('NODE_ENV') === 'development', // Optional: log SQL in dev
       }),
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'), // Serve static files from 'uploads' directory)
+      rootPath: join(__dirname, '..', 'uploads'), // Serve static files from 'uploads' directory
       serveRoot: '/uploads',
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000, // 1 minute
+          limit: 100, // 100 requests per minute
+        },
+      ],
     }),
     // Import other modules
     UsersModule,
