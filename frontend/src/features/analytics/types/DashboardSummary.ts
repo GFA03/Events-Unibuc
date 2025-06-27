@@ -6,17 +6,26 @@ export class DashboardSummary {
   public readonly totalRegistrations: number;
   public readonly uniqueParticipants: number;
   public readonly recentEvents: Event[];
+  public readonly totalEventsMonthlyTrend: number;
+  public readonly totalRegistrationsMonthlyTrend: number;
+  public readonly totalUniqueParticipantsMonthlyTrend: number;
 
   private constructor(
     totalEvents: number,
     totalRegistrations: number,
     uniqueParticipants: number,
-    recentEvents: Event[]
+    recentEvents: Event[],
+    totalEventsMonthlyTrend: number,
+    totalRegistrationsMonthlyTrend: number,
+    totalUniqueParticipantsMonthlyTrend: number
   ) {
     this.totalEvents = totalEvents;
     this.totalRegistrations = totalRegistrations;
     this.uniqueParticipants = uniqueParticipants;
     this.recentEvents = recentEvents;
+    this.totalEventsMonthlyTrend = totalEventsMonthlyTrend;
+    this.totalRegistrationsMonthlyTrend = totalRegistrationsMonthlyTrend;
+    this.totalUniqueParticipantsMonthlyTrend = totalUniqueParticipantsMonthlyTrend;
   }
 
   public static fromDto(dto: DashboardSummaryDto): DashboardSummary {
@@ -24,7 +33,10 @@ export class DashboardSummary {
       dto.totalEvents,
       dto.totalRegistrations,
       dto.uniqueParticipants,
-      dto.recentEvents ? dto.recentEvents.map((ev) => Event.fromDto(ev)) : []
+      dto.recentEvents ? dto.recentEvents.map((ev) => Event.fromDto(ev)) : [],
+      dto.totalEventsMonthlyTrend,
+      dto.totalRegistrationsMonthlyTrend,
+      dto.totalUniqueParticipantsMonthlyTrend
     );
   }
 }

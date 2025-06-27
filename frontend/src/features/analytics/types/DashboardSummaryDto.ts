@@ -5,4 +5,7 @@ export interface DashboardSummaryDto {
   totalRegistrations: number;
   uniqueParticipants: number;
   recentEvents: EventDto[];
+  totalEventsMonthlyTrend: number;
+  totalRegistrationsMonthlyTrend: number;
+  totalUniqueParticipantsMonthlyTrend: number;
 }

@@ -144,19 +144,32 @@ export class AnalyticsService {
   // Dashboard summary statistics
   async getDashboardSummary(organizerId: string): Promise<DashboardSummary> {
     this.logger.log(`Fetching dashboard summary for organizer ${organizerId}`);
-    const [totalEvents, totalRegistrations, uniqueParticipants, recentEvents] =
-      await Promise.all([
-        this.getTotalEvents(organizerId),
-        this.getTotalRegistrations(organizerId),
-        this.getUniqueParticipantsForAllEvents(organizerId),
-        this.getRecentEvents(organizerId, 5),
-      ]);
+    const [
+      totalEvents,
+      totalRegistrations,
+      uniqueParticipants,
+      recentEvents,
+      totalEventsMonthlyTrend,
+      totalRegistrationsMonthlyTrend,
+      totalUniqueParticipantsMonthlyTrend,
+    ] = await Promise.all([
+      this.getTotalEvents(organizerId),
+      this.getTotalRegistrations(organizerId),
+      this.getUniqueParticipantsForAllEvents(organizerId),
+      this.getRecentEvents(organizerId, 5),
+      this.getMonthlyEventCreationTrend(organizerId),
+      this.getMonthlyTotalRegistrationsTrend(organizerId),
+      this.getMonthlyUniqueParticipantsTrend(organizerId),
+    ]);
 
     return {
       totalEvents,
       totalRegistrations,
       uniqueParticipants,
       recentEvents,
+      totalEventsMonthlyTrend,
+      totalRegistrationsMonthlyTrend,
+      totalUniqueParticipantsMonthlyTrend,
     };
   }
 
@@ -185,5 +198,142 @@ export class AnalyticsService {
       take: limit,
       relations: ['registrations'],
     });
+  }
+
+  /**
+   * Calculates the monthly trend of events created for an organizer.
+   * @param organizerId
+   * @private
+   */
+  private async getMonthlyEventCreationTrend(
+    organizerId: string,
+  ): Promise<number> {
+    this.logger.log(
+      `Calculating monthly event creation trend for organizer ${organizerId}`,
+    );
+    const result = await this.eventRepository
+      .createQueryBuilder('event')
+      .select([
+        'YEAR(event.createdAt) as year',
+        'MONTH(event.createdAt) as month',
+        'COUNT(event.id) as eventCount',
+      ])
+      .where('event.organizerId = :organizerId', { organizerId })
+      .groupBy('YEAR(event.createdAt), MONTH(event.createdAt)')
+      .orderBy('year, month', 'DESC')
+      .getRawMany();
+
+    console.log(result);
+
+    if (!result || result.length === 0) {
+      this.logger.warn(
+        `No event creation trend data found for organizer ${organizerId}`,
+      );
+      return 0; // No events found
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
+    return result[0].eventCount; // Return how many events were created in the most recent month
+  }
+
+  async getMonthlyTotalRegistrationsTrend(
+    organizerId: string,
+  ): Promise<number> {
+    this.logger.log(
+      `Calculating monthly total registrations trend for organizer ${organizerId}`,
+    );
+    const result = await this.registrationRepository
+      .createQueryBuilder('registration')
+      .innerJoin('registration.event', 'event')
+      .select([
+        'YEAR(registration.registrationDate) as year',
+        'MONTH(registration.registrationDate) as month',
+        'COUNT(registration.id) as registrationCount',
+      ])
+      .where('event.organizerId = :organizerId', { organizerId })
+      .groupBy(
+        'YEAR(registration.registrationDate), MONTH(registration.registrationDate)',
+      )
+      .orderBy('year, month', 'DESC')
+      .getRawMany();
+
+    console.log(result);
+
+    if (!result || result.length === 0) {
+      this.logger.warn(
+        `No registration trend data found for organizer ${organizerId}`,
+      );
+      return 0; // No registrations found
+    }
+
+    if (result.length < 2) {
+      this.logger.warn(
+        `Only one month of registration data found for organizer ${organizerId}`,
+      );
+      return 100; // 100% increase if only one month of data is available
+    }
+
+    const percentageChange = Math.round(
+      ((result[0].registrationCount - result[1].registrationCount) /
+        result[1].registrationCount) *
+        100,
+    ); // Return how many registrations were made in the most recent month
+
+    console.log(percentageChange);
+
+    return percentageChange; // Return percentage change rounded to 2 decimal places
+  }
+
+  async getMonthlyUniqueParticipantsTrend(
+    organizerId: string,
+  ): Promise<number> {
+    this.logger.log(
+      `Calculating monthly unique participants trend for organizer ${organizerId}`,
+    );
+    const result = await this.registrationRepository
+      .createQueryBuilder('registration')
+      .innerJoin('registration.event', 'event')
+      .select([
+        'YEAR(registration.registrationDate) as year',
+        'MONTH(registration.registrationDate) as month',
+        'COUNT(DISTINCT registration.userId) as uniqueParticipantsCount',
+      ])
+      .where('event.organizerId = :organizerId', { organizerId })
+      .groupBy(
+        'YEAR(registration.registrationDate), MONTH(registration.registrationDate)',
+      )
+      .orderBy('year, month', 'DESC')
+      .getRawMany();
+
+    console.log(result);
+
+    if (!result || result.length === 0) {
+      this.logger.warn(
+        `No unique participants trend data found for organizer ${organizerId}`,
+      );
+      return 0; // No registrations found
+    }
+
+    if (result.length < 2) {
+      this.logger.warn(
+        `Only one month of unique participants data found for organizer ${organizerId}`,
+      );
+      return 100; // 100% increase if only one month of data is available
+    }
+
+    const allUniqueParticipants = result
+      .slice(1)
+      .reduce(
+        (acc, current) => acc + parseInt(current.uniqueParticipantsCount, 10),
+        0,
+      );
+
+    const percentageChange = Math.round(
+      (result[0].uniqueParticipantsCount / allUniqueParticipants) * 100,
+    ); // Return how many registrations were made in the most recent month
+
+    console.log(percentageChange);
+
+    return percentageChange; // Return percentage change rounded to 2 decimal places
   }
 }

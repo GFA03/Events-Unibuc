@@ -7,8 +7,10 @@ import RegistrationsPerEventChart from '@/features/analytics/components/Registra
 import MonthlyRegistrationsChart from '@/features/analytics/components/MonthlyRegistrationsChart';
 import { useOrganizerDashboard } from '@/features/analytics/hooks';
 import { useMyEvents } from '@/features/event/hooks/useMyEvents';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { data: events, isLoading: eventsLoading, isError: eventsIsError } = useMyEvents();
 
   const { summary, registrationsPerEvent, monthlyData, isLoading, isError } =
@@ -28,6 +30,13 @@ export default function DashboardPage() {
     return <p>Error loading dashboard data</p>;
   }
 
+  const positiveSign = (value: number) => {
+    if (value > 0) {
+      return '+';
+    }
+    return '';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -44,21 +53,24 @@ export default function DashboardPage() {
             value={summary.totalEvents}
             icon={Calendar}
             subtitle="All time events created"
-            trend="+2 this month"
+            trendValue={summary.totalEventsMonthlyTrend}
+            trendText={`${positiveSign(summary.totalEventsMonthlyTrend)}${summary.totalEventsMonthlyTrend}% this month`}
           />
           <StatCard
             title="Total Registrations"
             value={summary.totalRegistrations.toLocaleString()}
             icon={Users}
             subtitle="Across all events"
-            trend="+15% from last month"
+            trendValue={summary.totalRegistrationsMonthlyTrend}
+            trendText={`${positiveSign(summary.totalRegistrationsMonthlyTrend)}${summary.totalRegistrationsMonthlyTrend}% from last month`}
           />
           <StatCard
             title="Unique Participants"
             value={summary.uniqueParticipants.toLocaleString()}
             icon={Activity}
             subtitle="Individual attendees"
-            trend="+10% participants"
+            trendValue={summary.totalUniqueParticipantsMonthlyTrend}
+            trendText={`${positiveSign(summary.totalUniqueParticipantsMonthlyTrend)}${summary.totalUniqueParticipantsMonthlyTrend}% participants`}
           />
         </div>
 
@@ -70,7 +82,9 @@ export default function DashboardPage() {
           <div className="bg-white p-6 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button
+                onClick={() => router.push('manage-events')}
+                className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <Plus className="h-4 w-4 mr-2" />
                 Create New Event
               </button>

@@ -23,4 +23,7 @@ export interface DashboardSummary {
   totalRegistrations: number;
   uniqueParticipants: number;
   recentEvents: Event[];
+  totalEventsMonthlyTrend: number;
+  totalRegistrationsMonthlyTrend: number;
+  totalUniqueParticipantsMonthlyTrend: number;
 }

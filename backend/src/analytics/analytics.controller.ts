@@ -24,7 +24,6 @@ export class AnalyticsController {
 
   @Get('summary')
   async getDashboardSummary(@Req() req: RequestWithUser) {
-    console.log(req.user);
     return this.analyticsService.getDashboardSummary(req.user.id);
   }
 
