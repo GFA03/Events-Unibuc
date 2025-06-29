@@ -76,6 +76,7 @@ export class CreateEventDto {
 
   @IsNumber()
   @Type(() => Number)
+  @IsOptional()
   @Max(1000, { message: 'Maximum number of participants cannot exceed 1000' })
   noParticipants: number;
 

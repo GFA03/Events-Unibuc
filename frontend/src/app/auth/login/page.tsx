@@ -14,6 +14,7 @@ export default function LoginPage() {
             alt={'Universitatea Bucuresti Logo'}
             width={200}
             height={200}
+            priority={true}
             className="mx-auto mb-6"
           />
         </Link>

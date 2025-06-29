@@ -135,7 +135,12 @@ export default function CreateEventModal({
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error(error.response?.data?.message);
-        toast.error(error.response?.data?.message || `Failed to ${mode} event`);
+        // Handle multiple error messages from the server
+        if (error.response?.data?.message.length > 1) {
+          error.response?.data?.message.map((msg: string) => toast.error(msg));
+        } else {
+          toast.error(error.response?.data?.message || `Failed to ${mode} event`);
+        }
         return;
       }
       console.error('Unexpected error:', error);

@@ -15,13 +15,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faUsers, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { AxiosError } from 'axios';
 
-
 export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [page, setPage] = useState(0);
+
+  const offset = page * 10;
+
   const queryParams = {
     limit: 10,
-    offset: 0,
+    offset,
     ...(searchTerm && { search: searchTerm.trim() })
   };
 
@@ -76,8 +79,6 @@ export default function AdminUsersPage() {
   };
 
   const { data: data, isLoading, isError } = useUsers(queryParams);
-
-  const [page, setPage] = useState(0); // Assuming page is always 0 for initial load, can be modified for pagination
 
   const users = data?.users || [];
   const totalCount = data?.total || 0;
@@ -265,5 +266,5 @@ export default function AdminUsersPage() {
         />
       )}
     </WithLoader>
-  )
+  );
 }
