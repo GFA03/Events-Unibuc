@@ -68,9 +68,12 @@ export default function AdminUsersPage() {
       setIsEditModalOpen(false);
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
-        console.error('Error updating user.', err?.response?.data?.message);
+        toast.error(err?.response?.data?.message || 'Failed to update user.');
+      } else if (err instanceof Error) {
+        toast.error(err?.message || 'Failed to update user.');
+      } else {
+        toast.error("Failed to update user.")
       }
-      toast.error('Failed to update user.');
     }
   };
 

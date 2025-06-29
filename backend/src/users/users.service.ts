@@ -224,22 +224,24 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto) {
     this.logger.log(`Updating user with ID: ${id}`);
     const updateData = { ...updateUserDto };
+    const userBefore = await this.userRepository.findOneBy({ id });
     const user = await this.userRepository.preload({
       id: id,
       ...updateData,
     });
 
-    if (!user) {
+    if (!user || !userBefore) {
       this.logger.warn(`Update failed - user not found: ${id}`);
       throw new NotFoundException('User not found');
     }
 
+    if (userBefore.role === Role.ADMIN && updateData.role !== Role.ADMIN) {
+      this.logger.warn('Cannot change ADMIN role!');
+      throw new ConflictException('Cannot change ADMIN role');
+    }
+
     // Don't let user update admin role
-    if (
-      updateData.role &&
-      updateData.role === Role.ADMIN &&
-      user.role !== Role.ADMIN
-    ) {
+    if (updateData.role && updateData.role === Role.ADMIN) {
       this.logger.warn(`Update failed - user cannot be set as admin: ${id}`);
       throw new ConflictException('Cannot set user as admin');
     }
@@ -366,6 +368,10 @@ export class UsersService {
     if (!user) {
       this.logger.warn(`Delete failed - user not found: ${id}`);
       throw new NotFoundException('User not found');
+    }
+    if (user.role === Role.ADMIN) {
+      this.logger.warn('Cannot remove admin user');
+      throw new ConflictException('Cannot remove admin user');
     }
     const result = await this.userRepository.delete(id);
     if (result.affected === 0) {
