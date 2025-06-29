@@ -20,7 +20,7 @@ export default function TagManagementPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingTag, setEditingTag] = useState<TagWithCount | null>(null);
   const [formData, setFormData] = useState<CreateTagDto>({
-    name: '',
+    name: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,9 +33,9 @@ export default function TagManagementPage() {
         await tagService.createTag(formData);
         setShowCreateForm(false);
       }
-      await queryClient.invalidateQueries({queryKey: ['tags']});
-      await queryClient.invalidateQueries({queryKey: ['tagsEvents']});
-      setFormData({ name: ''});
+      await queryClient.invalidateQueries({ queryKey: ['tags'] });
+      await queryClient.invalidateQueries({ queryKey: ['tagsEvents'] });
+      setFormData({ name: '' });
     } catch (error) {
       console.error('Error saving tag:', error);
     }
@@ -44,7 +44,7 @@ export default function TagManagementPage() {
   const handleEdit = (tag: TagWithCount) => {
     setEditingTag(tag);
     setFormData({
-      name: tag.name,
+      name: tag.name
     });
     setShowCreateForm(true);
   };
@@ -53,8 +53,8 @@ export default function TagManagementPage() {
     if (confirm('Are you sure you want to delete this tag?')) {
       try {
         await tagService.deleteTag(tagId);
-        await queryClient.invalidateQueries({queryKey: ['tags']});
-        await queryClient.invalidateQueries({queryKey: ['tagsEvents']});
+        await queryClient.invalidateQueries({ queryKey: ['tags'] });
+        await queryClient.invalidateQueries({ queryKey: ['tagsEvents'] });
       } catch (error) {
         console.error('Error deleting tag:', error);
       }
@@ -62,13 +62,13 @@ export default function TagManagementPage() {
   };
 
   const resetForm = () => {
-    setFormData({ name: ''});
+    setFormData({ name: '' });
     setEditingTag(null);
     setShowCreateForm(false);
   };
 
   if (!tags || isLoading || isError) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
   const filteredTags = tags;
@@ -82,8 +82,7 @@ export default function TagManagementPage() {
             <div className="flex items-center space-x-4">
               <Link
                 href="/admin"
-                className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-              >
+                className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div className="flex items-center space-x-3">
@@ -99,8 +98,7 @@ export default function TagManagementPage() {
 
             <button
               onClick={() => setShowCreateForm(true)}
-              className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-            >
+              className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
               <Plus className="w-4 h-4" />
               <span>New Tag</span>
             </button>
@@ -140,14 +138,12 @@ export default function TagManagementPage() {
             <p className="text-gray-500 mb-6">
               {searchTerm
                 ? 'Try adjusting your search terms'
-                : 'Create your first tag to get started'
-              }
+                : 'Create your first tag to get started'}
             </p>
             {!searchTerm && (
               <button
                 onClick={() => setShowCreateForm(true)}
-                className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-              >
+                className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
                 <Plus className="w-4 h-4" />
                 <span>Create Tag</span>
               </button>
@@ -158,7 +154,7 @@ export default function TagManagementPage() {
 
       {/* Create/Edit Form Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-900">
@@ -166,17 +162,14 @@ export default function TagManagementPage() {
               </h2>
               <button
                 onClick={resetForm}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors duration-200"
-              >
+                className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors duration-200">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tag Name
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tag Name</label>
                 <input
                   type="text"
                   required
@@ -190,15 +183,13 @@ export default function TagManagementPage() {
               <div className="flex space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 py-2 px-4 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-                >
+                  className="flex-1 py-2 px-4 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
                   {editingTag ? 'Update Tag' : 'Create Tag'}
                 </button>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200"
-                >
+                  className="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors duration-200">
                   Cancel
                 </button>
               </div>
