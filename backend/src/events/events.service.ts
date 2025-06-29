@@ -299,7 +299,7 @@ export class EventsService {
     const event = await this.findOne(id);
 
     // Check if user is the organizer or admin
-    if (event.organizerId !== user.id || user.role !== Role.ADMIN) {
+    if (event.organizerId !== user.id && user.role !== Role.ADMIN) {
       throw new ForbiddenException('You can only delete your own events');
     }
 
