@@ -2,6 +2,7 @@ import { Role } from '@/features/user/types/roles';
 import { User } from '@/features/user/model';
 import { userService } from '@/features/user/service';
 import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface UserCardProps {
   user: User;
@@ -9,10 +10,12 @@ interface UserCardProps {
 }
 
 export default function UserCard({ user, onEdit }: UserCardProps) {
+  const queryClient = useQueryClient();
   const handleDeleteClick = async () => {
     if (window.confirm(`Are you sure you want to delete ${user.firstName} ${user.lastName}?`)) {
       try {
         await userService.deleteUser(user.id);
+        await queryClient.invalidateQueries({ queryKey: ['users'] });
         toast.success(`User deleted successfully.`);
       } catch (error) {
         console.error('Error deleting user:', error);
