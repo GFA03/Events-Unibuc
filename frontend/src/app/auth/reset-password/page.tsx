@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { authService } from '@/features/auth/service';
 import { Input } from '@/components/ui/common/Input';
 import { Button } from '@/components/ui/common/Button';
+import { AxiosError } from 'axios';
 
 const resetPasswordSchema = z
   .object({
@@ -72,12 +73,16 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push('/auth/login');
       }, 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error resetting password:', error);
-      setError(
-        error?.response?.data?.message ||
-          'Failed to reset password. Please try again or request a new reset link.'
-      );
+      if (error instanceof AxiosError) {
+        setError(
+          error?.response?.data?.message ||
+            'Failed to reset password. Please try again or request a new reset link.'
+        );
+      } else {
+        setError('Failed to reset password. Please try again or request a new reset link.');
+      }
     } finally {
       setIsLoading(false);
     }

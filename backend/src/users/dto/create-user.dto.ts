@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -42,14 +42,13 @@ export class CreateUserDto {
   @IsString()
   readonly lastName: string;
 
-  // TODO: regula pt numar de telefon -> sa aiba 10 cifre, sa inceapa cu 07;
-  // TODO: pentru studenti internationali, accepta prefix +40, ...
   @ApiProperty({
     name: 'phoneNumber',
     description: 'The user phone number',
     type: String,
     example: '0712345678',
   })
+  @MaxLength(15)
   @IsNotEmpty()
   @IsString()
   readonly phoneNumber: string;

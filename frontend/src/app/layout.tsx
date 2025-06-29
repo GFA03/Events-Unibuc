@@ -11,6 +11,8 @@ library.add(fas);
 
 import { AppProviders } from '@/providers/AppProviders';
 import { ConditionalHeader } from '@/components/ui/layout/ConditionalHeader';
+import { Suspense } from 'react';
+import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,10 +30,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-white text-gray-900`}>
         <AppProviders>
-          {/*<Suspense fallback={<LoadingSpinner />}>*/}
-          <ConditionalHeader />
-          <main className="min-h-screen">{children}</main>
-          {/*</Suspense>*/}
+          <Suspense fallback={<LoadingSpinner />}>
+            <ConditionalHeader />
+            <main className="min-h-screen">{children}</main>
+          </Suspense>
         </AppProviders>
       </body>
     </html>

@@ -2,19 +2,20 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/common/Input';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { PasswordChangeFormData } from '@/components/users/ProfilePasswordChangeForm';
+import { FieldValues, Path, UseFormRegister } from 'react-hook-form';
 
-interface PasswordInputProps {
-  id: keyof PasswordChangeFormData;
+interface PasswordInputProps<T extends FieldValues>
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  id: Path<T>;
   label: string;
-  register: any;
+  register: UseFormRegister<T>;
   error?: string;
   placeholder: string;
   disabled?: boolean;
   showToggle?: boolean;
 }
 
-export default function PasswordInput({
+export default function PasswordInput<T extends FieldValues>({
   id,
   label,
   register,
@@ -22,7 +23,7 @@ export default function PasswordInput({
   placeholder,
   disabled = false,
   showToggle = false
-}: PasswordInputProps) {
+}: PasswordInputProps<T>) {
   const [showPassword, setShowPassword] = useState(false);
 
   if (!showToggle) {

@@ -1,7 +1,5 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import ProfilePersonalInfoForm from '@/components/users/ProfilePersonalInfoForm';

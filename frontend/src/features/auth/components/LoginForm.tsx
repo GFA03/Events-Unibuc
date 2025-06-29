@@ -39,9 +39,10 @@ export function LoginForm() {
       if (err instanceof AxiosError) {
         setError(err.response?.data.message || 'An unknown error occurred.');
         toast.error(err.response?.data.message || 'Login failed.');
-      } else {
-        // TODO: Handle other error types if needed
+      } else if (err instanceof Error) {
         setError(err?.message || 'An unexpected error occurred. Please try again later.');
+      } else {
+        setError('An unexpected error occurred. Please try again later.');
       }
     }
   };
