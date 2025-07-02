@@ -127,6 +127,7 @@ export default function CreateEventModal({
       }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
       await queryClient.invalidateQueries({ queryKey: ['events'] });
+      await queryClient.invalidateQueries({ queryKey: ['tagsEvents'] });
       onClose();
       reset();
       router.push('/manage-events');

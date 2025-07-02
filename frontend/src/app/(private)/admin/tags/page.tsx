@@ -35,6 +35,8 @@ export default function TagManagementPage() {
       }
       await queryClient.invalidateQueries({ queryKey: ['tags'] });
       await queryClient.invalidateQueries({ queryKey: ['tagsEvents'] });
+      await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
+      await queryClient.invalidateQueries({ queryKey: ['events'] });
 
       setFormData({ name: '' });
       setShowCreateForm(false);
@@ -57,6 +59,8 @@ export default function TagManagementPage() {
         await tagService.deleteTag(tagId);
         await queryClient.invalidateQueries({ queryKey: ['tags'] });
         await queryClient.invalidateQueries({ queryKey: ['tagsEvents'] });
+        await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
       } catch (error) {
         console.error('Error deleting tag:', error);
       }
