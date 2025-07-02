@@ -48,7 +48,6 @@ class AuthService {
 
   async verifyEmail(token: string) {
     const { data } = await apiVerifyEmail(token);
-    console.log(data);
     return data;
   }
 

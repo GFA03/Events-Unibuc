@@ -4,8 +4,6 @@ import React from 'react';
 export default function ImageSection({ name, imageUrl }: { name: string; imageUrl: string }) {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
-  console.log(baseUrl);
-
   return (
     <div className="lg:w-1/2 relative">
       <Image

@@ -44,7 +44,6 @@ class EventService {
 
   async fetchEvents(params: EventsQueryParams): Promise<PaginatedEvents> {
     const { data } = await apiFetchEvents(params);
-    console.log(data);
     return {
       events: data.events.map(Event.fromDto),
       total: data.total
@@ -53,7 +52,6 @@ class EventService {
 
   async fetchMyEvents(): Promise<Event[]> {
     const { data } = await apiFetchMyEvents();
-    console.log(data);
     return data.map(Event.fromDto);
   }
 

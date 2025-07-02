@@ -6,18 +6,9 @@ import { EventRegistration } from '@/features/analytics/types/EventRegistration'
 export function useOrganizerDashboard() {
   const { data: summary, isError: isSummaryError } = useDashboardSummary();
 
-  console.log(summary);
-  console.log(isSummaryError);
-
   const { data: registrationsPerEvent, isError: isRegError } = useEventsRegistrations();
 
-  console.log(registrationsPerEvent);
-  console.log(isRegError);
-
   const { data: monthlyData, isError: isMonthlyError } = useMonthlyRegistrations();
-
-  console.log(monthlyData);
-  console.log(isMonthlyError);
 
   return {
     summary,
@@ -27,14 +18,6 @@ export function useOrganizerDashboard() {
     isError: isSummaryError || isRegError || isMonthlyError
   };
 }
-
-export const useDailyRegistrations = (eventId: string | null) => {
-  return useQuery({
-    queryKey: ['dailyRegistrations', eventId],
-    queryFn: () => analyticsService.getRegistrationsPerDayForEvent(eventId)
-  });
-};
-
 const useDashboardSummary = () => {
   return useQuery<DashboardSummary>({
     queryKey: ['dashboardSummary'],

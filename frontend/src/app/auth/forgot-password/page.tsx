@@ -19,8 +19,6 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       await authService.forgotPassword(data.email);
-      // Simulate API call to send reset password email
-      console.log('Sending reset password email to:', data.email);
       // Reset form after successful submission
       reset();
       alert('Reset password link sent to your email.');

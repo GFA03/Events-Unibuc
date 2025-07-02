@@ -7,8 +7,6 @@ import { useRegistrations } from '@/features/registration/hooks';
 export default function RegistrationsPage() {
   const { data: registrations, isError, isLoading } = useRegistrations();
 
-  console.log(registrations);
-
   if (!registrations || registrations.length === 0) {
     return (
       <WithLoader

@@ -45,7 +45,6 @@ export default function CreateEventModal({
   event,
   mode = 'create'
 }: CreateEventModalProps) {
-  console.log(isOpen);
   const queryClient = useQueryClient();
   const { data: availableTags } = useTags();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -123,7 +122,6 @@ export default function CreateEventModal({
         toast.success('Event updated successfully!');
         await queryClient.invalidateQueries({ queryKey: ['event', event.id] });
       } else {
-        console.log(typeof data.noParticipants);
         await eventService.createEvent(data, selectedImage);
         toast.success('Event created successfully!');
       }

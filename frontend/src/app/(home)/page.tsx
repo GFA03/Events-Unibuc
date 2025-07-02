@@ -7,10 +7,7 @@ import FeaturedEvents from '@/components/ui/home/FeaturedEvents';
 import HighlightsPresentation from '@/components/ui/home/HighlightsPresentation';
 
 export default function Home() {
-  const { data, isLoading, isError, error } = useEvents();
-
-  console.log('Home page data:', data, 'Loading:', isLoading, 'Error:', isError);
-  console.log('Home page error:', error);
+  const { data, isLoading, isError } = useEvents();
 
   const events = data?.events || [];
 

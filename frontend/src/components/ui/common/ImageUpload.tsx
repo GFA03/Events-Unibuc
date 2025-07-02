@@ -22,8 +22,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  console.log(currentImage);
-
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();

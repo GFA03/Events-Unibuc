@@ -6,27 +6,20 @@ import EventManagementSection from '@/features/analytics/components/EventManagem
 import RegistrationsPerEventChart from '@/features/analytics/components/RegistrationsPerEventChart';
 import MonthlyRegistrationsChart from '@/features/analytics/components/MonthlyRegistrationsChart';
 import { useOrganizerDashboard } from '@/features/analytics/hooks';
-import { useMyEvents } from '@/features/event/hooks/useMyEvents';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: events, isLoading: eventsLoading, isError: eventsIsError } = useMyEvents();
 
   const { summary, registrationsPerEvent, monthlyData, isLoading, isError } =
     useOrganizerDashboard();
 
-  console.log(events);
-  console.log(summary);
-  console.log(registrationsPerEvent);
-  console.log(monthlyData);
-
   // isLoading and eventsLoading makes sure: summary, registrationsPerEvent, monthlyData and dailyData are all loaded before rendering
-  if (!summary || isLoading || eventsLoading) {
+  if (!summary || isLoading) {
     return <p>Loading...</p>;
   }
 
-  if (isError || eventsIsError) {
+  if (isError) {
     return <p>Error loading dashboard data</p>;
   }
 

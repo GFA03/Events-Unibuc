@@ -10,8 +10,6 @@ export default function OrganizerPage() {
   const id = typeof params?.id === 'string' ? params.id : '';
   const { data: organizer, isLoading, isError } = useOrganizer(id);
 
-  console.log(organizer);
-
   if (!organizer) {
     return <p>Organizer not found!</p>;
   }
