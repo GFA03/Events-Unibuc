@@ -38,7 +38,7 @@ export function SignupForm() {
   });
 
   const onSubmit: SubmitHandler<SignupFormInputs> = async ({
-                                                             // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     confirmPassword, // exclude from signup
     ...data
   }) => {
@@ -49,11 +49,15 @@ export function SignupForm() {
       // Redirect handled by AuthContext
     } catch (err: unknown) {
       if (err instanceof AxiosError) {
+        setError(err?.response?.data?.message || 'An unknown error occurred.');
+        toast.error(err?.response?.data?.message || 'buttonSignup failed.');
+      } else if (err instanceof Error) {
         setError(err?.message || 'An unknown error occurred.');
         toast.error(err?.message || 'buttonSignup failed.');
+      } else {
+        setError('An unknown error occurred.');
+        toast.error('buttonSignup failed.');
       }
-      setError('An unknown error occurred.');
-      toast.error('buttonSignup failed.');
     }
   };
 
