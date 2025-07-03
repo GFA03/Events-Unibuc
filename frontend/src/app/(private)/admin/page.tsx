@@ -1,15 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  Users,
-  Tag,
-  ChevronRight,
-} from 'lucide-react';
+import { Users, Tag, ChevronRight } from 'lucide-react';
 import { useUsers } from '@/features/user/hooks';
 import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 import { useTags } from '@/features/tag/hooks';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface AdminCard {
   title: string;
@@ -29,6 +27,17 @@ interface AdminCard {
 }
 
 export default function AdminPage() {
+  const { user, isLoading: isUserLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+    if (user.role !== 'ORGANIZER' && user.role !== 'ADMIN') {
+      // Redirect or show an error if the user is not an organizer or admin
+      router.push('/events');
+    }
+  }, [router, user]);
+
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   const { data, isLoading: usersLoading, isError: usersError } = useUsers();
@@ -37,13 +46,12 @@ export default function AdminPage() {
 
   const { data: tags, isLoading: tagsLoading, isError: tagsError } = useTags();
 
-
-  if (!tags || usersLoading || tagsLoading) {
-    return <LoadingSpinner />
+  if (!tags || usersLoading || tagsLoading || isUserLoading) {
+    return <LoadingSpinner />;
   }
 
   if (usersError || tagsError) {
-    return <p>Unknown error</p>
+    return <p>Unknown error</p>;
   }
 
   const adminCards: AdminCard[] = [
@@ -81,25 +89,18 @@ export default function AdminPage() {
     }
   ];
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, Admin
-          </h2>
-          <p className="text-gray-600">
-            Application management
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, Admin</h2>
+          <p className="text-gray-600">Application management</p>
         </div>
 
         {/* Main Management Cards */}
         <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">
-            Management Tools
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-6">Management Tools</h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {adminCards.map((card, index) => (
@@ -108,43 +109,38 @@ export default function AdminPage() {
                 href={card.href}
                 onMouseEnter={() => setHoveredCard(card.title)}
                 onMouseLeave={() => setHoveredCard(null)}
-                className="block group"
-              >
-                <div className={`
+                className="block group">
+                <div
+                  className={`
                   bg-white rounded-2xl shadow-sm border border-gray-200 p-6 
                   transition-all duration-300 cursor-pointer
                   hover:shadow-lg hover:border-gray-300 hover:-translate-y-1
                   ${hoveredCard === card.title ? 'shadow-lg border-gray-300 -translate-y-1' : ''}
                 `}>
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`
+                    <div
+                      className={`
                       flex items-center justify-center w-16 h-16 rounded-2xl
                       ${card.color.bg} ${card.color.hover} transition-colors duration-200
                     `}>
-                      <div className={card.color.icon}>
-                        {card.icon}
-                      </div>
+                      <div className={card.color.icon}>{card.icon}</div>
                     </div>
 
-                    <ChevronRight className={`
+                    <ChevronRight
+                      className={`
                       w-5 h-5 text-gray-400 transition-all duration-200
                       ${hoveredCard === card.title ? 'text-gray-600 translate-x-1' : ''}
-                    `} />
+                    `}
+                    />
                   </div>
 
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                    {card.title}
-                  </h4>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2">{card.title}</h4>
 
-                  <p className="text-gray-600 mb-4 leading-relaxed">
-                    {card.description}
-                  </p>
+                  <p className="text-gray-600 mb-4 leading-relaxed">{card.description}</p>
 
                   {card.stats && (
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <span className="text-sm font-medium text-gray-500">
-                        {card.stats.label}
-                      </span>
+                      <span className="text-sm font-medium text-gray-500">{card.stats.label}</span>
                       <span className={`text-lg font-bold ${card.stats.color}`}>
                         {card.stats.value}
                       </span>

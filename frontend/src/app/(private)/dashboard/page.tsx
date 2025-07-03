@@ -7,15 +7,26 @@ import RegistrationsPerEventChart from '@/features/analytics/components/Registra
 import MonthlyRegistrationsChart from '@/features/analytics/components/MonthlyRegistrationsChart';
 import { useOrganizerDashboard } from '@/features/analytics/hooks';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect } from 'react';
 
 export default function DashboardPage() {
+  const { user, isLoading: isUserLoading } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+    if (user.role !== 'ORGANIZER' && user.role !== 'ADMIN') {
+      // Redirect or show an error if the user is not an organizer or admin
+      router.push('/events');
+    }
+  }, [router, user]);
 
   const { summary, registrationsPerEvent, monthlyData, isLoading, isError } =
     useOrganizerDashboard();
 
   // isLoading and eventsLoading makes sure: summary, registrationsPerEvent, monthlyData and dailyData are all loaded before rendering
-  if (!summary || isLoading) {
+  if (!summary || isLoading || isUserLoading) {
     return <p>Loading...</p>;
   }
 

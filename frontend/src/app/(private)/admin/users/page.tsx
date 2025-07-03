@@ -7,15 +7,28 @@ import { User } from '@/features/user/model';
 import { userService } from '@/features/user/service';
 import { Role } from '@/features/user/types/roles';
 import { useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Pagination } from '@/components/ui/common/Pagination';
 import EditUserModal from '@/features/user/components/EditUserModal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faUsers, faUserShield } from '@fortawesome/free-solid-svg-icons';
 import { AxiosError } from 'axios';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function AdminUsersPage() {
+  const { user: loggedUser, isLoading: isUserLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loggedUser) return;
+    if (loggedUser.role !== 'ORGANIZER' && loggedUser.role !== 'ADMIN') {
+      // Redirect or show an error if the loggedUser is not an organizer or admin
+      router.push('/events');
+    }
+  }, [router, loggedUser]);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [page, setPage] = useState(0);
@@ -72,7 +85,7 @@ export default function AdminUsersPage() {
       } else if (err instanceof Error) {
         toast.error(err?.message || 'Failed to update user.');
       } else {
-        toast.error("Failed to update user.")
+        toast.error('Failed to update user.');
       }
     }
   };
@@ -101,7 +114,10 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <WithLoader isLoading={isLoading} isError={isError} errorMessage="Failed to load users">
+    <WithLoader
+      isLoading={isLoading || isUserLoading}
+      isError={isError}
+      errorMessage="Failed to load users">
       <div className="min-h-screen bg-gray-50">
         {/* Header Section */}
         <div className="bg-white border-b border-gray-200 sticky top-0 z-10">

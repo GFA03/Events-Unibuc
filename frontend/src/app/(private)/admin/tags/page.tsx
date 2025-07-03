@@ -10,8 +10,21 @@ import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 import { tagService } from '@/features/tag/service';
 import { useQueryClient } from '@tanstack/react-query';
 import { CreateTagDto } from '@/features/tag/types/createTagDto';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function TagManagementPage() {
+  const { user, isLoading: isUserLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) return;
+    if (user.role !== 'ORGANIZER' && user.role !== 'ADMIN') {
+      // Redirect or show an error if the user is not an organizer or admin
+      router.push('/events');
+    }
+  }, [router, user]);
+
   const { data: tags, isLoading, isError } = useTagsWithEventCount();
   const queryClient = useQueryClient();
 
@@ -79,7 +92,7 @@ export default function TagManagementPage() {
     return tags.filter((tag) => tag.name.toLowerCase().includes(normalizedSearchTerm));
   }, [tags, searchTerm]);
 
-  if (!isClient || !tags || isLoading || isError) {
+  if (!isClient || !tags || isLoading || isError || isUserLoading) {
     return <LoadingSpinner />;
   }
 
