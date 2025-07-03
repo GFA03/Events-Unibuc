@@ -22,7 +22,7 @@ import ImageUpload from '@/components/ui/common/ImageUpload';
 const createEventSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   type: z.string().min(1, 'Type is required'),
-  description: z.string().min(1, 'Description is required'),
+  description: z.string().min(10, 'Description must have at least 10 characters'),
   location: z.string().min(1, 'Location is required'),
   noParticipants: z.number().int().positive('Must be greater than 0').optional(),
   startDateTime: z.string().min(1, 'Start date is required'),
@@ -127,6 +127,7 @@ export default function CreateEventModal({
       }
       await queryClient.invalidateQueries({ queryKey: ['myEvents'] });
       await queryClient.invalidateQueries({ queryKey: ['events'] });
+      await queryClient.invalidateQueries({ queryKey: ['tagsEvents'] });
       onClose();
       reset();
       router.push('/manage-events');
@@ -195,7 +196,6 @@ export default function CreateEventModal({
                   />
                   {errors.name && (
                     <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                      <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                       {errors.name.message}
                     </p>
                   )}

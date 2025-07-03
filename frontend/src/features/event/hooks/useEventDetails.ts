@@ -16,6 +16,7 @@ export function useEventDetails() {
   const queryClient = useQueryClient();
 
   const { data: event, isLoading, isError } = useEvent(id);
+  console.log(event);
   const { user, isAuthenticated } = useAuth();
   const { data: registration } = useRegistration(id);
 
@@ -43,6 +44,7 @@ export function useEventDetails() {
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
       await queryClient.invalidateQueries({ queryKey: ['registration', id] });
       await queryClient.invalidateQueries({ queryKey: ['myRegistrations'] });
+      await queryClient.invalidateQueries({ queryKey: ['eventRegistrations', id] });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error('Registration failed!', error);
@@ -71,6 +73,7 @@ export function useEventDetails() {
       await queryClient.invalidateQueries({ queryKey: ['event', id] });
       await queryClient.invalidateQueries({ queryKey: ['registration', id] });
       await queryClient.invalidateQueries({ queryKey: ['myRegistrations'] });
+      await queryClient.invalidateQueries({ queryKey: ['eventRegistrations', id] });
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         console.error('Unregistration failed!', error);
