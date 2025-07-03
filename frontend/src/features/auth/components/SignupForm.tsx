@@ -61,6 +61,8 @@ export function SignupForm() {
     }
   };
 
+  if (isLoading) return null;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}

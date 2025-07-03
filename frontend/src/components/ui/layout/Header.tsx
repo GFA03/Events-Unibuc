@@ -9,6 +9,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
+import LoadingSpinner from '@/components/ui/common/LoadingSpinner';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -54,7 +55,7 @@ export function Header({ onSearch }: HeaderProps) {
   if (isLoading) return null;
 
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingSpinner />}>
       <header className={`shadow-md sticky top-0 z-50 bg-cyan-600`}>
         <nav className="container mx-auto px-4 py-3 flex justify-between items-center">
           <Link href={isAuthenticated ? '/events' : '/'}>
