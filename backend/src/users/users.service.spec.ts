@@ -43,6 +43,12 @@ describe('UsersService', () => {
     firstName: 'Test',
     lastName: 'User',
     phoneNumber: '1234567890',
+    passwordResetToken: null,
+    passwordResetTokenExpires: null,
+    emailVerificationToken: null,
+    emailVerificationTokenExpires: null,
+    registrations: [],
+    isEmailVerified: true,
     role: Role.USER,
     organizedEvents: [],
     createdAt: new Date(),
@@ -86,7 +92,7 @@ describe('UsersService', () => {
         updatedAt: new Date(),
       }));
 
-      const result = await service.create(createUserDto);
+      const result = await service.create(createUserDto, '', new Date());
 
       expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: createUserDto.email,
@@ -106,9 +112,9 @@ describe('UsersService', () => {
 
     it('should throw HttpException if user already exists', async () => {
       userRepository.findOneBy?.mockResolvedValue(mockUser); // User found
-      await expect(service.create(createUserDto)).rejects.toThrowError(
-        'User already exists',
-      );
+      await expect(
+        service.create(createUserDto, '', new Date()),
+      ).rejects.toThrowError('User already exists');
       expect(userRepository.findOneBy).toHaveBeenCalledWith({
         email: createUserDto.email,
       });

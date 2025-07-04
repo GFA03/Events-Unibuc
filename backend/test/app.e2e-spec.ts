@@ -43,6 +43,8 @@ describe('AppController (e2e)', () => {
     isEmailVerified: true,
     emailVerificationTokenExpires: null,
     emailVerificationToken: null,
+    passwordResetTokenExpires: null,
+    passwordResetToken: null,
     organizedEvents: [],
     registrations: [],
     role: Role.USER,
