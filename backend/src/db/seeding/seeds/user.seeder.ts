@@ -54,6 +54,16 @@ export default class UserSeeder implements Seeder {
         isEmailVerified: true,
         role: Role.ORGANIZER,
       },
+      {
+        id: '55555555-5555-5555-5555-555555555555',
+        email: 'organizer4@example.com',
+        password: await hashPassword('organizerpass4'),
+        firstName: 'ASP',
+        lastName: 'UB',
+        phoneNumber: '0700000004',
+        isEmailVerified: true,
+        role: Role.ORGANIZER,
+      },
     ];
 
     await repo.insert(users); // Use insert() to preserve IDs
