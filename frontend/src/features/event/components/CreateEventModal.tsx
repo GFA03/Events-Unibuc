@@ -215,7 +215,6 @@ export default function CreateEventModal({
                   </select>
                   {errors.type && (
                     <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                      <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                       {errors.type.message}
                     </p>
                   )}
@@ -237,7 +236,6 @@ export default function CreateEventModal({
                 />
                 {errors.description && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                     {errors.description.message}
                   </p>
                 )}
@@ -256,7 +254,6 @@ export default function CreateEventModal({
                 />
                 {errors.location && (
                   <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                    <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                     {errors.location.message}
                   </p>
                 )}
@@ -287,7 +284,6 @@ export default function CreateEventModal({
                   />
                   {errors.noParticipants && (
                     <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                      <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                       {errors.noParticipants.message}
                     </p>
                   )}
@@ -391,7 +387,6 @@ export default function CreateEventModal({
                         />
                         {errors.startDateTime && (
                           <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                            <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                             {errors.startDateTime?.message}
                           </p>
                         )}
@@ -408,7 +403,6 @@ export default function CreateEventModal({
                         />
                         {errors.endDateTime && (
                           <p className="mt-2 text-sm text-red-500 flex items-center gap-1">
-                            <div className="w-1 h-1 bg-red-500 rounded-full"></div>
                             {errors?.endDateTime?.message}
                           </p>
                         )}
